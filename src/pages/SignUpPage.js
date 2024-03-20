@@ -41,7 +41,7 @@ function SignUpPage() {
           padding: "16px",
         }}
       >
-        <h2 style={{ color: "brown" }}> Sign In</h2>
+        <h2 style={{ color: "brown" }}> Sign Up</h2>
         <Form noValidate validated={validated} onSubmit={handleSubmit}>
           <Row className="mb-3">
             <Form.Group as={Col} md="4" controlId="validationCustom01">
@@ -87,19 +87,43 @@ function SignUpPage() {
             </Form.Group>
           </Row>
 
-          <Button
-            type="submit"
+          <div
             style={{
-              margin: "16px 0 0",
-              width: "100%",
               display: "flex",
-              justifyContent: "center",
+              justifyContent: "space-evenly",
               alignItems: "center",
-              backgroundColor: "brown",
+              margin: "50px 0 0",
             }}
           >
-            Confirm
-          </Button>
+            <Button
+              style={{
+                backgroundColor: "brown",
+                width: "100px",
+              }}
+            >
+              Back
+            </Button>
+            <Button
+              type="submit"
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                alignSelf: "center",
+                width: "100px",
+                backgroundColor: "brown",
+              }}
+            >
+              Confirm
+            </Button>
+            <Button
+              style={{
+                width: "100px",
+                backgroundColor: "brown",
+              }}
+            >
+              Cancel
+            </Button>
+          </div>
         </Form>
       </div>
     </div>

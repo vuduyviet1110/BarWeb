@@ -48,8 +48,8 @@ function SignInPage() {
               <Form.Control.Feedback>Looks good!</Form.Control.Feedback>
             </Form.Group>
             <Form.Group as={Col} md="12" controlId="validationCustom02">
-              <Form.Label>Last name</Form.Label>
-              <Form.Control required type="text" placeholder="Last name" />
+              <Form.Label type="password">Password</Form.Label>
+              <Form.Control required type="password" placeholder="Password" />
               <Form.Control.Feedback>Looks good!</Form.Control.Feedback>
             </Form.Group>
           </Row>

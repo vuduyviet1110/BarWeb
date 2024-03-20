@@ -2,32 +2,372 @@ import { useState } from "react";
 import "../assets/css/HomePage.css";
 import barIntro from "../assets/images/barInto.mp4";
 import { Breadcrumb, Image } from "react-bootstrap";
+import Carousel from "react-bootstrap/Carousel";
 import ava from "../assets/images/events-bg.jpg";
+import anhquaybar from "../assets/images/anhquaybar.jpg";
+import talkingincouter from "../assets/images/talkingincouter.jpg";
+import beverage1 from "../assets/images/beverage1.jpg";
+import beverage2 from "../assets/images/beverage2.jpg";
+import beverage3 from "../assets/images/beverage3.jpg";
+import beverage4 from "../assets/images/beverage4.jpg";
+import beverage5 from "../assets/images/beverage5.jpg";
+import beverage6 from "../assets/images/beverage6.jpg";
+import beverage7 from "../assets/images/beverage7.jpg";
+import "swiper/css";
+import eventsbg from "../assets/images/events-bg.jpg";
+import Isotope from "isotope-layout";
+import AOS from "aos";
+import GLightbox from "glightbox";
+import Swiper from "swiper";
+import { Swiper as SwiperWapper, SwiperSlide } from "swiper/react";
+import { Link } from "react-router-dom";
+import "../assets/js/main";
 function HomePage() {
   const [CurentUser, setCurrentUser] = useState(false);
 
+  /**
+   * Easy selector helper function
+   */
+  const select = (el, all = false) => {
+    el = el.trim();
+    if (all) {
+      return [...document.querySelectorAll(el)];
+    } else {
+      return document.querySelector(el);
+    }
+  };
+
+  /**
+   * Easy event listener function
+   */
+  const on = (type, el, listener, all = false) => {
+    let selectEl = select(el, all);
+    if (selectEl) {
+      if (all) {
+        selectEl.forEach((e) => e.addEventListener(type, listener));
+      } else {
+        selectEl.addEventListener(type, listener);
+      }
+    }
+  };
+
+  /**
+   * Easy on scroll event listener
+   */
+  const onscroll = (el, listener) => {
+    el.addEventListener("scroll", listener);
+  };
+
+  /**
+   * Navbar links active state on scroll
+   */
+  let navbarlinks = select("#navbar .scrollto", true);
+  const navbarlinksActive = () => {
+    let position = window.scrollY + 200;
+    navbarlinks.forEach((navbarlink) => {
+      if (!navbarlink.hash) return;
+      let section = select(navbarlink.hash);
+      if (!section) return;
+      if (
+        position >= section.offsetTop &&
+        position <= section.offsetTop + section.offsetHeight
+      ) {
+        navbarlink.classList.add("active");
+      } else {
+        navbarlink.classList.remove("active");
+      }
+    });
+  };
+  window.addEventListener("load", navbarlinksActive);
+  onscroll(document, navbarlinksActive);
+
+  /**
+   * Scrolls to an element with header offset
+   */
+  const scrollto = (el) => {
+    let header = select("#header");
+    let offset = header.offsetHeight;
+
+    let elementPos = select(el).offsetTop;
+    window.scrollTo({
+      top: elementPos - offset,
+      behavior: "smooth",
+    });
+  };
+
+  /**
+   * Toggle .header-scrolled class to #header when page is scrolled
+   */
+  let selectHeader = select("#header");
+  let selectTopbar = select("#topbar");
+  if (selectHeader) {
+    const headerScrolled = () => {
+      if (window.scrollY > 100) {
+        selectHeader.classList.add("header-scrolled");
+        if (selectTopbar) {
+          selectTopbar.classList.add("topbar-scrolled");
+        }
+      } else {
+        selectHeader.classList.remove("header-scrolled");
+        if (selectTopbar) {
+          selectTopbar.classList.remove("topbar-scrolled");
+        }
+      }
+    };
+    window.addEventListener("load", headerScrolled);
+    onscroll(document, headerScrolled);
+  }
+
+  /**
+   * Back to top button
+   */
+  let backtotop = select(".back-to-top");
+  if (backtotop) {
+    const toggleBacktotop = () => {
+      if (window.scrollY > 100) {
+        backtotop.classList.add("active");
+      } else {
+        backtotop.classList.remove("active");
+      }
+    };
+    window.addEventListener("load", toggleBacktotop);
+    onscroll(document, toggleBacktotop);
+  }
+
+  /**
+   * Mobile nav toggle
+   */
+  on("click", ".mobile-nav-toggle", function (e) {
+    select("#navbar").classList.toggle("navbar-mobile");
+    this.classList.toggle("bi-list");
+    this.classList.toggle("bi-x");
+  });
+
+  /**
+   * Mobile nav dropdowns activate
+   */
+  on(
+    "click",
+    ".navbar .dropdown > a",
+    function (e) {
+      if (select("#navbar").classList.contains("navbar-mobile")) {
+        e.preventDefault();
+        this.nextElementSibling.classList.toggle("dropdown-active");
+      }
+    },
+    true
+  );
+
+  /**
+   * Scrool with ofset on links with a class name .scrollto
+   */
+  on(
+    "click",
+    ".scrollto",
+    function (e) {
+      if (select(this.hash)) {
+        e.preventDefault();
+
+        let navbar = select("#navbar");
+        if (navbar.classList.contains("navbar-mobile")) {
+          navbar.classList.remove("navbar-mobile");
+          let navbarToggle = select(".mobile-nav-toggle");
+          navbarToggle.classList.toggle("bi-list");
+          navbarToggle.classList.toggle("bi-x");
+        }
+        scrollto(this.hash);
+      }
+    },
+    true
+  );
+
+  /**
+   * Scroll with ofset on page load with hash links in the url
+   */
+  window.addEventListener("load", () => {
+    if (window.location.hash) {
+      if (select(window.location.hash)) {
+        scrollto(window.location.hash);
+      }
+    }
+  });
+
+  /**
+   * Preloader
+   */
+  let preloader = select("#preloader");
+  if (preloader) {
+    window.addEventListener("load", () => {
+      preloader.remove();
+    });
+  }
+
+  /**
+   * Menu isotope and filter
+   */
+  window.addEventListener("load", () => {
+    let menuContainer = select(".menu-container");
+    if (menuContainer) {
+      let menuIsotope = new Isotope(menuContainer, {
+        itemSelector: ".menu-item",
+        layoutMode: "fitRows",
+      });
+
+      let menuFilters = select("#menu-flters li", true);
+
+      on(
+        "click",
+        "#menu-flters li",
+        function (e) {
+          e.preventDefault();
+          menuFilters.forEach(function (el) {
+            el.classList.remove("filter-active");
+          });
+          this.classList.add("filter-active");
+
+          menuIsotope.arrange({
+            filter: this.getAttribute("data-filter"),
+          });
+          menuIsotope.on("arrangeComplete", function () {
+            AOS.refresh();
+          });
+        },
+        true
+      );
+    }
+  });
+
+  /**
+   * Initiate glightbox
+   */
+  const glightbox = GLightbox({
+    selector: ".glightbox",
+  });
+
+  /**
+   * Events slider
+   */
+  new Swiper(".events-slider", {
+    speed: 600,
+    loop: true,
+    autoplay: {
+      delay: 5000,
+      disableOnInteraction: false,
+    },
+    slidesPerView: "auto",
+    pagination: {
+      el: ".swiper-pagination",
+      type: "bullets",
+      clickable: true,
+    },
+  });
+
+  /**
+   * Testimonials slider
+   */
+  new Swiper(".testimonials-slider", {
+    speed: 600,
+    loop: true,
+    autoplay: {
+      delay: 5000,
+      disableOnInteraction: false,
+    },
+    slidesPerView: "auto",
+    pagination: {
+      el: ".swiper-pagination",
+      type: "bullets",
+      clickable: true,
+    },
+    breakpoints: {
+      320: {
+        slidesPerView: 1,
+        spaceBetween: 20,
+      },
+
+      1200: {
+        slidesPerView: 3,
+        spaceBetween: 20,
+      },
+    },
+  });
+
+  /**
+   * Initiate gallery lightbox
+   */
+  const galleryLightbox = GLightbox({
+    selector: ".gallery-lightbox",
+  });
+
+  /**
+   * Animation on scroll
+   */
+  window.addEventListener("load", () => {
+    AOS.init({
+      duration: 1000,
+      easing: "ease-in-out",
+      once: true,
+      mirror: false,
+    });
+  });
+
+  /**
+   * Animation on scroll
+   */
+  window.addEventListener("load", () => {
+    AOS.init({
+      duration: 1000,
+      easing: "ease-in-out",
+      once: true,
+      mirror: false,
+    });
+  });
+
+  new Swiper(".testimonials-slider", {
+    speed: 600,
+    loop: true,
+    autoplay: {
+      delay: 5000,
+      disableOnInteraction: false,
+    },
+    slidesPerView: "auto",
+    pagination: {
+      el: ".swiper-pagination",
+      type: "bullets",
+      clickable: true,
+    },
+    breakpoints: {
+      320: {
+        slidesPerView: 1,
+        spaceBetween: 20,
+      },
+
+      1200: {
+        slidesPerView: 3,
+        spaceBetween: 20,
+      },
+    },
+  });
+
   return (
     <div className="main">
-      <div className="Topbar">
-        <div id="topbar" class="d-flex align-items-center fixed-top">
-          <div class="container d-flex justify-content-center justify-content-md-between">
-            <div class="contact-info d-flex align-items-center">
-              <i class="bi bi-phone d-flex align-items-center">
-                <span>033 779 77595</span>
-              </i>
-              <i class="bi bi-clock d-flex align-items-center ms-4">
-                <span> Mon-Sat: 11AM - 23PM</span>
-              </i>
-            </div>
+      <div id="topbar" class="d-flex align-items-center fixed-top">
+        <div class="container d-flex justify-content-center justify-content-md-between">
+          <div class="contact-info d-flex align-items-center">
+            <i class="bi bi-phone d-flex align-items-center">
+              <span>+1 5589 55488 55</span>
+            </i>
+            <i class="bi bi-clock d-flex align-items-center ms-4">
+              <span> Mon-Sat: 11AM - 23PM</span>
+            </i>
+          </div>
 
-            <div class="languages d-none d-md-flex align-items-center">
-              <ul>
-                <li>En</li>
-                <li>
-                  <a href="#">Vn</a>
-                </li>
-              </ul>
-            </div>
+          <div class="languages d-none d-md-flex align-items-center">
+            <ul>
+              <li>En</li>
+              <li>
+                <a href="#">De</a>
+              </li>
+            </ul>
           </div>
         </div>
       </div>
@@ -57,73 +397,24 @@ function HomePage() {
                   Beverage
                 </a>
               </li>
-              <li>
-                <a className="nav-link scrollto" href="#specials">
-                  Order exclusive wine
-                </a>
-              </li>
+
               <li>
                 <a className="nav-link scrollto" href="#events">
                   Events
                 </a>
               </li>
-              <li>
-                <a className="nav-link scrollto" href="#chefs">
-                  Bartenders
-                </a>
-              </li>
+
               <li>
                 <a className="nav-link scrollto" href="#gallery">
                   Gallery
                 </a>
               </li>
               <li>
-                <a className="nav-link scrollto" href="#gallery">
+                <a className="nav-link scrollto" href="#giftcard">
                   Giftcard
                 </a>
               </li>
-              {/* <li className="dropdown">
-                <a href="#">
-                  <span>Drop Down</span> <i className="bi bi-chevron-down"></i>
-                </a>
-                <ul>
-                  <li>
-                    <a href="#">Drop Down 1</a>
-                  </li>
-                  <li className="dropdown">
-                    <a href="#">
-                      <span>Deep Drop Down</span>{" "}
-                      <i className="bi bi-chevron-right"></i>
-                    </a>
-                    <ul>
-                      <li>
-                        <a href="#">Deep Drop Down 1</a>
-                      </li>
-                      <li>
-                        <a href="#">Deep Drop Down 2</a>
-                      </li>
-                      <li>
-                        <a href="#">Deep Drop Down 3</a>
-                      </li>
-                      <li>
-                        <a href="#">Deep Drop Down 4</a>
-                      </li>
-                      <li>
-                        <a href="#">Deep Drop Down 5</a>
-                      </li>
-                    </ul>
-                  </li>
-                  <li>
-                    <a href="#">Drop Down 2</a>
-                  </li>
-                  <li>
-                    <a href="#">Drop Down 3</a>
-                  </li>
-                  <li>
-                    <a href="#">Drop Down 4</a>
-                  </li>
-                </ul>
-              </li> */}
+
               <li>
                 <a className="nav-link scrollto" href="#contact">
                   Contact
@@ -166,7 +457,7 @@ function HomePage() {
           <div className="row">
             <div className="col-lg-8">
               <h1>
-                Welcome to <span className="logoTitle">SWI:P</span>
+                Welcome to <span>SWI:P</span>
               </h1>
               <h2>
                 A space that gives you the most intimate experiences right in
@@ -194,6 +485,970 @@ function HomePage() {
           </div>
         </div>
       </section>
+
+      <main id="main">
+        <section id="about" className="about">
+          <div className="container" data-aos="fade-up">
+            <div className="row">
+              <div
+                className="col-lg-6 order-1 order-lg-2"
+                data-aos="zoom-in"
+                data-aos-delay="100"
+              >
+                <div className="about-img">
+                  <img src={anhquaybar} alt="" />
+                </div>
+              </div>
+              <div className="col-lg-6 pt-4 pt-lg-0 order-2 order-lg-1 content">
+                <h3>
+                  Voluptatem dignissimos provident quasi corporis voluptates sit
+                  assumenda.
+                </h3>
+                <p className="fst-italic">
+                  Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed
+                  do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+                </p>
+                <ul>
+                  <li>
+                    <i className="bi bi-check-circle"></i> Ullamco laboris nisi
+                    ut aliquip ex ea commodo consequat.
+                  </li>
+                  <li>
+                    <i className="bi bi-check-circle"></i> Duis aute irure dolor
+                    in reprehenderit in voluptate velit.
+                  </li>
+                  <li>
+                    <i className="bi bi-check-circle"></i> Ullamco laboris nisi
+                    ut aliquip ex ea commodo consequat. Duis aute irure dolor in
+                    reprehenderit in voluptate trideta storacalaperda mastiro
+                    dolore eu fugiat nulla pariatur.
+                  </li>
+                </ul>
+                <p>
+                  Ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis
+                  aute irure dolor in reprehenderit in voluptate velit esse
+                  cillum dolore eu fugiat nulla pariatur. Excepteur sint
+                  occaecat cupidatat non proident, sunt in culpa qui officia
+                  deserunt mollit anim id est laborum
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="menu" className="menu section-bg">
+          <div className="container" data-aos="fade-up">
+            <div className="section-title">
+              <h2>Beverage</h2>
+              <p>Check Our Beverage</p>
+            </div>
+
+            <div className="row" data-aos="fade-up" data-aos-delay="100">
+              <div className="col-lg-12 d-flex justify-content-center">
+                <ul id="menu-flters">
+                  <li data-filter="*" className="filter-active">
+                    All
+                  </li>
+                  <li data-filter=".filter-starters">Starters</li>
+                  <li data-filter=".filter-salads">Salads</li>
+                  <li data-filter=".filter-specialty">Specialty</li>
+                </ul>
+              </div>
+            </div>
+
+            <div
+              className="row menu-container"
+              data-aos="fade-up"
+              data-aos-delay="200"
+            >
+              <div className="col-lg-6 menu-item filter-starters">
+                <img src={beverage1} className="menu-img" alt="" />
+                <div className="menu-content">
+                  <a href="#">Beverage 1</a>
+                  <span>$5.95</span>
+                </div>
+                <div className="menu-ingredients">
+                  Lorem, deren, trataro, filede, nerada
+                </div>
+              </div>
+
+              <div className="col-lg-6 menu-item filter-specialty">
+                <img src={beverage2} className="menu-img" alt="" />
+                <div className="menu-content">
+                  <a href="#">Bread Barrel</a>
+                  <span>$6.95</span>
+                </div>
+                <div className="menu-ingredients">
+                  Lorem, deren, trataro, filede, nerada
+                </div>
+              </div>
+
+              <div className="col-lg-6 menu-item filter-starters">
+                <img src={beverage7} className="menu-img" alt="" />
+                <div className="menu-content">
+                  <a href="#">Crab Cake</a>
+                  <span>$7.95</span>
+                </div>
+                <div className="menu-ingredients">
+                  A delicate crab cake served on a toasted roll with lettuce and
+                  tartar sauce
+                </div>
+              </div>
+
+              <div className="col-lg-6 menu-item filter-salads">
+                <img src={beverage4} className="menu-img" alt="" />
+                <div className="menu-content">
+                  <a href="#">Caesar Selections</a>
+                  <span>$8.95</span>
+                </div>
+                <div className="menu-ingredients">
+                  Lorem, deren, trataro, filede, nerada
+                </div>
+              </div>
+
+              <div className="col-lg-6 menu-item filter-specialty">
+                <img src={beverage5} className="menu-img" alt="" />
+                <div className="menu-content">
+                  <a href="#">Tuscan Grilled</a>
+                  <span>$9.95</span>
+                </div>
+                <div className="menu-ingredients">
+                  Grilled chicken with provolone, artichoke hearts, and roasted
+                  red pesto
+                </div>
+              </div>
+
+              <div className="col-lg-6 menu-item filter-starters">
+                <img src={beverage6} className="menu-img" alt="" />
+                <div className="menu-content">
+                  <a href="#">Mozzarella Stick</a>
+                  <span>$4.95</span>
+                </div>
+                <div className="menu-ingredients">
+                  Lorem, deren, trataro, filede, nerada
+                </div>
+              </div>
+
+              <div className="col-lg-6 menu-item filter-salads">
+                <img src={beverage7} className="menu-img" alt="" />
+                <div className="menu-content">
+                  <a href="#">Greek Salad</a>
+                  <span>$9.95</span>
+                </div>
+                <div className="menu-ingredients">
+                  Fresh spinach, crisp romaine, tomatoes, and Greek olives
+                </div>
+              </div>
+
+              <div className="col-lg-6 menu-item filter-salads">
+                <img src={beverage1} className="menu-img" alt="" />
+                <div className="menu-content">
+                  <a href="#">Spinach Salad</a>
+                  <span>$9.95</span>
+                </div>
+                <div className="menu-ingredients">
+                  Fresh spinach with mushrooms, hard boiled egg, and warm bacon
+                  vinaigrette
+                </div>
+              </div>
+
+              <div className="col-lg-6 menu-item filter-specialty">
+                <img src={beverage2} className="menu-img" alt="" />
+                <div className="menu-content">
+                  <a href="#">Lobster Roll</a>
+                  <span>$12.95</span>
+                </div>
+                <div className="menu-ingredients">
+                  Plump lobster meat, mayo and crisp lettuce on a toasted bulky
+                  roll
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="events" className="events">
+          <div className="container" data-aos="fade-up">
+            <div className="section-title">
+              <h2>Events</h2>
+              <p>Organize Your Events in our Restaurant</p>
+            </div>
+            {/* 
+            <div
+              className="events-slider swiper-container"
+              data-aos="fade-up"
+              data-aos-delay="100"
+            >
+              <div className="swiper-wrapper">
+                <div className="swiper-slide">
+                  <div className="row event-item">
+                    <div className="col-lg-6">
+                      <img src={eventsbg} className="img-fluid" alt="" />
+                    </div>
+                    <div className="col-lg-6 pt-4 pt-lg-0 content">
+                      <h3>Birthday Parties</h3>
+                      <div className="price">
+                        <p>
+                          <span>$189</span>
+                        </p>
+                      </div>
+                      <p className="fst-italic">
+                        Lorem ipsum dolor sit amet, consectetur adipiscing elit,
+                        sed do eiusmod tempor incididunt ut labore et dolore
+                        magna aliqua.
+                      </p>
+                      <ul>
+                        <li>
+                          <i className="bi bi-check-circled"></i> Ullamco
+                          laboris nisi ut aliquip ex ea commodo consequat.
+                        </li>
+                        <li>
+                          <i className="bi bi-check-circled"></i> Duis aute
+                          irure dolor in reprehenderit in voluptate velit.
+                        </li>
+                        <li>
+                          <i className="bi bi-check-circled"></i> Ullamco
+                          laboris nisi ut aliquip ex ea commodo consequat.
+                        </li>
+                      </ul>
+                      <p>
+                        Ullamco laboris nisi ut aliquip ex ea commodo consequat.
+                        Duis aute irure dolor in reprehenderit in voluptate
+                        velit esse cillum dolore eu fugiat nulla pariatur
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="swiper-slide">
+                  <div className="row event-item">
+                    <div className="col-lg-6">
+                      <img src={talkingincouter} className="img-fluid" alt="" />
+                    </div>
+                    <div className="col-lg-6 pt-4 pt-lg-0 content">
+                      <h3>Private Parties</h3>
+                      <div className="price">
+                        <p>
+                          <span>$290</span>
+                        </p>
+                      </div>
+                      <p className="fst-italic">
+                        Lorem ipsum dolor sit amet, consectetur adipiscing elit,
+                        sed do eiusmod tempor incididunt ut labore et dolore
+                        magna aliqua.
+                      </p>
+                      <ul>
+                        <li>
+                          <i className="bi bi-check-circled"></i> Ullamco
+                          laboris nisi ut aliquip ex ea commodo consequat.
+                        </li>
+                        <li>
+                          <i className="bi bi-check-circled"></i> Duis aute
+                          irure dolor in reprehenderit in voluptate velit.
+                        </li>
+                        <li>
+                          <i className="bi bi-check-circled"></i> Ullamco
+                          laboris nisi ut aliquip ex ea commodo consequat.
+                        </li>
+                      </ul>
+                      <p>
+                        Ullamco laboris nisi ut aliquip ex ea commodo consequat.
+                        Duis aute irure dolor in reprehenderit in voluptate
+                        velit esse cillum dolore eu fugiat nulla pariatur
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="swiper-slide">
+                  <div className="row event-item">
+                    <div className="col-lg-6">
+                      <img src={anhquaybar} className="img-fluid" alt="" />
+                    </div>
+                    <div className="col-lg-6 pt-4 pt-lg-0 content">
+                      <h3>Custom Parties</h3>
+                      <div className="price">
+                        <p>
+                          <span>$99</span>
+                        </p>
+                      </div>
+                      <p className="fst-italic">
+                        Lorem ipsum dolor sit amet, consectetur adipiscing elit,
+                        sed do eiusmod tempor incididunt ut labore et dolore
+                        magna aliqua.
+                      </p>
+                      <ul>
+                        <li>
+                          <i className="bi bi-check-circled"></i> Ullamco
+                          laboris nisi ut aliquip ex ea commodo consequat.
+                        </li>
+                        <li>
+                          <i className="bi bi-check-circled"></i> Duis aute
+                          irure dolor in reprehenderit in voluptate velit.
+                        </li>
+                        <li>
+                          <i className="bi bi-check-circled"></i> Ullamco
+                          laboris nisi ut aliquip ex ea commodo consequat.
+                        </li>
+                      </ul>
+                      <p>
+                        Ullamco laboris nisi ut aliquip ex ea commodo consequat.
+                        Duis aute irure dolor in reprehenderit in voluptate
+                        velit esse cillum dolore eu fugiat nulla pariatur
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className="swiper-pagination"></div>
+            </div> */}
+
+            <Carousel data-bs-theme="light">
+              <Carousel.Item style={{ display: "flex" }}>
+                <img
+                  style={{ width: "250px", height: "650px" }}
+                  className="d-block w-100"
+                  src={talkingincouter}
+                  alt="First slide"
+                />
+                <Carousel.Caption>
+                  <div
+                    style={{
+                      boxShadow: "2px 2px 5px 2px #333 inset",
+                      borderRadius: "8px",
+                    }}
+                  >
+                    <div className="price">
+                      <h3>Birthday Parties</h3>
+                      <p>
+                        <span>$189</span>
+                      </p>
+                    </div>
+                    <p className="fst-italic">
+                      Lorem ipsum dolor sit amet, consectetur adipiscing elit,
+                      sed do eiusmod tempor incididunt ut labore et dolore magna
+                      aliqua.
+                    </p>
+
+                    <p>
+                      Ullamco laboris nisi ut aliquip ex ea commodo consequat.
+                      Duis aute irure dolor in reprehenderit in voluptate velit
+                      esse cillum dolore eu fugiat nulla pariatur
+                    </p>
+                  </div>
+                </Carousel.Caption>
+              </Carousel.Item>
+              <Carousel.Item>
+                <img
+                  className="d-block w-100"
+                  src={anhquaybar}
+                  style={{ width: "250px", height: "650px" }}
+                  alt="Second slide"
+                />
+                <Carousel.Caption>
+                  <div>
+                    <div className="price">
+                      <h3>Birthday Parties</h3>
+                      <p>
+                        <span>$189</span>
+                      </p>
+                    </div>
+                    <p className="fst-italic">
+                      Lorem ipsum dolor sit amet, consectetur adipiscing elit,
+                      sed do eiusmod tempor incididunt ut labore et dolore magna
+                      aliqua.
+                    </p>
+
+                    <p>
+                      Ullamco laboris nisi ut aliquip ex ea commodo consequat.
+                      Duis aute irure dolor in reprehenderit in voluptate velit
+                      esse cillum dolore eu fugiat nulla pariatur
+                    </p>
+                  </div>
+                </Carousel.Caption>
+              </Carousel.Item>
+              <Carousel.Item>
+                <img
+                  className="d-block w-100"
+                  src={beverage3}
+                  alt="Third slide"
+                  style={{ width: "250px", height: "650px" }}
+                />
+                <Carousel.Caption>
+                  <div>
+                    <div className="price">
+                      <h3>Birthday Parties</h3>
+                      <p>
+                        <span>$189</span>
+                      </p>
+                    </div>
+                    <p className="fst-italic">
+                      Lorem ipsum dolor sit amet, consectetur adipiscing elit,
+                      sed do eiusmod tempor incididunt ut labore et dolore magna
+                      aliqua.
+                    </p>
+
+                    <p>
+                      Ullamco laboris nisi ut aliquip ex ea commodo consequat.
+                      Duis aute irure dolor in reprehenderit in voluptate velit
+                      esse cillum dolore eu fugiat nulla pariatur
+                    </p>
+                  </div>
+                </Carousel.Caption>
+              </Carousel.Item>
+            </Carousel>
+          </div>
+        </section>
+
+        <section id="book-a-table" className="book-a-table">
+          <div className="container" data-aos="fade-up">
+            <div className="section-title">
+              <h2>Reservation</h2>
+              <p>Book a Table</p>
+            </div>
+
+            <form
+              action="forms/book-a-table.php"
+              method="post"
+              role="form"
+              className="php-email-form"
+              data-aos="fade-up"
+              data-aos-delay="100"
+            >
+              <div className="row">
+                <div className="col-lg-4 col-md-6 form-group">
+                  <input
+                    type="text"
+                    name="name"
+                    className="form-control"
+                    id="name"
+                    placeholder="Your Name"
+                    data-rule="minlen:4"
+                    data-msg="Please enter at least 4 chars"
+                  />
+                  <div className="validate"></div>
+                </div>
+                <div className="col-lg-4 col-md-6 form-group mt-3 mt-md-0">
+                  <input
+                    type="email"
+                    className="form-control"
+                    name="email"
+                    id="email"
+                    placeholder="Your Email"
+                    data-rule="email"
+                    data-msg="Please enter a valid email"
+                  />
+                  <div className="validate"></div>
+                </div>
+                <div className="col-lg-4 col-md-6 form-group mt-3 mt-md-0">
+                  <input
+                    type="text"
+                    className="form-control"
+                    name="phone"
+                    id="phone"
+                    placeholder="Your Phone"
+                    data-rule="minlen:4"
+                    data-msg="Please enter at least 4 chars"
+                  />
+                  <div className="validate"></div>
+                </div>
+                <div className="col-lg-4 col-md-6 form-group mt-3">
+                  <input
+                    type="text"
+                    name="date"
+                    className="form-control"
+                    id="date"
+                    placeholder="Date"
+                    data-rule="minlen:4"
+                    data-msg="Please enter at least 4 chars"
+                  />
+                  <div className="validate"></div>
+                </div>
+                <div className="col-lg-4 col-md-6 form-group mt-3">
+                  <input
+                    type="text"
+                    className="form-control"
+                    name="time"
+                    id="time"
+                    placeholder="Time"
+                    data-rule="minlen:4"
+                    data-msg="Please enter at least 4 chars"
+                  />
+                  <div className="validate"></div>
+                </div>
+                <div className="col-lg-4 col-md-6 form-group mt-3">
+                  <input
+                    type="number"
+                    className="form-control"
+                    name="people"
+                    id="people"
+                    placeholder="# of people"
+                    data-rule="minlen:1"
+                    data-msg="Please enter at least 1 chars"
+                  />
+                  <div className="validate"></div>
+                </div>
+              </div>
+              <div className="form-group mt-3">
+                <textarea
+                  className="form-control"
+                  name="message"
+                  rows="5"
+                  placeholder="Message"
+                ></textarea>
+                <div className="validate"></div>
+              </div>
+              <div className="mb-3">
+                <div className="loading">Loading</div>
+                <div className="error-message"></div>
+                <div className="sent-message">
+                  Your booking request was sent. We will call back or send an
+                  Email to confirm your reservation. Thank you!
+                </div>
+              </div>
+              <div className="text-center">
+                <button type="submit">Book a Table</button>
+              </div>
+            </form>
+          </div>
+        </section>
+        <section id="testimonials" className="testimonials section-bg">
+          <div className="container" data-aos="fade-up">
+            <div className="section-title">
+              <h2>Testimonials</h2>
+              <p>What they're saying about us</p>
+            </div>
+
+            <div
+              className="testimonials-slider swiper-container"
+              data-aos="fade-up"
+              data-aos-delay="100"
+            >
+              <SwiperWapper className="swiper-wrapper">
+                <div className="swiper-slide">
+                  <div className="testimonial-item">
+                    <p>
+                      <i className="bx bxs-quote-alt-left quote-icon-left"></i>
+                      Proin iaculis purus consequat sem cure digni ssim donec
+                      porttitora entum suscipit rhoncus. Accusantium quam,
+                      ultricies eget id, aliquam eget nibh et. Maecen aliquam,
+                      risus at semper.
+                      <i className="bx bxs-quote-alt-right quote-icon-right"></i>
+                    </p>
+                    <img src={ava} className="testimonial-img" alt="" />
+                    <h3>Saul Goodman</h3>
+                    <h4>Ceo &amp; Founder</h4>
+                  </div>
+                </div>
+
+                <SwiperSlide className="swiper-slide">
+                  <div className="testimonial-item">
+                    <p>
+                      <i className="bx bxs-quote-alt-left quote-icon-left"></i>
+                      Export tempor illum tamen malis malis eram quae irure esse
+                      labore quem cillum quid cillum eram malis quorum velit
+                      fore eram velit sunt aliqua noster fugiat irure amet legam
+                      anim culpa.
+                      <i className="bx bxs-quote-alt-right quote-icon-right"></i>
+                    </p>
+                    <img src={ava} className="testimonial-img" alt="" />
+                    <h3>Sara Wilsson</h3>
+                    <h4>Designer</h4>
+                  </div>
+                </SwiperSlide>
+
+                <SwiperSlide className="swiper-slide">
+                  <div className="testimonial-item">
+                    <p>
+                      <i className="bx bxs-quote-alt-left quote-icon-left"></i>
+                      Enim nisi quem export duis labore cillum quae magna enim
+                      sint quorum nulla quem veniam duis minim tempor labore
+                      quem eram duis noster aute amet eram fore quis sint minim.
+                      <i className="bx bxs-quote-alt-right quote-icon-right"></i>
+                    </p>
+                    <img src={ava} className="testimonial-img" alt="" />
+                    <h3>Jena Karlis</h3>
+                    <h4>Store Owner</h4>
+                  </div>
+                </SwiperSlide>
+
+                <SwiperSlide className="swiper-slide">
+                  <div className="testimonial-item">
+                    <p>
+                      <i className="bx bxs-quote-alt-left quote-icon-left"></i>
+                      Fugiat enim eram quae cillum dolore dolor amet nulla culpa
+                      multos export minim fugiat minim velit minim dolor enim
+                      duis veniam ipsum anim magna sunt elit fore quem dolore
+                      labore illum veniam.
+                      <i className="bx bxs-quote-alt-right quote-icon-right"></i>
+                    </p>
+                    <img src={ava} className="testimonial-img" alt="" />
+                    <h3>Matt Brandon</h3>
+                    <h4>Freelancer</h4>
+                  </div>
+                </SwiperSlide>
+
+                <SwiperSlide className="swiper-slide">
+                  <div className="testimonial-item">
+                    <p>
+                      <i className="bx bxs-quote-alt-left quote-icon-left"></i>
+                      Quis quorum aliqua sint quem legam fore sunt eram irure
+                      aliqua veniam tempor noster veniam enim culpa labore duis
+                      sunt culpa nulla illum cillum fugiat legam esse veniam
+                      culpa fore nisi cillum quid.
+                      <i className="bx bxs-quote-alt-right quote-icon-right"></i>
+                    </p>
+                    <img src={ava} className="testimonial-img" alt="" />
+                    <h3>John Larson</h3>
+                    <h4>Entrepreneur</h4>
+                  </div>
+                </SwiperSlide>
+              </SwiperWapper>
+              <div className="swiper-pagination"></div>
+            </div>
+          </div>
+        </section>
+
+        <section id="gallery" className="gallery">
+          <div className="container" data-aos="fade-up">
+            <div className="section-title">
+              <h2>Gallery</h2>
+              <p>Some photos from Our Restaurant</p>
+            </div>
+          </div>
+
+          <div
+            className="container-fluid"
+            data-aos="fade-up"
+            data-aos-delay="100"
+          >
+            <div className="row g-0">
+              <div className="col-lg-3 col-md-4">
+                <div className="gallery-item">
+                  <a
+                    href="assets/img/gallery/gallery-1.jpg"
+                    className="gallery-lightbox"
+                    data-gall="gallery-item"
+                  >
+                    <img src={beverage1} alt="" className="img-fluid" />
+                  </a>
+                </div>
+              </div>
+
+              <div className="col-lg-3 col-md-4">
+                <div className="gallery-item">
+                  <a
+                    href="assets/img/gallery/gallery-2.jpg"
+                    className="gallery-lightbox"
+                    data-gall="gallery-item"
+                  >
+                    <img src={beverage2} alt="" className="img-fluid" />
+                  </a>
+                </div>
+              </div>
+
+              <div className="col-lg-3 col-md-4">
+                <div className="gallery-item">
+                  <a
+                    href="assets/img/gallery/gallery-3.jpg"
+                    className="gallery-lightbox"
+                    data-gall="gallery-item"
+                  >
+                    <img src={beverage4} alt="" className="img-fluid" />
+                  </a>
+                </div>
+              </div>
+
+              <div className="col-lg-3 col-md-4">
+                <div className="gallery-item">
+                  <a
+                    href="assets/img/gallery/gallery-4.jpg"
+                    className="gallery-lightbox"
+                    data-gall="gallery-item"
+                  >
+                    <img src={beverage6} alt="" className="img-fluid" />
+                  </a>
+                </div>
+              </div>
+
+              <div className="col-lg-3 col-md-4">
+                <div className="gallery-item">
+                  <a
+                    href="assets/img/gallery/gallery-5.jpg"
+                    className="gallery-lightbox"
+                    data-gall="gallery-item"
+                  >
+                    <img src={beverage5} alt="" className="img-fluid" />
+                  </a>
+                </div>
+              </div>
+
+              <div className="col-lg-3 col-md-4">
+                <div className="gallery-item">
+                  <a
+                    href="assets/img/gallery/gallery-6.jpg"
+                    className="gallery-lightbox"
+                    data-gall="gallery-item"
+                  >
+                    <img src={beverage4} alt="" className="img-fluid" />
+                  </a>
+                </div>
+              </div>
+
+              <div className="col-lg-3 col-md-4">
+                <div className="gallery-item">
+                  <a
+                    href="assets/img/gallery/gallery-7.jpg"
+                    className="gallery-lightbox"
+                    data-gall="gallery-item"
+                  >
+                    <img src={beverage1} alt="" className="img-fluid" />
+                  </a>
+                </div>
+              </div>
+
+              <div className="col-lg-3 col-md-4">
+                <div className="gallery-item">
+                  <a
+                    href="assets/img/gallery/gallery-8.jpg"
+                    className="gallery-lightbox"
+                    data-gall="gallery-item"
+                  >
+                    <img src={beverage2} alt="" className="img-fluid" />
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="contact" className="contact">
+          <div className="container" data-aos="fade-up">
+            <div className="section-title">
+              <h2>Contact</h2>
+              <p>Contact Us</p>
+            </div>
+          </div>
+
+          <div data-aos="fade-up">
+            <iframe
+              style={{ border: "0 ", width: "100%", height: "350px" }}
+              src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d12097.433213460943!2d-74.0062269!3d40.7101282!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0xb89d1fe6bc499443!2sDowntown+Conference+Center!5e0!3m2!1smk!2sbg!4v1539943755621"
+              frameborder="0"
+              allowfullscreen
+            ></iframe>
+          </div>
+
+          <div className="container" data-aos="fade-up">
+            <div className="row mt-5">
+              <div className="col-lg-4">
+                <div className="info">
+                  <div className="address">
+                    <i className="bi bi-geo-alt"></i>
+                    <h4>Location:</h4>
+                    <p>A108 Adam Street, New York, NY 535022</p>
+                  </div>
+
+                  <div className="open-hours">
+                    <i className="bi bi-clock"></i>
+                    <h4>Open Hours:</h4>
+                    <p>Monday-Saturday: 11:00 AM - 2300 PM</p>
+                  </div>
+
+                  <div className="email">
+                    <i className="bi bi-envelope"></i>
+                    <h4>Email:</h4>
+                    <p>info@example.com</p>
+                  </div>
+
+                  <div className="phone">
+                    <i className="bi bi-phone"></i>
+                    <h4>Call:</h4>
+                    <p>+1 5589 55488 55s</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="col-lg-8 mt-5 mt-lg-0">
+                <form
+                  action="forms/contact.php"
+                  method="post"
+                  role="form"
+                  className="php-email-form"
+                >
+                  <div className="row">
+                    <div className="col-md-6 form-group">
+                      <input
+                        type="text"
+                        name="name"
+                        className="form-control"
+                        id="name"
+                        placeholder="Your Name"
+                        required
+                      />
+                    </div>
+                    <div className="col-md-6 form-group mt-3 mt-md-0">
+                      <input
+                        type="email"
+                        className="form-control"
+                        name="email"
+                        id="email"
+                        placeholder="Your Email"
+                        required
+                      />
+                    </div>
+                  </div>
+                  <div className="form-group mt-3">
+                    <input
+                      type="text"
+                      className="form-control"
+                      name="subject"
+                      id="subject"
+                      placeholder="Subject"
+                      required
+                    />
+                  </div>
+                  <div className="form-group mt-3">
+                    <textarea
+                      className="form-control"
+                      name="message"
+                      rows="8"
+                      placeholder="Message"
+                      required
+                    ></textarea>
+                  </div>
+                  <div className="my-3">
+                    <div className="loading">Loading</div>
+                    <div className="error-message"></div>
+                    <div className="sent-message">
+                      Your message has been sent. Thank you!
+                    </div>
+                  </div>
+                  <div className="text-center">
+                    <button type="submit">Send Message</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <footer id="footer">
+        <div class="footer-top">
+          <div class="container">
+            <div class="row">
+              <div class="col-lg-3 col-md-6">
+                <div class="footer-info">
+                  <h3>SWI:P</h3>
+                  <p>
+                    A108 Adam Street NY 535022, USA
+                    <strong>Phone:</strong> +1 5589 55488 55
+                    <strong>Email:</strong> info@example.com
+                  </p>
+                  <div class="social-links mt-3">
+                    <Link to="#" class="twitter">
+                      <i class="bx bxl-twitter"></i>
+                    </Link>
+                    <Link to="#" class="facebook">
+                      <i class="bx bxl-facebook"></i>
+                    </Link>
+                    <Link to="#" class="instagram">
+                      <i class="bx bxl-instagram"></i>
+                    </Link>
+                    <Link to="#" class="google-plus">
+                      <i class="bx bxl-skype"></i>
+                    </Link>
+                    <Link to="#" class="linkedin">
+                      <i class="bx bxl-linkedin"></i>
+                    </Link>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-lg-2 col-md-6 footer-links">
+                <h4>Useful Links</h4>
+                <ul>
+                  <li>
+                    <i class="bx bx-chevron-right"></i> <a href="#">Home</a>
+                  </li>
+                  <li>
+                    <i class="bx bx-chevron-right"></i> <a href="#">About us</a>
+                  </li>
+                  <li>
+                    <i class="bx bx-chevron-right"></i> <a href="#">Services</a>
+                  </li>
+                  <li>
+                    <i class="bx bx-chevron-right"></i>{" "}
+                    <a href="#">Terms of service</a>
+                  </li>
+                  <li>
+                    <i class="bx bx-chevron-right"></i>{" "}
+                    <a href="#">Privacy policy</a>
+                  </li>
+                </ul>
+              </div>
+
+              <div class="col-lg-3 col-md-6 footer-links">
+                <h4>Our Services</h4>
+                <ul>
+                  <li>
+                    <i class="bx bx-chevron-right"></i>{" "}
+                    <a href="#">Web Design</a>
+                  </li>
+                  <li>
+                    <i class="bx bx-chevron-right"></i>{" "}
+                    <a href="#">Web Development</a>
+                  </li>
+                  <li>
+                    <i class="bx bx-chevron-right"></i>{" "}
+                    <a href="#">Product Management</a>
+                  </li>
+                  <li>
+                    <i class="bx bx-chevron-right"></i>{" "}
+                    <a href="#">Marketing</a>
+                  </li>
+                  <li>
+                    <i class="bx bx-chevron-right"></i>{" "}
+                    <a href="#">Graphic Design</a>
+                  </li>
+                </ul>
+              </div>
+
+              <div class="col-lg-4 col-md-6 footer-newsletter">
+                <h4>Our Newsletter</h4>
+                <p>
+                  Tamen quem nulla quae legam multos aute sint culpa legam
+                  noster magna
+                </p>
+                <form action="" method="post">
+                  <input type="email" name="email" />
+                  <input type="submit" value="Subscribe" />
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="container">
+          <div class="copyright">
+            &copy; Copyright
+            <strong>
+              <span> SWI:P </span>
+            </strong>
+            . All Rights Reserved
+          </div>
+          <div class="credits"></div>
+        </div>
+      </footer>
+
+      {/* <div id="preloader"></div> */}
+      <Link
+        to="#"
+        class="back-to-top d-flex align-items-center justify-content-center"
+      >
+        <i class="bi bi-arrow-up-short"></i>
+      </Link>
     </div>
   );
 }
