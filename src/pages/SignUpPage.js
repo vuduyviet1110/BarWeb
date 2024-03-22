@@ -7,15 +7,24 @@ import InputGroup from "react-bootstrap/InputGroup";
 import Row from "react-bootstrap/Row";
 function SignUpPage() {
   const [validated, setValidated] = useState(false);
-
+  const [phone, setPhone] = useState(0);
+  const [pwd, setPwd] = useState("");
+  const [rePwd, setrePwd] = useState("");
+  const [invalidLength, setinvalidLength] = useState(false);
   const handleSubmit = (event) => {
     const form = event.currentTarget;
-    if (form.checkValidity() === false) {
+    if (form.checkValidity() === false || pwd.length < 6) {
       event.preventDefault();
       event.stopPropagation();
+      if (pwd.length < 6 || rePwd !== pwd) {
+        // Hiển thị thông báo lỗi khi mật khẩu có độ dài nhỏ hơn 6 ký tự
+        setinvalidLength(true);
+      }
+      if (pwd.length >= 6) {
+        setinvalidLength(false);
+      }
+      setValidated(true);
     }
-
-    setValidated(true);
   };
   return (
     <div
@@ -51,7 +60,17 @@ function SignUpPage() {
             </Form.Group>
             <Form.Group as={Col} md="4" controlId="validationCustom02">
               <Form.Label>Phone Number</Form.Label>
-              <Form.Control required type="text" placeholder="Phone No" />
+              <Form.Control
+                required
+                value={phone}
+                onChange={(e) => {
+                  const inputValue = e.target.value;
+                  if (!isNaN(inputValue)) {
+                    setPhone(inputValue);
+                  }
+                }}
+                placeholder="Phone Number"
+              />
               <Form.Control.Feedback>Looks good!</Form.Control.Feedback>
             </Form.Group>
             <Form.Group as={Col} md="4" controlId="validationCustomUsername">
@@ -71,19 +90,46 @@ function SignUpPage() {
             </Form.Group>
           </Row>
           <Row className="mb-3">
-            <Form.Group as={Col} md="6" controlId="validationCustom03">
+            <Form.Group as={Col} md="6">
               <Form.Label>Password</Form.Label>
-              <Form.Control type="password" placeholder="Password" required />
+              <Form.Control
+                type="text"
+                placeholder="Password"
+                value={pwd}
+                onChange={(e) => setPwd(e.target.value)}
+                onBlur={() => {
+                  if (pwd.length >= 6) {
+                    setinvalidLength(false);
+                  } else {
+                    setinvalidLength(true);
+                  }
+                }}
+                required
+              />
               <Form.Control.Feedback type="invalid">
                 Please enter your password
               </Form.Control.Feedback>
+              {invalidLength && (
+                <span style={{ color: "red" }}>
+                  Password must be at least 6 characters!!
+                </span>
+              )}
             </Form.Group>
             <Form.Group as={Col} md="6" controlId="validationCustom04">
               <Form.Label>Re-enter your password</Form.Label>
-              <Form.Control type="text" placeholder="Password Again" required />
+              <Form.Control
+                type="password"
+                placeholder="Password Again"
+                required
+                value={rePwd}
+                onChange={(e) => setrePwd(e.target.value)}
+              />
               <Form.Control.Feedback type="invalid">
                 Please re-enter your password
               </Form.Control.Feedback>
+              {pwd !== rePwd && (
+                <span style={{ color: "red" }}> Password must giống nhau</span>
+              )}
             </Form.Group>
           </Row>
 

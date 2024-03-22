@@ -7,11 +7,13 @@ import NotFound from "./pages/NotFound";
 import HomePage from "./pages/HomePage";
 import SignInPage from "./pages/SignInPage";
 import SignUpPage from "./pages/SignUpPage";
+import Giftcard from "./pages/GiftCard";
 function App() {
   return (
     <div>
       <Routes>
         <Route path="/" element={<HomePage />} />
+        <Route path="/gift-card" element={<Giftcard />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/sign-in" element={<SignInPage />} />
         <Route path="/sign-up" element={<SignUpPage />} />

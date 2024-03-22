@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import "../assets/css/HomePage.css";
 import barIntro from "../assets/images/barInto.mp4";
 import { Breadcrumb, Image } from "react-bootstrap";
@@ -6,6 +6,10 @@ import Carousel from "react-bootstrap/Carousel";
 import ava from "../assets/images/events-bg.jpg";
 import anhquaybar from "../assets/images/anhquaybar.jpg";
 import talkingincouter from "../assets/images/talkingincouter.jpg";
+import Isotope from "isotope-layout";
+import AOS from "aos";
+import GLightbox from "glightbox";
+import Swiper from "swiper";
 import beverage1 from "../assets/images/beverage1.jpg";
 import beverage2 from "../assets/images/beverage2.jpg";
 import beverage3 from "../assets/images/beverage3.jpg";
@@ -14,354 +18,311 @@ import beverage5 from "../assets/images/beverage5.jpg";
 import beverage6 from "../assets/images/beverage6.jpg";
 import beverage7 from "../assets/images/beverage7.jpg";
 import "swiper/css";
-import eventsbg from "../assets/images/events-bg.jpg";
-import Isotope from "isotope-layout";
-import AOS from "aos";
-import GLightbox from "glightbox";
-import Swiper from "swiper";
 import { Swiper as SwiperWapper, SwiperSlide } from "swiper/react";
+
 import { Link } from "react-router-dom";
-import "../assets/js/main";
 function HomePage() {
   const [CurentUser, setCurrentUser] = useState(false);
-
-  /**
-   * Easy selector helper function
-   */
-  const select = (el, all = false) => {
-    el = el.trim();
-    if (all) {
-      return [...document.querySelectorAll(el)];
-    } else {
-      return document.querySelector(el);
-    }
-  };
-
-  /**
-   * Easy event listener function
-   */
-  const on = (type, el, listener, all = false) => {
-    let selectEl = select(el, all);
-    if (selectEl) {
+  useEffect(() => {
+    /**
+     * Easy selector helper function
+     */
+    const select = (el, all = false) => {
+      el = el.trim();
       if (all) {
-        selectEl.forEach((e) => e.addEventListener(type, listener));
+        return [...document.querySelectorAll(el)];
       } else {
-        selectEl.addEventListener(type, listener);
+        return document.querySelector(el);
       }
-    }
-  };
+    };
 
-  /**
-   * Easy on scroll event listener
-   */
-  const onscroll = (el, listener) => {
-    el.addEventListener("scroll", listener);
-  };
-
-  /**
-   * Navbar links active state on scroll
-   */
-  let navbarlinks = select("#navbar .scrollto", true);
-  const navbarlinksActive = () => {
-    let position = window.scrollY + 200;
-    navbarlinks.forEach((navbarlink) => {
-      if (!navbarlink.hash) return;
-      let section = select(navbarlink.hash);
-      if (!section) return;
-      if (
-        position >= section.offsetTop &&
-        position <= section.offsetTop + section.offsetHeight
-      ) {
-        navbarlink.classList.add("active");
-      } else {
-        navbarlink.classList.remove("active");
-      }
-    });
-  };
-  window.addEventListener("load", navbarlinksActive);
-  onscroll(document, navbarlinksActive);
-
-  /**
-   * Scrolls to an element with header offset
-   */
-  const scrollto = (el) => {
-    let header = select("#header");
-    let offset = header.offsetHeight;
-
-    let elementPos = select(el).offsetTop;
-    window.scrollTo({
-      top: elementPos - offset,
-      behavior: "smooth",
-    });
-  };
-
-  /**
-   * Toggle .header-scrolled class to #header when page is scrolled
-   */
-  let selectHeader = select("#header");
-  let selectTopbar = select("#topbar");
-  if (selectHeader) {
-    const headerScrolled = () => {
-      if (window.scrollY > 100) {
-        selectHeader.classList.add("header-scrolled");
-        if (selectTopbar) {
-          selectTopbar.classList.add("topbar-scrolled");
-        }
-      } else {
-        selectHeader.classList.remove("header-scrolled");
-        if (selectTopbar) {
-          selectTopbar.classList.remove("topbar-scrolled");
+    /**
+     * Easy event listener function
+     */
+    const on = (type, el, listener, all = false) => {
+      let selectEl = select(el, all);
+      if (selectEl) {
+        if (all) {
+          selectEl.forEach((e) => e.addEventListener(type, listener));
+        } else {
+          selectEl.addEventListener(type, listener);
         }
       }
     };
-    window.addEventListener("load", headerScrolled);
-    onscroll(document, headerScrolled);
-  }
 
-  /**
-   * Back to top button
-   */
-  let backtotop = select(".back-to-top");
-  if (backtotop) {
-    const toggleBacktotop = () => {
-      if (window.scrollY > 100) {
-        backtotop.classList.add("active");
-      } else {
-        backtotop.classList.remove("active");
-      }
+    /**
+     * Easy on scroll event listener
+     */
+    const onscroll = (el, listener) => {
+      el.addEventListener("scroll", listener);
     };
-    window.addEventListener("load", toggleBacktotop);
-    onscroll(document, toggleBacktotop);
-  }
 
-  /**
-   * Mobile nav toggle
-   */
-  on("click", ".mobile-nav-toggle", function (e) {
-    select("#navbar").classList.toggle("navbar-mobile");
-    this.classList.toggle("bi-list");
-    this.classList.toggle("bi-x");
-  });
-
-  /**
-   * Mobile nav dropdowns activate
-   */
-  on(
-    "click",
-    ".navbar .dropdown > a",
-    function (e) {
-      if (select("#navbar").classList.contains("navbar-mobile")) {
-        e.preventDefault();
-        this.nextElementSibling.classList.toggle("dropdown-active");
-      }
-    },
-    true
-  );
-
-  /**
-   * Scrool with ofset on links with a class name .scrollto
-   */
-  on(
-    "click",
-    ".scrollto",
-    function (e) {
-      if (select(this.hash)) {
-        e.preventDefault();
-
-        let navbar = select("#navbar");
-        if (navbar.classList.contains("navbar-mobile")) {
-          navbar.classList.remove("navbar-mobile");
-          let navbarToggle = select(".mobile-nav-toggle");
-          navbarToggle.classList.toggle("bi-list");
-          navbarToggle.classList.toggle("bi-x");
+    /**
+     * Navbar links active state on scroll
+     */
+    let navbarlinks = select("#navbar .scrollto", true);
+    const navbarlinksActive = () => {
+      let position = window.scrollY + 200;
+      navbarlinks.forEach((navbarlink) => {
+        if (!navbarlink.hash) return;
+        let section = select(navbarlink.hash);
+        if (!section) return;
+        if (
+          position >= section.offsetTop &&
+          position <= section.offsetTop + section.offsetHeight
+        ) {
+          navbarlink.classList.add("active");
+        } else {
+          navbarlink.classList.remove("active");
         }
-        scrollto(this.hash);
-      }
-    },
-    true
-  );
-
-  /**
-   * Scroll with ofset on page load with hash links in the url
-   */
-  window.addEventListener("load", () => {
-    if (window.location.hash) {
-      if (select(window.location.hash)) {
-        scrollto(window.location.hash);
-      }
-    }
-  });
-
-  /**
-   * Preloader
-   */
-  let preloader = select("#preloader");
-  if (preloader) {
-    window.addEventListener("load", () => {
-      preloader.remove();
-    });
-  }
-
-  /**
-   * Menu isotope and filter
-   */
-  window.addEventListener("load", () => {
-    let menuContainer = select(".menu-container");
-    if (menuContainer) {
-      let menuIsotope = new Isotope(menuContainer, {
-        itemSelector: ".menu-item",
-        layoutMode: "fitRows",
       });
+    };
+    window.addEventListener("load", navbarlinksActive);
+    onscroll(document, navbarlinksActive);
 
-      let menuFilters = select("#menu-flters li", true);
+    /**
+     * Scrolls to an element with header offset
+     */
+    const scrollto = (el) => {
+      let header = select("#header");
+      let offset = header.offsetHeight;
 
-      on(
-        "click",
-        "#menu-flters li",
-        function (e) {
-          e.preventDefault();
-          menuFilters.forEach(function (el) {
-            el.classList.remove("filter-active");
-          });
-          this.classList.add("filter-active");
+      let elementPos = select(el).offsetTop;
+      window.scrollTo({
+        top: elementPos - offset,
+        behavior: "smooth",
+      });
+    };
 
-          menuIsotope.arrange({
-            filter: this.getAttribute("data-filter"),
-          });
-          menuIsotope.on("arrangeComplete", function () {
-            AOS.refresh();
-          });
-        },
-        true
-      );
+    /**
+     * Toggle .header-scrolled class to #header when page is scrolled
+     */
+    let selectHeader = select("#header");
+    let selectTopbar = select("#topbar");
+    if (selectHeader) {
+      const headerScrolled = () => {
+        if (window.scrollY > 100) {
+          selectHeader.classList.add("header-scrolled");
+          if (selectTopbar) {
+            selectTopbar.classList.add("topbar-scrolled");
+          }
+        } else {
+          selectHeader.classList.remove("header-scrolled");
+          if (selectTopbar) {
+            selectTopbar.classList.remove("topbar-scrolled");
+          }
+        }
+      };
+      window.addEventListener("load", headerScrolled);
+      onscroll(document, headerScrolled);
     }
-  });
 
-  /**
-   * Initiate glightbox
-   */
-  const glightbox = GLightbox({
-    selector: ".glightbox",
-  });
+    /**
+     * Back to top button
+     */
+    let backtotop = select(".back-to-top");
+    if (backtotop) {
+      const toggleBacktotop = () => {
+        if (window.scrollY > 100) {
+          backtotop.classList.add("active");
+        } else {
+          backtotop.classList.remove("active");
+        }
+      };
+      window.addEventListener("load", toggleBacktotop);
+      onscroll(document, toggleBacktotop);
+    }
 
-  /**
-   * Events slider
-   */
-  new Swiper(".events-slider", {
-    speed: 600,
-    loop: true,
-    autoplay: {
-      delay: 5000,
-      disableOnInteraction: false,
-    },
-    slidesPerView: "auto",
-    pagination: {
-      el: ".swiper-pagination",
-      type: "bullets",
-      clickable: true,
-    },
-  });
-
-  /**
-   * Testimonials slider
-   */
-  new Swiper(".testimonials-slider", {
-    speed: 600,
-    loop: true,
-    autoplay: {
-      delay: 5000,
-      disableOnInteraction: false,
-    },
-    slidesPerView: "auto",
-    pagination: {
-      el: ".swiper-pagination",
-      type: "bullets",
-      clickable: true,
-    },
-    breakpoints: {
-      320: {
-        slidesPerView: 1,
-        spaceBetween: 20,
-      },
-
-      1200: {
-        slidesPerView: 3,
-        spaceBetween: 20,
-      },
-    },
-  });
-
-  /**
-   * Initiate gallery lightbox
-   */
-  const galleryLightbox = GLightbox({
-    selector: ".gallery-lightbox",
-  });
-
-  /**
-   * Animation on scroll
-   */
-  window.addEventListener("load", () => {
-    AOS.init({
-      duration: 1000,
-      easing: "ease-in-out",
-      once: true,
-      mirror: false,
+    /**
+     * Mobile nav toggle
+     */
+    on("click", ".mobile-nav-toggle", function (e) {
+      select("#navbar").classList.toggle("navbar-mobile");
+      this.classList.toggle("bi-list");
+      this.classList.toggle("bi-x");
     });
-  });
 
-  /**
-   * Animation on scroll
-   */
-  window.addEventListener("load", () => {
-    AOS.init({
-      duration: 1000,
-      easing: "ease-in-out",
-      once: true,
-      mirror: false,
+    /**
+     * Mobile nav dropdowns activate
+     */
+    on(
+      "click",
+      ".navbar .dropdown > a",
+      function (e) {
+        if (select("#navbar").classList.contains("navbar-mobile")) {
+          e.preventDefault();
+          this.nextElementSibling.classList.toggle("dropdown-active");
+        }
+      },
+      true
+    );
+
+    /**
+     * Scrool with ofset on links with a class name .scrollto
+     */
+    on(
+      "click",
+      ".scrollto",
+      function (e) {
+        if (select(this.hash)) {
+          e.preventDefault();
+
+          let navbar = select("#navbar");
+          if (navbar.classList.contains("navbar-mobile")) {
+            navbar.classList.remove("navbar-mobile");
+            let navbarToggle = select(".mobile-nav-toggle");
+            navbarToggle.classList.toggle("bi-list");
+            navbarToggle.classList.toggle("bi-x");
+          }
+          scrollto(this.hash);
+        }
+      },
+      true
+    );
+
+    /**
+     * Scroll with ofset on page load with hash links in the url
+     */
+    window.addEventListener("load", () => {
+      if (window.location.hash) {
+        if (select(window.location.hash)) {
+          scrollto(window.location.hash);
+        }
+      }
     });
-  });
 
-  new Swiper(".testimonials-slider", {
-    speed: 600,
-    loop: true,
-    autoplay: {
-      delay: 5000,
-      disableOnInteraction: false,
-    },
-    slidesPerView: "auto",
-    pagination: {
-      el: ".swiper-pagination",
-      type: "bullets",
-      clickable: true,
-    },
-    breakpoints: {
-      320: {
-        slidesPerView: 1,
-        spaceBetween: 20,
+    /**
+     * Preloader
+     */
+    let preloader = select("#preloader");
+    if (preloader) {
+      window.addEventListener("load", () => {
+        preloader.remove();
+      });
+    }
+
+    /**
+     * Menu isotope and filter
+     */
+    window.addEventListener("load", () => {
+      let menuContainer = select(".menu-container");
+      if (menuContainer) {
+        let menuIsotope = new Isotope(menuContainer, {
+          itemSelector: ".menu-item",
+          layoutMode: "fitRows",
+        });
+
+        let menuFilters = select("#menu-flters li", true);
+
+        on(
+          "click",
+          "#menu-flters li",
+          function (e) {
+            e.preventDefault();
+            menuFilters.forEach(function (el) {
+              el.classList.remove("filter-active");
+            });
+            this.classList.add("filter-active");
+
+            menuIsotope.arrange({
+              filter: this.getAttribute("data-filter"),
+            });
+            menuIsotope.on("arrangeComplete", function () {
+              AOS.refresh();
+            });
+          },
+          true
+        );
+      }
+    });
+
+    /**
+     * Initiate glightbox
+     */
+    const glightbox = GLightbox({
+      selector: ".glightbox",
+    });
+
+    /**
+     * Events slider
+     */
+    new Swiper(".events-slider", {
+      speed: 600,
+      loop: true,
+      autoplay: {
+        delay: 5000,
+        disableOnInteraction: false,
       },
-
-      1200: {
-        slidesPerView: 3,
-        spaceBetween: 20,
+      slidesPerView: "auto",
+      pagination: {
+        el: ".swiper-pagination",
+        type: "bullets",
+        clickable: true,
       },
-    },
-  });
+    });
 
+    /**
+     * Testimonials slider
+     */
+    new Swiper(".testimonials-slider", {
+      speed: 600,
+      loop: true,
+      autoplay: {
+        delay: 5000,
+        disableOnInteraction: false,
+      },
+      slidesPerView: "auto",
+      pagination: {
+        el: ".swiper-pagination",
+        type: "bullets",
+        clickable: true,
+      },
+      breakpoints: {
+        320: {
+          slidesPerView: 1,
+          spaceBetween: 20,
+        },
+
+        1200: {
+          slidesPerView: 3,
+          spaceBetween: 20,
+        },
+      },
+    });
+
+    /**
+     * Initiate gallery lightbox
+     */
+    const galleryLightbox = GLightbox({
+      selector: ".gallery-lightbox",
+    });
+
+    /**
+     * Animation on scroll
+     */
+    window.addEventListener("load", () => {
+      AOS.init({
+        duration: 1000,
+        easing: "ease-in-out",
+        once: true,
+        mirror: false,
+      });
+    });
+  }, []);
   return (
     <div className="main">
-      <div id="topbar" class="d-flex align-items-center fixed-top">
-        <div class="container d-flex justify-content-center justify-content-md-between">
-          <div class="contact-info d-flex align-items-center">
-            <i class="bi bi-phone d-flex align-items-center">
+      <div id="topbar" className="d-flex align-items-center fixed-top">
+        <div className="container d-flex justify-content-center justify-content-md-between">
+          <div className="contact-info d-flex align-items-center">
+            <i className="bi bi-phone d-flex align-items-center">
               <span>+1 5589 55488 55</span>
             </i>
-            <i class="bi bi-clock d-flex align-items-center ms-4">
+            <i className="bi bi-clock d-flex align-items-center ms-4">
               <span> Mon-Sat: 11AM - 23PM</span>
             </i>
           </div>
 
-          <div class="languages d-none d-md-flex align-items-center">
+          <div className="languages d-none d-md-flex align-items-center">
             <ul>
               <li>En</li>
               <li>
@@ -410,7 +371,7 @@ function HomePage() {
                 </a>
               </li>
               <li>
-                <a className="nav-link scrollto" href="#giftcard">
+                <a className="nav-link scrollto" href="/gift-card">
                   Giftcard
                 </a>
               </li>
@@ -499,7 +460,11 @@ function HomePage() {
                   <img src={anhquaybar} alt="" />
                 </div>
               </div>
-              <div className="col-lg-6 pt-4 pt-lg-0 order-2 order-lg-1 content">
+              <div
+                style={{}}
+                className="col-lg-6 pt-4 pt-lg-0 order-2 order-lg-1 content"
+                data-aos-delay="100"
+              >
                 <h3>
                   Voluptatem dignissimos provident quasi corporis voluptates sit
                   assumenda.
@@ -1233,9 +1198,9 @@ function HomePage() {
           <div data-aos="fade-up">
             <iframe
               style={{ border: "0 ", width: "100%", height: "350px" }}
-              src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d12097.433213460943!2d-74.0062269!3d40.7101282!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0xb89d1fe6bc499443!2sDowntown+Conference+Center!5e0!3m2!1smk!2sbg!4v1539943755621"
+              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3724.0029641234432!2d105.848146!3d21.032567399999998!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3135ab5af3fc6599%3A0x71b6c0b7fd60df54!2sSWI%3AP%20Speakeasy%20bar!5e0!3m2!1sen!2s!4v1710955715155!5m2!1sen!2s"
               frameborder="0"
-              allowfullscreen
+              allowFullScreen
             ></iframe>
           </div>
 
@@ -1335,87 +1300,89 @@ function HomePage() {
       </main>
 
       <footer id="footer">
-        <div class="footer-top">
-          <div class="container">
-            <div class="row">
-              <div class="col-lg-3 col-md-6">
-                <div class="footer-info">
+        <div className="footer-top">
+          <div className="container">
+            <div className="row">
+              <div className="col-lg-3 col-md-6">
+                <div className="footer-info">
                   <h3>SWI:P</h3>
                   <p>
                     A108 Adam Street NY 535022, USA
                     <strong>Phone:</strong> +1 5589 55488 55
                     <strong>Email:</strong> info@example.com
                   </p>
-                  <div class="social-links mt-3">
-                    <Link to="#" class="twitter">
-                      <i class="bx bxl-twitter"></i>
+                  <div className="social-links mt-3">
+                    <Link to="#" className="twitter">
+                      <i className="bx bxl-twitter"></i>
                     </Link>
-                    <Link to="#" class="facebook">
-                      <i class="bx bxl-facebook"></i>
+                    <Link to="#" className="facebook">
+                      <i className="bx bxl-facebook"></i>
                     </Link>
-                    <Link to="#" class="instagram">
-                      <i class="bx bxl-instagram"></i>
+                    <Link to="#" className="instagram">
+                      <i className="bx bxl-instagram"></i>
                     </Link>
-                    <Link to="#" class="google-plus">
-                      <i class="bx bxl-skype"></i>
+                    <Link to="#" className="google-plus">
+                      <i className="bx bxl-skype"></i>
                     </Link>
-                    <Link to="#" class="linkedin">
-                      <i class="bx bxl-linkedin"></i>
+                    <Link to="#" className="linkedin">
+                      <i className="bx bxl-linkedin"></i>
                     </Link>
                   </div>
                 </div>
               </div>
 
-              <div class="col-lg-2 col-md-6 footer-links">
+              <div className="col-lg-2 col-md-6 footer-links">
                 <h4>Useful Links</h4>
                 <ul>
                   <li>
-                    <i class="bx bx-chevron-right"></i> <a href="#">Home</a>
+                    <i className="bx bx-chevron-right"></i> <a href="#">Home</a>
                   </li>
                   <li>
-                    <i class="bx bx-chevron-right"></i> <a href="#">About us</a>
+                    <i className="bx bx-chevron-right"></i>{" "}
+                    <a href="#">About us</a>
                   </li>
                   <li>
-                    <i class="bx bx-chevron-right"></i> <a href="#">Services</a>
+                    <i className="bx bx-chevron-right"></i>{" "}
+                    <a href="#">Services</a>
                   </li>
                   <li>
-                    <i class="bx bx-chevron-right"></i>{" "}
+                    <i className="bx bx-chevron-right"></i>{" "}
                     <a href="#">Terms of service</a>
                   </li>
                   <li>
-                    <i class="bx bx-chevron-right"></i>{" "}
+                    <i className="bx bx-chevron-right"></i>{" "}
                     <a href="#">Privacy policy</a>
                   </li>
                 </ul>
               </div>
 
-              <div class="col-lg-3 col-md-6 footer-links">
+              <div className="col-lg-3 col-md-6 footer-links">
                 <h4>Our Services</h4>
                 <ul>
                   <li>
-                    <i class="bx bx-chevron-right"></i>{" "}
+                    <i className="bx bx-chevron-right"></i>{" "}
                     <a href="#">Web Design</a>
                   </li>
                   <li>
-                    <i class="bx bx-chevron-right"></i>{" "}
+                    <i className="bx bx-chevron-right"></i>{" "}
                     <a href="#">Web Development</a>
                   </li>
                   <li>
-                    <i class="bx bx-chevron-right"></i>{" "}
+                    <i className="bx bx-chevron-right"></i>{" "}
                     <a href="#">Product Management</a>
                   </li>
                   <li>
-                    <i class="bx bx-chevron-right"></i>{" "}
+                    <i className="bx bx-chevron-right"></i>{" "}
                     <a href="#">Marketing</a>
                   </li>
                   <li>
-                    <i class="bx bx-chevron-right"></i>{" "}
+                    <i className="bx bx-chevron-right"></i>{" "}
                     <a href="#">Graphic Design</a>
                   </li>
                 </ul>
               </div>
 
-              <div class="col-lg-4 col-md-6 footer-newsletter">
+              <div className="col-lg-4 col-md-6 footer-newsletter">
                 <h4>Our Newsletter</h4>
                 <p>
                   Tamen quem nulla quae legam multos aute sint culpa legam
@@ -1430,25 +1397,25 @@ function HomePage() {
           </div>
         </div>
 
-        <div class="container">
-          <div class="copyright">
+        <div className="container">
+          <div className="copyright">
             &copy; Copyright
             <strong>
               <span> SWI:P </span>
             </strong>
             . All Rights Reserved
           </div>
-          <div class="credits"></div>
+          <div className="credits"></div>
         </div>
       </footer>
 
       {/* <div id="preloader"></div> */}
-      <Link
-        to="#"
-        class="back-to-top d-flex align-items-center justify-content-center"
+      <a
+        href="#"
+        className="back-to-top d-flex align-items-center justify-content-center"
       >
-        <i class="bi bi-arrow-up-short"></i>
-      </Link>
+        <i className="bi bi-arrow-up-short"></i>
+      </a>
     </div>
   );
 }
