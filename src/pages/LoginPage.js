@@ -1,5 +1,6 @@
 import { useState } from "react";
 import ava from "../assets/images/Barava.jpg";
+import { useNavigate } from "react-router-dom";
 export default function LoginPage() {
   const [admin, setAdmin] = useState({ id: "", password: "" });
   const handleIdChange = (e) => {
@@ -7,20 +8,22 @@ export default function LoginPage() {
       ...prevAdmin,
       id: e.target.value,
     }));
-    console.log(admin.id);
   };
-
+  const navigate = useNavigate();
   const handlePasswordChange = (e) => {
     setAdmin((prevAdmin) => ({
       ...prevAdmin,
       password: e.target.value,
     }));
-    console.log(admin.password);
   };
 
   const handleClick = () => {
-    const isLoggedIn = localStorage.setItem("access_token", true);
-    return isLoggedIn;
+    if (admin.id === "admin" && admin.password === "password") {
+      localStorage.setItem("access_token", true);
+      return navigate("/admin/dashboard");
+    } else {
+      alert("please check your id or password again");
+    }
   };
   return (
     <div>
@@ -83,8 +86,8 @@ export default function LoginPage() {
           >
             <label htmlFor="adPwd">Password</label>
             <input
-              type="password"
               value={admin.password}
+              type="password"
               style={{ height: "35px", borderRadius: "8px" }}
               onChange={handlePasswordChange}
               placeholder="Enter Password"
@@ -96,6 +99,7 @@ export default function LoginPage() {
           <button
             style={{ width: "100px", height: "40px", color: "brown" }}
             onClick={handleClick}
+            type="submit"
           >
             Login
           </button>

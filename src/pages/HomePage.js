@@ -18,9 +18,14 @@ import beverage5 from "../assets/images/beverage5.jpg";
 import beverage6 from "../assets/images/beverage6.jpg";
 import beverage7 from "../assets/images/beverage7.jpg";
 import "swiper/css";
-import { Swiper as SwiperWapper, SwiperSlide } from "swiper/react";
-
 import { Link } from "react-router-dom";
+import {
+  ArrowUpShort,
+  Facebook,
+  Instagram,
+  TwitterX,
+} from "react-bootstrap-icons";
+import Testimonials from "../common/Testimonials";
 function HomePage() {
   const [CurentUser, setCurrentUser] = useState(false);
   useEffect(() => {
@@ -326,7 +331,7 @@ function HomePage() {
             <ul>
               <li>En</li>
               <li>
-                <a href="#">De</a>
+                <a href="#">VN</a>
               </li>
             </ul>
           </div>
@@ -439,9 +444,7 @@ function HomePage() {
               data-aos="zoom-in"
               data-aos-delay="200"
             >
-              <a href={barIntro} className="glightbox play-btn">
-                c
-              </a>
+              <a href={barIntro} className="glightbox play-btn"></a>
             </div>
           </div>
         </div>
@@ -461,7 +464,6 @@ function HomePage() {
                 </div>
               </div>
               <div
-                style={{}}
                 className="col-lg-6 pt-4 pt-lg-0 order-2 order-lg-1 content"
                 data-aos-delay="100"
               >
@@ -636,7 +638,7 @@ function HomePage() {
           <div className="container" data-aos="fade-up">
             <div className="section-title">
               <h2>Events</h2>
-              <p>Organize Your Events in our Restaurant</p>
+              <p>Organize Your Events in our Bar</p>
             </div>
             {/* 
             <div
@@ -983,94 +985,7 @@ function HomePage() {
               <h2>Testimonials</h2>
               <p>What they're saying about us</p>
             </div>
-
-            <div
-              className="testimonials-slider swiper-container"
-              data-aos="fade-up"
-              data-aos-delay="100"
-            >
-              <SwiperWapper className="swiper-wrapper">
-                <div className="swiper-slide">
-                  <div className="testimonial-item">
-                    <p>
-                      <i className="bx bxs-quote-alt-left quote-icon-left"></i>
-                      Proin iaculis purus consequat sem cure digni ssim donec
-                      porttitora entum suscipit rhoncus. Accusantium quam,
-                      ultricies eget id, aliquam eget nibh et. Maecen aliquam,
-                      risus at semper.
-                      <i className="bx bxs-quote-alt-right quote-icon-right"></i>
-                    </p>
-                    <img src={ava} className="testimonial-img" alt="" />
-                    <h3>Saul Goodman</h3>
-                    <h4>Ceo &amp; Founder</h4>
-                  </div>
-                </div>
-
-                <SwiperSlide className="swiper-slide">
-                  <div className="testimonial-item">
-                    <p>
-                      <i className="bx bxs-quote-alt-left quote-icon-left"></i>
-                      Export tempor illum tamen malis malis eram quae irure esse
-                      labore quem cillum quid cillum eram malis quorum velit
-                      fore eram velit sunt aliqua noster fugiat irure amet legam
-                      anim culpa.
-                      <i className="bx bxs-quote-alt-right quote-icon-right"></i>
-                    </p>
-                    <img src={ava} className="testimonial-img" alt="" />
-                    <h3>Sara Wilsson</h3>
-                    <h4>Designer</h4>
-                  </div>
-                </SwiperSlide>
-
-                <SwiperSlide className="swiper-slide">
-                  <div className="testimonial-item">
-                    <p>
-                      <i className="bx bxs-quote-alt-left quote-icon-left"></i>
-                      Enim nisi quem export duis labore cillum quae magna enim
-                      sint quorum nulla quem veniam duis minim tempor labore
-                      quem eram duis noster aute amet eram fore quis sint minim.
-                      <i className="bx bxs-quote-alt-right quote-icon-right"></i>
-                    </p>
-                    <img src={ava} className="testimonial-img" alt="" />
-                    <h3>Jena Karlis</h3>
-                    <h4>Store Owner</h4>
-                  </div>
-                </SwiperSlide>
-
-                <SwiperSlide className="swiper-slide">
-                  <div className="testimonial-item">
-                    <p>
-                      <i className="bx bxs-quote-alt-left quote-icon-left"></i>
-                      Fugiat enim eram quae cillum dolore dolor amet nulla culpa
-                      multos export minim fugiat minim velit minim dolor enim
-                      duis veniam ipsum anim magna sunt elit fore quem dolore
-                      labore illum veniam.
-                      <i className="bx bxs-quote-alt-right quote-icon-right"></i>
-                    </p>
-                    <img src={ava} className="testimonial-img" alt="" />
-                    <h3>Matt Brandon</h3>
-                    <h4>Freelancer</h4>
-                  </div>
-                </SwiperSlide>
-
-                <SwiperSlide className="swiper-slide">
-                  <div className="testimonial-item">
-                    <p>
-                      <i className="bx bxs-quote-alt-left quote-icon-left"></i>
-                      Quis quorum aliqua sint quem legam fore sunt eram irure
-                      aliqua veniam tempor noster veniam enim culpa labore duis
-                      sunt culpa nulla illum cillum fugiat legam esse veniam
-                      culpa fore nisi cillum quid.
-                      <i className="bx bxs-quote-alt-right quote-icon-right"></i>
-                    </p>
-                    <img src={ava} className="testimonial-img" alt="" />
-                    <h3>John Larson</h3>
-                    <h4>Entrepreneur</h4>
-                  </div>
-                </SwiperSlide>
-              </SwiperWapper>
-              <div className="swiper-pagination"></div>
-            </div>
+            <Testimonials />
           </div>
         </section>
 
@@ -1078,7 +993,7 @@ function HomePage() {
           <div className="container" data-aos="fade-up">
             <div className="section-title">
               <h2>Gallery</h2>
-              <p>Some photos from Our Restaurant</p>
+              <p>Some photos from Our Bar</p>
             </div>
           </div>
 
@@ -1306,26 +1221,24 @@ function HomePage() {
               <div className="col-lg-3 col-md-6">
                 <div className="footer-info">
                   <h3>SWI:P</h3>
-                  <p>
-                    A108 Adam Street NY 535022, USA
-                    <strong>Phone:</strong> +1 5589 55488 55
+                  <p style={{ fontSize: "16px" }}>
+                    <strong>Address:</strong> 20 Hang Non st, Hà Nội, Việt Nam,
+                    <div></div>
+                    <strong>Phone:</strong> 033 779 7759 <div></div>
                     <strong>Email:</strong> info@example.com
                   </p>
                   <div className="social-links mt-3">
                     <Link to="#" className="twitter">
-                      <i className="bx bxl-twitter"></i>
+                      <TwitterX />
                     </Link>
-                    <Link to="#" className="facebook">
-                      <i className="bx bxl-facebook"></i>
+                    <Link
+                      to="https://www.facebook.com/swipspeakeasybar"
+                      className="facebook"
+                    >
+                      <Facebook />
                     </Link>
                     <Link to="#" className="instagram">
-                      <i className="bx bxl-instagram"></i>
-                    </Link>
-                    <Link to="#" className="google-plus">
-                      <i className="bx bxl-skype"></i>
-                    </Link>
-                    <Link to="#" className="linkedin">
-                      <i className="bx bxl-linkedin"></i>
+                      <Instagram />
                     </Link>
                   </div>
                 </div>
@@ -1414,7 +1327,7 @@ function HomePage() {
         href="#"
         className="back-to-top d-flex align-items-center justify-content-center"
       >
-        <i className="bi bi-arrow-up-short"></i>
+        <ArrowUpShort color="brown" size={96} />
       </a>
     </div>
   );
