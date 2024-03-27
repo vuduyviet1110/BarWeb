@@ -5,6 +5,10 @@ import { Breadcrumb, Image } from "react-bootstrap";
 import Carousel from "react-bootstrap/Carousel";
 import ava from "../assets/images/events-bg.jpg";
 import anhquaybar from "../assets/images/anhquaybar.jpg";
+import quayBarr from "../assets/images/quayBarr.jpg";
+import christmas from "../assets/images/christmas.jpg";
+import countDown from "../assets/images/countdown.jpg";
+import supriseMoment from "../assets/images/supriseMoment.jpg";
 import talkingincouter from "../assets/images/talkingincouter.jpg";
 import Isotope from "isotope-layout";
 import AOS from "aos";
@@ -444,7 +448,7 @@ function HomePage() {
               data-aos="zoom-in"
               data-aos-delay="200"
             >
-              <a href={barIntro} className="glightbox play-btn"></a>
+              {/* <a href={barIntro} className="glightbox play-btn"></a> */}
             </div>
           </div>
         </div>
@@ -466,6 +470,11 @@ function HomePage() {
               <div
                 className="col-lg-6 pt-4 pt-lg-0 order-2 order-lg-1 content"
                 data-aos-delay="100"
+                style={{
+                  backgroundColor: "rgba(0,0,0, 0.3)",
+                  fontSize: "18px",
+                  borderRadius: "8px",
+                }}
               >
                 <h3>
                   Voluptatem dignissimos provident quasi corporis voluptates sit
@@ -516,9 +525,9 @@ function HomePage() {
                   <li data-filter="*" className="filter-active">
                     All
                   </li>
-                  <li data-filter=".filter-starters">Starters</li>
-                  <li data-filter=".filter-salads">Salads</li>
-                  <li data-filter=".filter-specialty">Specialty</li>
+                  <li data-filter=".filter-starters">Cooktail</li>
+                  <li data-filter=".filter-salads">Bear</li>
+                  <li data-filter=".filter-specialty">Soda and minerals</li>
                 </ul>
               </div>
             </div>
@@ -640,142 +649,13 @@ function HomePage() {
               <h2>Events</h2>
               <p>Organize Your Events in our Bar</p>
             </div>
-            {/* 
-            <div
-              className="events-slider swiper-container"
-              data-aos="fade-up"
-              data-aos-delay="100"
-            >
-              <div className="swiper-wrapper">
-                <div className="swiper-slide">
-                  <div className="row event-item">
-                    <div className="col-lg-6">
-                      <img src={eventsbg} className="img-fluid" alt="" />
-                    </div>
-                    <div className="col-lg-6 pt-4 pt-lg-0 content">
-                      <h3>Birthday Parties</h3>
-                      <div className="price">
-                        <p>
-                          <span>$189</span>
-                        </p>
-                      </div>
-                      <p className="fst-italic">
-                        Lorem ipsum dolor sit amet, consectetur adipiscing elit,
-                        sed do eiusmod tempor incididunt ut labore et dolore
-                        magna aliqua.
-                      </p>
-                      <ul>
-                        <li>
-                          <i className="bi bi-check-circled"></i> Ullamco
-                          laboris nisi ut aliquip ex ea commodo consequat.
-                        </li>
-                        <li>
-                          <i className="bi bi-check-circled"></i> Duis aute
-                          irure dolor in reprehenderit in voluptate velit.
-                        </li>
-                        <li>
-                          <i className="bi bi-check-circled"></i> Ullamco
-                          laboris nisi ut aliquip ex ea commodo consequat.
-                        </li>
-                      </ul>
-                      <p>
-                        Ullamco laboris nisi ut aliquip ex ea commodo consequat.
-                        Duis aute irure dolor in reprehenderit in voluptate
-                        velit esse cillum dolore eu fugiat nulla pariatur
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="swiper-slide">
-                  <div className="row event-item">
-                    <div className="col-lg-6">
-                      <img src={talkingincouter} className="img-fluid" alt="" />
-                    </div>
-                    <div className="col-lg-6 pt-4 pt-lg-0 content">
-                      <h3>Private Parties</h3>
-                      <div className="price">
-                        <p>
-                          <span>$290</span>
-                        </p>
-                      </div>
-                      <p className="fst-italic">
-                        Lorem ipsum dolor sit amet, consectetur adipiscing elit,
-                        sed do eiusmod tempor incididunt ut labore et dolore
-                        magna aliqua.
-                      </p>
-                      <ul>
-                        <li>
-                          <i className="bi bi-check-circled"></i> Ullamco
-                          laboris nisi ut aliquip ex ea commodo consequat.
-                        </li>
-                        <li>
-                          <i className="bi bi-check-circled"></i> Duis aute
-                          irure dolor in reprehenderit in voluptate velit.
-                        </li>
-                        <li>
-                          <i className="bi bi-check-circled"></i> Ullamco
-                          laboris nisi ut aliquip ex ea commodo consequat.
-                        </li>
-                      </ul>
-                      <p>
-                        Ullamco laboris nisi ut aliquip ex ea commodo consequat.
-                        Duis aute irure dolor in reprehenderit in voluptate
-                        velit esse cillum dolore eu fugiat nulla pariatur
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="swiper-slide">
-                  <div className="row event-item">
-                    <div className="col-lg-6">
-                      <img src={anhquaybar} className="img-fluid" alt="" />
-                    </div>
-                    <div className="col-lg-6 pt-4 pt-lg-0 content">
-                      <h3>Custom Parties</h3>
-                      <div className="price">
-                        <p>
-                          <span>$99</span>
-                        </p>
-                      </div>
-                      <p className="fst-italic">
-                        Lorem ipsum dolor sit amet, consectetur adipiscing elit,
-                        sed do eiusmod tempor incididunt ut labore et dolore
-                        magna aliqua.
-                      </p>
-                      <ul>
-                        <li>
-                          <i className="bi bi-check-circled"></i> Ullamco
-                          laboris nisi ut aliquip ex ea commodo consequat.
-                        </li>
-                        <li>
-                          <i className="bi bi-check-circled"></i> Duis aute
-                          irure dolor in reprehenderit in voluptate velit.
-                        </li>
-                        <li>
-                          <i className="bi bi-check-circled"></i> Ullamco
-                          laboris nisi ut aliquip ex ea commodo consequat.
-                        </li>
-                      </ul>
-                      <p>
-                        Ullamco laboris nisi ut aliquip ex ea commodo consequat.
-                        Duis aute irure dolor in reprehenderit in voluptate
-                        velit esse cillum dolore eu fugiat nulla pariatur
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="swiper-pagination"></div>
-            </div> */}
 
             <Carousel data-bs-theme="light">
               <Carousel.Item style={{ display: "flex" }}>
                 <img
                   style={{ width: "250px", height: "650px" }}
                   className="d-block w-100"
-                  src={talkingincouter}
+                  src={christmas}
                   alt="First slide"
                 />
                 <Carousel.Caption>
@@ -808,14 +688,19 @@ function HomePage() {
               <Carousel.Item>
                 <img
                   className="d-block w-100"
-                  src={anhquaybar}
+                  src={countDown}
                   style={{ width: "250px", height: "650px" }}
                   alt="Second slide"
                 />
-                <Carousel.Caption>
+                <Carousel.Caption
+                  style={{
+                    boxShadow: "2px 2px 5px 2px #333 inset",
+                    borderRadius: "8px",
+                  }}
+                >
                   <div>
                     <div className="price">
-                      <h3>Birthday Parties</h3>
+                      <h3>Count Down</h3>
                       <p>
                         <span>$189</span>
                       </p>
@@ -837,11 +722,16 @@ function HomePage() {
               <Carousel.Item>
                 <img
                   className="d-block w-100"
-                  src={beverage3}
+                  src={supriseMoment}
                   alt="Third slide"
                   style={{ width: "250px", height: "650px" }}
                 />
-                <Carousel.Caption>
+                <Carousel.Caption
+                  style={{
+                    boxShadow: "2px 2px 5px 2px #333 inset",
+                    borderRadius: "8px",
+                  }}
+                >
                   <div>
                     <div className="price">
                       <h3>Birthday Parties</h3>
@@ -1005,97 +895,65 @@ function HomePage() {
             <div className="row g-0">
               <div className="col-lg-3 col-md-4">
                 <div className="gallery-item">
-                  <a
-                    href="assets/img/gallery/gallery-1.jpg"
-                    className="gallery-lightbox"
-                    data-gall="gallery-item"
-                  >
+                  <div className="gallery-lightbox" data-gall="gallery-item">
                     <img src={beverage1} alt="" className="img-fluid" />
-                  </a>
+                  </div>
                 </div>
               </div>
 
               <div className="col-lg-3 col-md-4">
                 <div className="gallery-item">
-                  <a
-                    href="assets/img/gallery/gallery-2.jpg"
-                    className="gallery-lightbox"
-                    data-gall="gallery-item"
-                  >
+                  <div className="gallery-lightbox" data-gall="gallery-item">
                     <img src={beverage2} alt="" className="img-fluid" />
-                  </a>
+                  </div>
                 </div>
               </div>
 
               <div className="col-lg-3 col-md-4">
                 <div className="gallery-item">
-                  <a
-                    href="assets/img/gallery/gallery-3.jpg"
-                    className="gallery-lightbox"
-                    data-gall="gallery-item"
-                  >
+                  <div className="gallery-lightbox" data-gall="gallery-item">
                     <img src={beverage4} alt="" className="img-fluid" />
-                  </a>
+                  </div>
                 </div>
               </div>
 
               <div className="col-lg-3 col-md-4">
                 <div className="gallery-item">
-                  <a
-                    href="assets/img/gallery/gallery-4.jpg"
-                    className="gallery-lightbox"
-                    data-gall="gallery-item"
-                  >
+                  <div className="gallery-lightbox" data-gall="gallery-item">
                     <img src={beverage6} alt="" className="img-fluid" />
-                  </a>
+                  </div>
                 </div>
               </div>
 
               <div className="col-lg-3 col-md-4">
                 <div className="gallery-item">
-                  <a
-                    href="assets/img/gallery/gallery-5.jpg"
-                    className="gallery-lightbox"
-                    data-gall="gallery-item"
-                  >
+                  <div className="gallery-lightbox" data-gall="gallery-item">
                     <img src={beverage5} alt="" className="img-fluid" />
-                  </a>
+                  </div>
                 </div>
               </div>
 
               <div className="col-lg-3 col-md-4">
                 <div className="gallery-item">
-                  <a
-                    href="assets/img/gallery/gallery-6.jpg"
-                    className="gallery-lightbox"
-                    data-gall="gallery-item"
-                  >
+                  <div className="gallery-lightbox" data-gall="gallery-item">
                     <img src={beverage4} alt="" className="img-fluid" />
-                  </a>
+                  </div>
                 </div>
               </div>
 
               <div className="col-lg-3 col-md-4">
                 <div className="gallery-item">
-                  <a
-                    href="assets/img/gallery/gallery-7.jpg"
-                    className="gallery-lightbox"
-                    data-gall="gallery-item"
-                  >
+                  <div className="gallery-lightbox" data-gall="gallery-item">
                     <img src={beverage1} alt="" className="img-fluid" />
-                  </a>
+                  </div>
                 </div>
               </div>
 
               <div className="col-lg-3 col-md-4">
                 <div className="gallery-item">
-                  <a
-                    href="assets/img/gallery/gallery-8.jpg"
-                    className="gallery-lightbox"
-                    data-gall="gallery-item"
-                  >
+                  <div className="gallery-lightbox" data-gall="gallery-item">
                     <img src={beverage2} alt="" className="img-fluid" />
-                  </a>
+                  </div>
                 </div>
               </div>
             </div>

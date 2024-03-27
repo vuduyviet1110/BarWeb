@@ -56,7 +56,10 @@ function GiftCard() {
   const [amount, setAmount] = useState("");
   const [type, setType] = useState("QR Code");
   return (
-    <div className="container-fluid">
+    <div
+      className="container-fluid"
+      style={{ backgroundColor: "rgb(79, 56, 4)" }}
+    >
       <div className="row justify-content-center">
         <div className="col-12 col-sm-10 col-md-12 col-lg-11 col-xl-10">
           <div className="card card0">
@@ -146,7 +149,7 @@ function GiftCard() {
                           aria-label="Default select example"
                           onChange={(e) => setAmount(e.target.value)}
                         >
-                          <option>Amount</option>
+                          <option value="">Amount</option>
                           <option value="10">10 $</option>
                           <option value="20">20 $</option>
                           <option value="30">30 $</option>
@@ -293,14 +296,16 @@ function GiftCard() {
                       </div>
                     ) : (
                       <div>
-                        <img
-                          src={`https://img.vietqr.io/image/${
-                            MY_BANK.BANK_ID
-                          }-${MY_BANK.ACCOUNT_NO}-qr_only.png?amount=${
-                            amount * 24768
-                          }&addInfo=gift-card-${amount}`}
-                          alt=""
-                        />
+                        {(amount || amount === 0) && (
+                          <img
+                            src={`https://img.vietqr.io/image/${
+                              MY_BANK.BANK_ID
+                            }-${MY_BANK.ACCOUNT_NO}-qr_only.png?amount=${
+                              amount * 24768
+                            }&addInfo=gift-card-${amount}`}
+                            alt=""
+                          />
+                        )}
                         <h4 style={{ marginTop: "20px" }}>
                           Nội dung chuyển khoản: gift-card{amount}
                         </h4>

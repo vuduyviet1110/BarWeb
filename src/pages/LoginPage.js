@@ -20,7 +20,7 @@ export default function LoginPage() {
   const handleClick = () => {
     if (admin.id === "admin" && admin.password === "password") {
       localStorage.setItem("access_token", true);
-      return navigate("/admin/dashboard");
+      return navigate("/admin");
     } else {
       alert("please check your id or password again");
     }
