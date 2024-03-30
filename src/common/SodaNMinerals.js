@@ -5,32 +5,32 @@ import InputGroup from "react-bootstrap/InputGroup";
 import Row from "react-bootstrap/Row";
 import { Col } from "react-bootstrap";
 
-function Cocktails({ Contents }) {
-  const [cocktails, setCocktails] = useState(Contents[2].Beverage.Cocktails);
+function SodaNMinerals({ Contents }) {
+  const [drinks, setDrinks] = useState(Contents[2].Beverage.SodaNMinerals);
 
   const handleUpdate = () => {
-    // Xử lý logic cập nhật thông tin cocktails
+    // Xử lý logic cập nhật thông tin drinks
   };
 
   const handleNameChange = (e, index) => {
-    const updatedCocktails = [...cocktails];
-    updatedCocktails[index].name = e.target.value;
-    setCocktails(updatedCocktails);
-    console.log(updatedCocktails);
+    const updatedDrink = [...drinks];
+    updatedDrink[index].name = e.target.value;
+    setDrinks(updatedDrink);
+    console.log(updatedDrink);
   };
 
   const handleDescriptionChange = (e, index) => {
-    const updatedCocktails = [...cocktails];
-    updatedCocktails[index].des = e.target.value;
-    setCocktails(updatedCocktails);
-    console.log(updatedCocktails);
+    const updatedDrink = [...drinks];
+    updatedDrink[index].des = e.target.value;
+    setDrinks(updatedDrink);
+    console.log(updatedDrink);
   };
 
   const handlePriceChange = (e, index) => {
-    const updatedCocktails = [...cocktails];
-    updatedCocktails[index].price = e.target.value;
-    setCocktails(updatedCocktails);
-    console.log(updatedCocktails);
+    const updatedDrink = [...drinks];
+    updatedDrink[index].price = e.target.value;
+    setDrinks(updatedDrink);
+    console.log(updatedDrink);
   };
 
   return (
@@ -45,16 +45,16 @@ function Cocktails({ Contents }) {
           margin: "8px 0px 8px -4px",
         }}
       >
-        Cocktails
+        Soda And Minerals
       </h2>
       <Row xs={1} md={3} className="g-4">
-        {cocktails.map((cocktail, index) => (
+        {drinks.map((drink, index) => (
           <Col key={index}>
             <h4>Name</h4>
             <div style={{ margin: "0 6px" }}>
               <InputGroup className="mb-3">
                 <Form.Control
-                  value={cocktail.name}
+                  value={drink.name}
                   aria-label="SWI:P"
                   onChange={(e) => handleNameChange(e, index)}
                   aria-describedby="basic-addon2"
@@ -63,7 +63,7 @@ function Cocktails({ Contents }) {
               <h4>Description</h4>
               <InputGroup className="mb-3">
                 <Form.Control
-                  value={cocktail.des}
+                  value={drink.des}
                   aria-label="SWI:P"
                   onChange={(e) => handleDescriptionChange(e, index)}
                   aria-describedby="basic-addon2"
@@ -73,7 +73,7 @@ function Cocktails({ Contents }) {
               <InputGroup className="mb-3">
                 <InputGroup.Text>$</InputGroup.Text>
                 <Form.Control
-                  value={cocktail.price}
+                  value={drink.price}
                   aria-label="Amount (to the nearest dollar)"
                   onChange={(e) => handlePriceChange(e, index)}
                 />
@@ -98,4 +98,4 @@ function Cocktails({ Contents }) {
   );
 }
 
-export default Cocktails;
+export default SodaNMinerals;

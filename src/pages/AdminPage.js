@@ -1,32 +1,24 @@
 import "../assets/css/AdminPage.css";
-import {
-  Cart,
-  Gear,
-  Gift,
-  ImageAlt,
-  Question,
-  Ticket,
-} from "react-bootstrap-icons";
+import { Gear, Gift, ImageAlt, Question, Ticket } from "react-bootstrap-icons";
 import { NavLink, Outlet } from "react-router-dom";
 import beverage3 from "../assets/images/talkingincouter.jpg";
-
 function AdminPage() {
   return (
     <div
       style={{
         color: "black",
-        padding: "8px",
-        background: `url(${beverage3}) top center`,
-        height: "100vh",
+        height: "100%",
       }}
     >
       <div
         style={{
+          padding: "8px",
+          background: `url(${beverage3})`,
           backgroundColor: "rgba(0,0,0,0.3)",
         }}
       >
         <div className="Header">
-          <h2>SWI:P</h2>
+          <h2 style={{ color: "rgba(255, 255, 255, 0.3)" }}>SWI:P</h2>
         </div>
 
         <div style={{ display: "flex", height: "100%" }}>
@@ -44,18 +36,14 @@ function AdminPage() {
                 title: "Manage GiftCard",
                 route: "gift-card",
               },
-              {
-                icon: <Cart />,
-                title: "Manage Order Wine",
-                route: "wine-order",
-              },
+
               {
                 icon: <Question />,
                 title: "Manage Feedback",
                 route: "feedback",
               },
-            ].map((tab) => (
-              <h5>
+            ].map((tab, index) => (
+              <h5 key={index}>
                 <NavLink
                   className={({ isActive, isPending }) =>
                     isPending ? "pending" : isActive ? "active" : ""
@@ -84,7 +72,7 @@ function AdminPage() {
               </h5>
             ))}
           </div>
-          <div className="Content">
+          <div style={{ width: "80%" }}>
             <Outlet />
           </div>
         </div>

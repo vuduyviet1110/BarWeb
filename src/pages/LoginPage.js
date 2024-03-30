@@ -1,8 +1,12 @@
 import { useState } from "react";
 import ava from "../assets/images/Barava.jpg";
 import { useNavigate } from "react-router-dom";
+import Form from "react-bootstrap/Form";
 export default function LoginPage() {
   const [admin, setAdmin] = useState({ id: "", password: "" });
+  const [isValid, setIsValid] = useState(true);
+  const [isEmptyId, setIsEmptyid] = useState(false);
+  const [isEmptyPwd, setIsEmptypwd] = useState(false);
   const handleIdChange = (e) => {
     setAdmin((prevAdmin) => ({
       ...prevAdmin,
@@ -20,9 +24,19 @@ export default function LoginPage() {
   const handleClick = () => {
     if (admin.id === "admin" && admin.password === "password") {
       localStorage.setItem("access_token", true);
-      return navigate("/admin");
+      return navigate("/admin/content");
     } else {
-      alert("please check your id or password again");
+      setIsValid(false);
+      if (!admin.id) {
+        setIsEmptyid(true);
+      } else if (admin.id) {
+        setIsEmptyid(false);
+      }
+      if (!admin.password) {
+        setIsEmptypwd(true);
+      } else if (admin.password) {
+        setIsEmptypwd(false);
+      }
     }
   };
   return (
@@ -75,6 +89,10 @@ export default function LoginPage() {
               style={{ height: "35px", borderRadius: "8px" }}
               id="adId"
             />
+
+            {isEmptyId && (
+              <span style={{ color: "red" }}>Please fill out this field</span>
+            )}
           </div>
           <div
             style={{
@@ -93,7 +111,18 @@ export default function LoginPage() {
               placeholder="Enter Password"
               id="adPwd"
             />
+            {isEmptyPwd && (
+              <span style={{ color: "red" }}>Please fill out this field</span>
+            )}
           </div>
+          {!isValid && (
+            <span style={{ color: "red" }}>
+              Please check your id and password !
+            </span>
+          )}
+          <Form.Group style={{}} className="mb-3">
+            <Form.Check label="Remember " />
+          </Form.Group>
         </div>
         <div style={{ border: " 1px solid rgb(200,200,200)", margin: "16px" }}>
           <button

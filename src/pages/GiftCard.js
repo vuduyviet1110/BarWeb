@@ -2,59 +2,49 @@ import React, { useEffect, useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "../assets/css/giftCard.css";
 import Form from "react-bootstrap/Form";
-import anhquaybar from "../assets/images/anhquaybar.jpg";
+import crystalTexture3 from "../assets/images/crystalTexture3.jpg";
 import ava from "../assets/images/Barava.jpg";
+import SwipLogo from "../assets/images/SwipLogo.png";
+import crystalTexture2 from "../assets/images/crystalTexture2.jpg";
 import { Link } from "react-router-dom";
+import { Button } from "react-bootstrap";
 function GiftCard() {
-  useEffect(() => {
-    var cardNum = document.getElementById("cr_no");
-    var expDate = document.getElementById("exp");
-    if (cardNum && expDate) {
-      cardNum.onkeyup = function (e) {
-        if (this.value == this.lastValue) return;
-        var caretPosition = this.selectionStart;
-        var sanitizedValue = this.value.replace(/[^0-9]/gi, "");
-        var parts = [];
-        for (var i = 0, len = sanitizedValue.length; i < len; i += 4) {
-          parts.push(sanitizedValue.substring(i, i + 4));
-        }
-        for (var i = caretPosition - 1; i >= 0; i--) {
-          var c = this.value[i];
-          if (c < "0" || c > "9") {
-            caretPosition--;
-          }
-        }
-        caretPosition += Math.floor(caretPosition / 4);
-        this.value = this.lastValue = parts.join("-");
-        this.selectionStart = this.selectionEnd = caretPosition;
-      };
-      //For Date formatted input
-      expDate.onkeyup = function (e) {
-        if (this.value == this.lastValue) return;
-        var caretPosition = this.selectionStart;
-        var sanitizedValue = this.value.replace(/[^0-9]/gi, "");
-        var parts = [];
-        for (var i = 0, len = sanitizedValue.length; i < len; i += 2) {
-          parts.push(sanitizedValue.substring(i, i + 2));
-        }
-        for (var i = caretPosition - 1; i >= 0; i--) {
-          var c = this.value[i];
-          if (c < "0" || c > "9") {
-            caretPosition--;
-          }
-        }
-        caretPosition += Math.floor(caretPosition / 2);
-        this.value = this.lastValue = parts.join("/");
-        this.selectionStart = this.selectionEnd = caretPosition;
-      };
-    }
-  }, []);
   const MY_BANK = {
     BANK_ID: "vietcombank",
     ACCOUNT_NO: "1015755738",
   };
-  const [amount, setAmount] = useState("");
+  const [orderInfo, setOrderInfo] = useState({
+    To: "",
+    From: "",
+    RecipentEmail: "",
+    Amount: 0,
+    RecipentPhoneNo: 0,
+    Message: "",
+  });
   const [type, setType] = useState("QR Code");
+  const [doneBtn, SetDoneBtn] = useState();
+  const handleDone = () => {
+    console.log(
+      orderInfo.Amount,
+      orderInfo.From,
+      orderInfo.To,
+      orderInfo.RecipentEmail,
+      orderInfo.Message,
+      orderInfo.RecipentPhoneNo
+    );
+    if (
+      orderInfo.Amount !== 0 &&
+      orderInfo.From &&
+      orderInfo.To &&
+      orderInfo.RecipentEmail &&
+      orderInfo.Message &&
+      orderInfo.RecipentPhoneNo !== 0
+    ) {
+      SetDoneBtn(true);
+    } else {
+      SetDoneBtn(false);
+    }
+  };
   return (
     <div
       className="container-fluid"
@@ -111,7 +101,15 @@ function GiftCard() {
                               className="gift-input"
                               type="text"
                               name="to"
+                              value={orderInfo.To}
                               placeholder="Mark"
+                              required
+                              onChange={(e) =>
+                                setOrderInfo((prevOrderInfo) => ({
+                                  ...prevOrderInfo,
+                                  To: e.target.value,
+                                }))
+                              }
                             />
                           </div>
                         </div>
@@ -126,7 +124,14 @@ function GiftCard() {
                               className="gift-input"
                               type="text"
                               name="from"
+                              value={orderInfo.From}
                               placeholder="Julia"
+                              onChange={(e) =>
+                                setOrderInfo((prevOrderInfo) => ({
+                                  ...prevOrderInfo,
+                                  From: e.target.value,
+                                }))
+                              }
                             />
                           </div>
                         </div>
@@ -140,217 +145,266 @@ function GiftCard() {
                           className="gift-input"
                           type="email"
                           name="email"
+                          value={orderInfo.RecipentEmail}
                           placeholder="mark@mail.org"
+                          onChange={(e) =>
+                            setOrderInfo((prevOrderInfo) => ({
+                              ...prevOrderInfo,
+                              RecipentEmail: e.target.value,
+                            }))
+                          }
                         />
                       </div>
                       <div className="col-6">
                         <label className="gift">Select Amount</label>
                         <Form.Select
                           aria-label="Default select example"
-                          onChange={(e) => setAmount(e.target.value)}
+                          onChange={(e) =>
+                            setOrderInfo((prevOrderInfo) => ({
+                              ...prevOrderInfo,
+                              Amount: e.target.value,
+                            }))
+                          }
+                          value={orderInfo.Amount}
                         >
                           <option value="">Amount</option>
                           <option value="10">10 $</option>
                           <option value="20">20 $</option>
-                          <option value="30">30 $</option>
                           <option value="50">50 $</option>
                           <option value="100">100 $</option>
                         </Form.Select>
                       </div>
                     </div>
                     <div className="row">
-                      <div className="col-12">
+                      <div className="col-6">
                         <label className="gift">Message email</label>
+                        <br />
+                        <textarea
+                          className="gift-input"
+                          type="textarea"
+                          value={orderInfo.Message}
+                          placeholder="Happy Birthday dear friend !"
+                          onChange={(e) =>
+                            setOrderInfo((prevOrderInfo) => ({
+                              ...prevOrderInfo,
+                              Message: e.target.value,
+                            }))
+                          }
+                        />
+                      </div>
+                      <div className="col-6">
+                        <label className="gift">Phone No</label>
                         <br />
                         <input
                           className="gift-input"
                           type="text"
-                          name="msg"
-                          placeholder="Happy Birthday dear friend !"
+                          value={orderInfo.RecipentPhoneNo}
+                          placeholder="Phone Number"
+                          onChange={(e) => {
+                            if (!isNaN(e.target.value)) {
+                              setOrderInfo((prevOrderInfo) => ({
+                                ...prevOrderInfo,
+                                RecipentPhoneNo: e.target.value,
+                              }));
+                            }
+                          }}
                         />
                       </div>
                     </div>
                     <div className="row justify-content-center">
+                      {doneBtn === false && (
+                        <h4
+                          style={{
+                            color: "red",
+                          }}
+                        >
+                          Please complete all the fields!
+                        </h4>
+                      )}
                       <div className="col-12">
                         <h1>Preview</h1>
-
                         <div
                           style={{
-                            width: "100%",
-                            backgroundColor: "#4f3804",
+                            width: orderInfo.Amount === "100" ? "67%" : "73%",
                             color: "white",
                             borderRadius: "16px",
+                            height: "230px",
                             display: "flex",
                             justifyContent: "center",
                             flexDirection: "column",
                             margin: "16px 8px",
-                            boxShadow: "#afa8a8 -6px 8px 10px 11px",
+                            boxShadow: "rgb(175, 168, 168) 23px 14px 16px 8px",
                             alignItems: "center",
+                            backgroundImage:
+                              orderInfo.Amount === "100"
+                                ? `url(${crystalTexture2})`
+                                : `url(${crystalTexture3})`,
+                            backgroundSize: "contain",
+                            backgroundRepeat: "no-repeat",
                           }}
                         >
                           <div
                             style={{
                               display: "flex",
+                              justifyContent: "flex-end",
+                              alignItems: "flex-end",
+                              backgroundColor:
+                                orderInfo.Amount === "100"
+                                  ? "rgb(255 255 255 / 40%)"
+                                  : "rgb(0 0 0 / 5%)",
+                              backgroundImage: `url(${SwipLogo})`,
+                              backgroundSize: "100% 100%",
+                              height: "100%",
+                              borderRadius: "16px",
                               width: "100%",
+                              backgroundRepeat: "no-repeat",
                             }}
                           >
                             <div
                               style={{
-                                width: "50%",
-                                height: "fit-content",
-                                borderRadius: "16px",
-                                justifyContent: "center",
-                                flex: 1,
-                                textAlign: "center",
+                                margin: "0 8px 0 0",
+                                color: "#874210",
                               }}
                             >
-                              <div>Since 2022</div>
-                              <h3>SWI:P</h3>
-                              <h5>Hang non</h5>
-                            </div>
-                            <div style={{ flex: 1, textAlign: "center" }}>
-                              Card Balance
-                              <h2>{amount} $</h2>
+                              <h2>{orderInfo.Amount} $</h2>
                             </div>
                           </div>
-                          <h2 style={{ flex: 1, textAlign: "center" }}>
-                            Swi:p
-                          </h2>
                         </div>
                       </div>
+                      <Button
+                        onClick={handleDone}
+                        style={{
+                          backgroundColor: "#4f3804",
+                          color: "white",
+                          fontSize: "30px",
+                          width: "40%",
+                        }}
+                      >
+                        Done
+                      </Button>
                     </div>
                   </form>
                 </div>
               </div>
-              <div className="col-md-6 col-sm-12 p-0 box">
-                <div className="card rounded-0 border-0 card2">
-                  <div className="form-card">
-                    <h2 id="heading" className="text-center">
-                      Payment Information
-                    </h2>
-                    <div className="radio-group">
-                      <h4>Select payment method</h4>
-                      {["QR Code", "MOMO"].map((tab) => (
-                        <button
-                          onClick={() => setType(tab)}
-                          key={tab}
-                          style={{
-                            backgroundColor: tab === type ? "#4f3804" : "",
-                            color: tab === type ? "white" : "",
-                            fontSize: "20px",
-                            margin: "4px 16px",
-                            border: "none",
-                            padding: "8px",
-                            borderRadius: "8px",
-                          }}
-                        >
-                          {tab}
-                        </button>
-                      ))}
-                    </div>
-
-                    {type === "MOMO" ? (
-                      <div>
-                        <h3 id="credit" className="mb-3">
-                          Credit card
-                        </h3>
-                        <input
-                          type="text"
-                          name="holdername"
-                          placeholder="Your card name"
-                        />
-                        <div className="row">
-                          <div className="col-12">
-                            <input
-                              type="text"
-                              name="cardno"
-                              id="cr_no"
-                              placeholder="0000 0000 0000 0000"
-                              minLength="19"
-                              maxLength="19"
-                            />
-                          </div>
-                        </div>
-                        <div className="row form-group">
-                          <div className="col-9 col-md-7">
-                            <input
-                              type="text"
-                              name="exp"
-                              id="exp"
-                              placeholder="MM/YY"
-                              minLength="5"
-                              maxLength="5"
-                            />
-                          </div>
-                          <div className="col-3 col-md-5">
-                            <input
-                              type="password"
-                              name="cvcpwd"
-                              placeholder="&#9679;&#9679;&#9679;"
-                              className="placeicon"
-                              minLength="3"
-                              maxLength="3"
-                            />
-                          </div>
-                        </div>
+              {doneBtn === true && orderInfo.Amount && (
+                <div className="col-md-6 col-sm-12 p-0 box">
+                  <div className="card rounded-0 border-0 card2">
+                    <div className="form-card">
+                      <h2 id="heading" className="text-center">
+                        Payment Information
+                      </h2>
+                      <div className="radio-group">
+                        <h4>Select payment method</h4>
+                        {["QR Code", "Transfer"].map((tab) => (
+                          <button
+                            onClick={() => setType(tab)}
+                            key={tab}
+                            style={{
+                              backgroundColor: tab === type ? "#4f3804" : "",
+                              color: tab === type ? "white" : "",
+                              fontSize: "20px",
+                              margin: "4px 16px",
+                              border: "none",
+                              padding: "8px",
+                              borderRadius: "8px",
+                            }}
+                          >
+                            {tab}
+                          </button>
+                        ))}
                       </div>
-                    ) : (
+
+                      {type === "Transfer" ? (
+                        <div>
+                          <h3 id="credit" className="mb-3">
+                            Banking Information
+                          </h3>
+                          <div style={{ display: "flex" }}>
+                            <h4>Account No:</h4>
+                            <h4 style={{ margin: "0 0 0 8px" }}>1015023423</h4>
+                          </div>
+                          <div style={{ display: "flex" }}>
+                            <h4>Bank Name: </h4>
+                            <h4 style={{ margin: "0 0 0 8px" }}>Vietcombank</h4>
+                          </div>
+                          <div style={{ display: "flex" }}>
+                            <h4>Acount Owner: </h4>
+                            <h4 style={{ margin: "0 0 0 8px" }}> SWIP </h4>
+                          </div>
+                        </div>
+                      ) : (
+                        <div>
+                          {(orderInfo.Amount || orderInfo.Amount === 0) && (
+                            <img
+                              src={`https://img.vietqr.io/image/${
+                                MY_BANK.BANK_ID
+                              }-${
+                                MY_BANK.ACCOUNT_NO
+                              }-qr_only.png?orderInfo.Amount=${
+                                orderInfo.Amount * 24768
+                              }&addInfo=gift-card-${orderInfo.Amount}`}
+                              alt=""
+                            />
+                          )}
+                          <h4 style={{ marginTop: "20px" }}>
+                            Nội dung chuyển khoản: gift-card{orderInfo.Amount}
+                          </h4>
+                          <h4 style={{ marginTop: "20px" }}>
+                            Số tiền:
+                            {new Intl.NumberFormat("en-US", {
+                              style: "currency",
+                              currency: "USD",
+                            }).format(orderInfo.Amount)}
+                            <span> ~ </span>
+                            {new Intl.NumberFormat("vi-VN", {
+                              style: "currency",
+                              currency: "VND",
+                            }).format(orderInfo.Amount * 24768)}
+                          </h4>
+                        </div>
+                      )}
+                    </div>
+                    <div
+                      style={{
+                        display: "flex",
+                        margin: "-16px 0 0 0",
+                        justifyContent: "space-between",
+                      }}
+                    >
                       <div>
-                        {(amount || amount === 0) && (
-                          <img
-                            src={`https://img.vietqr.io/image/${
-                              MY_BANK.BANK_ID
-                            }-${MY_BANK.ACCOUNT_NO}-qr_only.png?amount=${
-                              amount * 24768
-                            }&addInfo=gift-card-${amount}`}
-                            alt=""
-                          />
-                        )}
-                        <h4 style={{ marginTop: "20px" }}>
-                          Nội dung chuyển khoản: gift-card{amount}
-                        </h4>
-                        <h4 style={{ marginTop: "20px" }}>
-                          Số tiền:
+                        <h3 style={{ color: "#4f3804" }}>
+                          Your Order has been Sent !
+                        </h3>
+                        <h5>
+                          Status: <span>Pending</span>
+                          <div>You will receive notifications</div>
+                          <div>when payment is successfully done</div>
+                        </h5>
+                      </div>
+                      <div>
+                        <h3> Your order details</h3>
+                        <span>
+                          From: {orderInfo.From} - To: {orderInfo.To}
+                        </span>
+                        <div>
+                          Amount (1) :
                           {new Intl.NumberFormat("en-US", {
                             style: "currency",
                             currency: "USD",
-                          }).format(amount)}
-                          ~
+                          }).format(orderInfo.Amount)}
+                          <span> ~ </span>
                           {new Intl.NumberFormat("vi-VN", {
                             style: "currency",
                             currency: "VND",
-                          }).format(amount * 24768)}
-                        </h4>
-                        <input
-                          type="submit"
-                          value="Done"
-                          style={{ backgroundColor: "#4f3804", color: "white" }}
-                        />
-                      </div>
-                    )}
-
-                    {/* <div className="bottom">
-                      <div className="row justify-content-center">
-                        <div className="col-12">
-                          <h4 id="total" className="text-center">
-                            Total:{amount} $
-                            <span className="text-dark">VAT</span>
-                          </h4>
+                          }).format(orderInfo.Amount * 24768)}
                         </div>
+                        <div>Recipent's Email: {orderInfo.RecipentEmail}</div>
+                        <div>Recipent's Phone: {orderInfo.RecipentPhoneNo}</div>
                       </div>
-                      <div className="row justify-content-center">
-                        <div className="col-md-8">
-                          <input
-                            type="submit"
-                            value="PURCHASE CARD"
-                            className="btn btn-success"
-                          />
-                        </div>
-                      </div>
-                    </div> */}
+                    </div>
                   </div>
                 </div>
-              </div>
+              )}
             </div>
           </div>
         </div>

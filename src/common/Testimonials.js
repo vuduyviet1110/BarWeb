@@ -1,6 +1,6 @@
 import React from "react";
 import "../assets/css/HomePage.css";
-import ava from "../assets/images/events-bg.jpg";
+import ava from "../assets/images/sign-in.jpg";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/swiper-bundle.css";
 import { Navigation, Pagination, Scrollbar, A11y } from "swiper/modules";

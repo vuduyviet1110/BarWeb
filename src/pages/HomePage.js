@@ -1,11 +1,10 @@
 import { useState, useEffect } from "react";
 import "../assets/css/HomePage.css";
-import barIntro from "../assets/images/barInto.mp4";
 import { Breadcrumb, Image } from "react-bootstrap";
 import Carousel from "react-bootstrap/Carousel";
-import ava from "../assets/images/events-bg.jpg";
+import Form from "react-bootstrap/Form";
+import Dropdown from "react-bootstrap/Dropdown";
 import anhquaybar from "../assets/images/anhquaybar.jpg";
-import quayBarr from "../assets/images/quayBarr.jpg";
 import christmas from "../assets/images/christmas.jpg";
 import countDown from "../assets/images/countdown.jpg";
 import supriseMoment from "../assets/images/supriseMoment.jpg";
@@ -16,13 +15,17 @@ import GLightbox from "glightbox";
 import Swiper from "swiper";
 import beverage1 from "../assets/images/beverage1.jpg";
 import beverage2 from "../assets/images/beverage2.jpg";
-import beverage3 from "../assets/images/beverage3.jpg";
 import beverage4 from "../assets/images/beverage4.jpg";
 import beverage5 from "../assets/images/beverage5.jpg";
 import beverage6 from "../assets/images/beverage6.jpg";
 import beverage7 from "../assets/images/beverage7.jpg";
+import Button from "react-bootstrap/Button";
+import Modal from "react-bootstrap/Modal";
 import "swiper/css";
 import { Link } from "react-router-dom";
+import { useSelector } from "react-redux";
+import { changePwd, selectUser } from "../redux/userSlice";
+import { useDispatch } from "react-redux";
 import {
   ArrowUpShort,
   Facebook,
@@ -30,8 +33,40 @@ import {
   TwitterX,
 } from "react-bootstrap-icons";
 import Testimonials from "../common/Testimonials";
+
 function HomePage() {
-  const [CurentUser, setCurrentUser] = useState(false);
+  const { user } = useSelector(selectUser);
+  console.log(user);
+  const dispatch = useDispatch();
+  const [CurentUser, setCurrentUser] = useState(
+    Array.isArray(user) ? "" : user
+  );
+  const [showModalChangePwd, setModalChangePwd] = useState(false);
+  const [invalidOldPwd, setInvalidOldPwd] = useState();
+  console.log(CurentUser);
+  const handleClose = () => {
+    setModalChangePwd(false);
+  };
+  const handleSaveChanges = () => {
+    if (invalidOldPwd) {
+      setModalChangePwd(true);
+    } else {
+      dispatch(changePwd(CurentUser));
+      console.log(CurentUser);
+      setModalChangePwd(false);
+      alert("Your password is succesfully changed");
+    }
+  };
+  const handleShow = () => setModalChangePwd(true);
+  const handleOldPwd = (e) => {
+    // fetch data từ database để xem người dùng có nhập đúng mật khẩu không
+    if (user.password !== e.target.value) {
+      setInvalidOldPwd(true);
+    } else {
+      setInvalidOldPwd(false);
+    }
+  };
+
   useEffect(() => {
     /**
      * Easy selector helper function
@@ -393,19 +428,118 @@ function HomePage() {
             </ul>
             <i className="bi bi-list mobile-nav-toggle"></i>
           </nav>
-
           {CurentUser ? (
-            <div>
-              <span>Welcome, Viet</span>
-              <Image
-                src={ava}
-                roundedCircle
-                style={{
-                  width: "50px",
-                  height: "50px",
-                  margin: "0 4px 0px 12px",
-                }}
-              />
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <span style={{ color: "#fff" }}>Welcome, {user.email} </span>
+              <Dropdown>
+                <Dropdown.Toggle
+                  style={{ backgroundColor: "transparent", border: "none" }}
+                >
+                  <Image
+                    src={talkingincouter}
+                    roundedCircle
+                    style={{
+                      width: "40px",
+                      height: "40px",
+                      margin: "0 4px 0px 12px",
+                    }}
+                  />
+                </Dropdown.Toggle>
+
+                <Dropdown.Menu>
+                  <Dropdown.Item>
+                    <div>
+                      <Button
+                        style={{
+                          backgroundColor: "transparent",
+                          color: "black",
+                          border: "none",
+                        }}
+                        onClick={handleShow}
+                      >
+                        Change Password
+                      </Button>
+                    </div>
+                  </Dropdown.Item>
+                  <Dropdown.Item>
+                    <Button
+                      style={{
+                        backgroundColor: "transparent",
+                        color: "black",
+                        border: "none",
+                      }}
+                    >
+                      <Link
+                        to={{ pathname: "/profile", state: { CurentUser } }}
+                      >
+                        Edit Profile
+                      </Link>
+                    </Button>
+                  </Dropdown.Item>
+                  <Dropdown.Item onClick={() => setCurrentUser()} href="">
+                    <Button
+                      style={{
+                        backgroundColor: "transparent",
+                        color: "black",
+                        border: "none",
+                      }}
+                    >
+                      Log Out
+                    </Button>
+                  </Dropdown.Item>
+                </Dropdown.Menu>
+                <Modal show={showModalChangePwd} onHide={handleClose}>
+                  <Modal.Header closeButton>
+                    <Modal.Title style={{ color: "brown" }}>
+                      Change Your Password
+                    </Modal.Title>
+                  </Modal.Header>
+                  <Modal.Body style={{ color: "brown" }}>
+                    <Form.Label htmlFor="oldPwd">
+                      Your Current Password
+                    </Form.Label>
+
+                    <Form.Control
+                      onChange={handleOldPwd}
+                      placeholder="Old Password"
+                      type="password"
+                    />
+                    {invalidOldPwd && (
+                      <div style={{ color: "red" }}>
+                        Your Password is not correct
+                      </div>
+                    )}
+                    <Form.Label htmlFor="NewPwd">Your New Password</Form.Label>
+                    <Form.Control
+                      onChange={(e) =>
+                        setCurrentUser((prevInfo) => ({
+                          ...prevInfo,
+                          password: e.target.value,
+                        }))
+                      }
+                      placeholder="New Password"
+                      type="password"
+                    />
+                  </Modal.Body>
+                  <Modal.Footer>
+                    <Button variant="secondary" onClick={handleClose}>
+                      Close
+                    </Button>
+                    <Button
+                      style={{ backgroundColor: "brown" }}
+                      onClick={handleSaveChanges}
+                    >
+                      Save Changes
+                    </Button>
+                  </Modal.Footer>
+                </Modal>
+              </Dropdown>
             </div>
           ) : (
             <div>
@@ -429,10 +563,8 @@ function HomePage() {
               <h1>
                 Welcome to <span>SWI:P</span>
               </h1>
-              <h2>
-                A space that gives you the most intimate experiences right in
-                the heart of Hanoi's Old Quarter
-              </h2>
+              <h2>A space that gives you the most intimate experiences</h2>
+              <h2>right in the heart of Hanoi's Old Quarter</h2>
 
               <div className="btns">
                 <a
@@ -447,9 +579,7 @@ function HomePage() {
               className="col-lg-4 d-flex align-items-center justify-content-center position-relative"
               data-aos="zoom-in"
               data-aos-delay="200"
-            >
-              {/* <a href={barIntro} className="glightbox play-btn"></a> */}
-            </div>
+            ></div>
           </div>
         </div>
       </section>
@@ -474,6 +604,7 @@ function HomePage() {
                   backgroundColor: "rgba(0,0,0, 0.3)",
                   fontSize: "18px",
                   borderRadius: "8px",
+                  color: "#fff",
                 }}
               >
                 <h3>

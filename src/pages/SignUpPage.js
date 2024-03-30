@@ -5,12 +5,15 @@ import { useState } from "react";
 import Col from "react-bootstrap/Col";
 import InputGroup from "react-bootstrap/InputGroup";
 import Row from "react-bootstrap/Row";
+import DatePicker from "react-datepicker";
+
 function SignUpPage() {
   const [validated, setValidated] = useState(false);
   const [phone, setPhone] = useState(0);
   const [pwd, setPwd] = useState("");
   const [rePwd, setrePwd] = useState("");
   const [invalidLength, setinvalidLength] = useState(false);
+  const [selectedDate, setSelectedDate] = useState(null);
   const handleSubmit = (event) => {
     const form = event.currentTarget;
     if (form.checkValidity() === false || pwd.length < 6) {
@@ -91,6 +94,43 @@ function SignUpPage() {
           </Row>
           <Row className="mb-3">
             <Form.Group as={Col} md="6">
+              <Form.Label>Address</Form.Label>
+              <Form.Control
+                type="text"
+                placeholder="Address"
+                // value={pwd}
+                // onChange={(e) => setPwd(e.target.value)}
+                required
+              />
+              <Form.Control.Feedback type="invalid"></Form.Control.Feedback>
+              {invalidLength && (
+                <span style={{ color: "red" }}>
+                  Password must be at least 6 characters!!
+                </span>
+              )}
+            </Form.Group>
+            <Form.Group
+              as={Col}
+              md="6"
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "flex-start",
+              }}
+            >
+              <Form.Label>Date Of Birth</Form.Label>
+              <DatePicker
+                selected={selectedDate}
+                onChange={(date) => setSelectedDate(date)}
+                dateFormat="dd/MM/yyyy"
+                isClearable
+                showIcon
+                placeholderText="Date Of Birth"
+              />
+            </Form.Group>
+          </Row>
+          <Row className="mb-3">
+            <Form.Group as={Col} md="6">
               <Form.Label>Password</Form.Label>
               <Form.Control
                 type="text"
@@ -132,7 +172,6 @@ function SignUpPage() {
               )}
             </Form.Group>
           </Row>
-
           <div
             style={{
               display: "flex",

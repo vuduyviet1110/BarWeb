@@ -3,38 +3,11 @@ import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
 import Cocktails from "../common/Cocktails";
 import InputGroup from "react-bootstrap/InputGroup";
-const Contents = [
-  {
-    Title: {
-      Heading: "",
-      Descriptions: "",
-    },
-  },
-  {
-    OurStory: {
-      title: "",
-      description: "",
-    },
-  },
-  {
-    Beverage: {
-      Cocktails: [
-        { name: "cock1", des: "cokc1 luôn", price: 10 },
-        { name: "cock2", des: "cokc2 luôn", price: 20 },
-        { name: "cock3", des: "cokc3 luôn", price: 30 },
-        { name: "cock4", des: "cokc4 luôn", price: 40 },
-        { name: "cock5", des: "cokc5 luôn", price: 50 },
-        { name: "cock6", des: "cokc6 luôn", price: 60 },
-      ],
-      Wine: [],
-      SodaNMinerals: [],
-      all: [],
-    },
-  },
-];
-
+import SodaNMinerals from "../common/SodaNMinerals";
+import Beers from "../common/Beer";
+import { Contents } from "../Fakeapi";
 function ManageContent() {
-  const [type, setType] = useState("");
+  const [type, setType] = useState("Title");
   const [title, setTitle] = useState("Swi:p");
   const [des, setDes] = useState(
     "A space that gives you the most intimate experiences right in the heart of Hanoi's Old Quarter"
@@ -85,7 +58,7 @@ function ManageContent() {
         ))}
       </div>
       {type === "Title" && (
-        <div style={{ margin: "16px", color: "#c59d5a" }}>
+        <div style={{ margin: "16px", color: "#c59d5a", height: "100vh" }}>
           <h2>Current Title: </h2>
           <InputGroup className="mb-3">
             <Form.Control
@@ -127,7 +100,7 @@ function ManageContent() {
         </div>
       )}
       {type === "Our Story" && (
-        <div style={{ margin: "16px", color: "#c59d5a" }}>
+        <div style={{ margin: "16px", color: "#c59d5a", height: "100vh" }}>
           <h2>Current Story Title: </h2>
           <InputGroup className="mb-3">
             <Form.Control
@@ -172,8 +145,8 @@ function ManageContent() {
       {type === "Beverage" && (
         <div style={{ margin: "30px 16px", color: "#c59d5a" }}>
           <Cocktails Contents={Contents} />
-          <h2>Beer</h2>
-          <h2>Soda & minerals</h2>
+          <Beers Contents={Contents} />
+          <SodaNMinerals Contents={Contents} />
         </div>
       )}
     </div>

@@ -4,16 +4,54 @@ import signIn from "../assets/images/Barava.jpg";
 import { useState } from "react";
 import Col from "react-bootstrap/Col";
 import Row from "react-bootstrap/Row";
+import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { login } from "../redux/userSlice";
+const FakeUsers = [
+  { email: "a@a", password: "password1" },
+  { email: "b@b", password: "password2" },
+  { email: "c@c", password: "password3" },
+];
 function SignInPage() {
+  const dispatch = useDispatch();
   const [validated, setValidated] = useState(false);
-
+  const [isAuth, setIsAuth] = useState();
+  const [CurentUser, setCurrentUser] = useState({ email: "1", password: "" });
+  const navigate = useNavigate();
+  const handleEmailCheck = (e) => {
+    const matchedUsers = FakeUsers.filter(
+      (user) => user.email === e.target.value
+    );
+    if (matchedUsers.length > 0) {
+      setCurrentUser(matchedUsers[0]);
+      // In ra người dùng nếu tìm thấy mật khẩu khớp
+    }
+  };
+  const handlePwdCheck = (e) => {
+    if (CurentUser.password === e.target.value) {
+      setIsAuth(true);
+    } else {
+      setIsAuth(false);
+    }
+  };
   const handleSubmit = (event) => {
     const form = event.currentTarget;
     if (form.checkValidity() === false) {
       event.preventDefault();
       event.stopPropagation();
+    } else if (
+      form.checkValidity() === true &&
+      Object.keys(CurentUser).length > 0
+    ) {
+      console.log(CurentUser);
+      event.preventDefault();
+      event.stopPropagation();
+      if (isAuth) {
+        localStorage.setItem("user_token", true);
+        dispatch(login(CurentUser));
+        return navigate("/");
+      }
     }
-
     setValidated(true);
   };
   return (
@@ -43,17 +81,37 @@ function SignInPage() {
         <Form noValidate validated={validated} onSubmit={handleSubmit}>
           <Row className="mb-3">
             <Form.Group as={Col} md="12" controlId="validationCustom01">
-              <Form.Label>User Name</Form.Label>
-              <Form.Control required type="text" placeholder="User Name" />
-              <Form.Control.Feedback>Looks good!</Form.Control.Feedback>
+              <Form.Label>Email</Form.Label>
+              <Form.Control
+                onChange={handleEmailCheck}
+                required
+                type="text"
+                placeholder="Email"
+              />
+              <Form.Control.Feedback>
+                You have fill this field{" "}
+              </Form.Control.Feedback>
             </Form.Group>
+
             <Form.Group as={Col} md="12" controlId="validationCustom02">
               <Form.Label type="password">Password</Form.Label>
-              <Form.Control required type="password" placeholder="Password" />
-              <Form.Control.Feedback>Looks good!</Form.Control.Feedback>
+              <Form.Control
+                required
+                onChange={handlePwdCheck}
+                type="password"
+                placeholder="Password"
+              />
+              <Form.Control.Feedback>
+                You have fill this field
+              </Form.Control.Feedback>
             </Form.Group>
           </Row>
 
+          {isAuth === false && (
+            <span style={{ color: "red", fontSize: "18px" }}>
+              Check lại đi thằng ngu
+            </span>
+          )}
           <Form.Group className="mb-3">
             <Form.Check label="Remember " />
           </Form.Group>
@@ -68,8 +126,40 @@ function SignInPage() {
             }}
             type="submit"
           >
-            Confirm
+            Log In
           </Button>
+          <div style={{ display: "flex", margin: "18px 0" }}>
+            <a
+              href="/reset-password"
+              style={{
+                backgroundColor: "transparent",
+                flex: 1,
+                display: "block",
+                textAlign: "center",
+                color: "yellow",
+                fontSize: "22px",
+                textDecoration: "underline",
+                fontWeight: "800",
+              }}
+            >
+              Forget Password
+            </a>
+            <a
+              href="/sign-up"
+              style={{
+                backgroundColor: "transparent",
+                flex: 1,
+                display: "block",
+                textAlign: "center",
+                color: "yellow",
+                fontSize: "22px",
+                textDecoration: "underline",
+                fontWeight: "800",
+              }}
+            >
+              Sign Up
+            </a>
+          </div>
         </Form>
       </div>
     </div>

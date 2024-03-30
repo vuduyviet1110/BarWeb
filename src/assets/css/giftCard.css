@@ -50,8 +50,7 @@
     color: grey !important
     }
     .form-card {
-    height: 100%;
-    position: relative
+        margin: 0 0 80px 0
     }
     .form-card input,
     .form-card textarea {
