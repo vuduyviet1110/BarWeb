@@ -1,5 +1,12 @@
 import "../assets/css/AdminPage.css";
-import { Gear, Gift, ImageAlt, Question, Ticket } from "react-bootstrap-icons";
+import {
+  Gear,
+  Gift,
+  ImageAlt,
+  Newspaper,
+  Question,
+  Ticket,
+} from "react-bootstrap-icons";
 import { NavLink, Outlet } from "react-router-dom";
 import beverage3 from "../assets/images/talkingincouter.jpg";
 function AdminPage() {
@@ -38,9 +45,9 @@ function AdminPage() {
               },
 
               {
-                icon: <Question />,
-                title: "Manage Feedback",
-                route: "feedback",
+                icon: <Newspaper />,
+                title: "Manage Event",
+                route: "event",
               },
             ].map((tab, index) => (
               <h5 key={index}>
@@ -73,6 +80,7 @@ function AdminPage() {
             ))}
           </div>
           <div style={{ width: "80%" }}>
+            {/* <h1>Bar Management</h1> */}
             <Outlet />
           </div>
         </div>

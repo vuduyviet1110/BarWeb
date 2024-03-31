@@ -8,30 +8,16 @@ import SwipLogo from "../assets/images/SwipLogo.png";
 import crystalTexture2 from "../assets/images/crystalTexture2.jpg";
 import { Link } from "react-router-dom";
 import { Button } from "react-bootstrap";
+import { giftCards } from "../Fakeapi";
 function GiftCard() {
   const MY_BANK = {
     BANK_ID: "vietcombank",
     ACCOUNT_NO: "1015755738",
   };
-  const [orderInfo, setOrderInfo] = useState({
-    To: "",
-    From: "",
-    RecipentEmail: "",
-    Amount: 0,
-    RecipentPhoneNo: 0,
-    Message: "",
-  });
+  const [orderInfo, setOrderInfo] = useState(giftCards);
   const [type, setType] = useState("QR Code");
   const [doneBtn, SetDoneBtn] = useState();
   const handleDone = () => {
-    console.log(
-      orderInfo.Amount,
-      orderInfo.From,
-      orderInfo.To,
-      orderInfo.RecipentEmail,
-      orderInfo.Message,
-      orderInfo.RecipentPhoneNo
-    );
     if (
       orderInfo.Amount !== 0 &&
       orderInfo.From &&

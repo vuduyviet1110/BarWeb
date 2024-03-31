@@ -6,6 +6,9 @@ import beverage5 from "./assets/images/beverage5.jpg";
 import beverage6 from "./assets/images/beverage6.jpg";
 import beverage7 from "./assets/images/beverage7.jpg";
 import barAva from "./assets/images/Barava.jpg";
+import supriseMoment from "./assets/images/supriseMoment.jpg";
+import countdown from "./assets/images/countdown.jpg";
+import christmas from "./assets/images/christmas.jpg";
 export const Contents = [
   {
     HomePage: {
@@ -64,6 +67,28 @@ export const Contents = [
       beverage1,
     ],
   },
+  {
+    Events: [
+      {
+        eventID: 1,
+        photo: christmas,
+        title: "Chritmas",
+        description: "Chritmas is a special day of the year",
+      },
+      {
+        eventID: 2,
+        photo: supriseMoment,
+        title: "Birthday Party",
+        description: "birthday party is a special day of the year",
+      },
+      {
+        eventID: 3,
+        photo: countdown,
+        title: "Countdown",
+        description: "Countdown is a special day of the year",
+      },
+    ],
+  },
 ];
 
 export const reservations = [
@@ -102,5 +127,35 @@ export const reservations = [
     time: new Date(2025, 1, 1),
     NoPpl: 2,
     DOB: new Date(2000, 4, 6),
+  },
+];
+
+export const giftCards = [
+  {
+    orderId: 1,
+    To: "Peeter ",
+    From: "julia",
+    RecipentEmail: "julia@gmail.com",
+    Amount: 50,
+    RecipentPhoneNo: 9876543456,
+    Message: "Happy Birthday",
+  },
+  {
+    orderId: 2,
+    To: "john ",
+    From: "Mia",
+    RecipentEmail: "Mia@gmail.com",
+    Amount: 20,
+    RecipentPhoneNo: 5748329308,
+    Message: "Happy Birthday",
+  },
+  {
+    orderId: 3,
+    To: "Tim ",
+    From: "Mai",
+    RecipentEmail: "Mai@gmail.com",
+    Amount: 100,
+    RecipentPhoneNo: 826959360,
+    Message: "Happy Birthday",
   },
 ];

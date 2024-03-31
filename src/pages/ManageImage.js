@@ -24,7 +24,7 @@ function ManageImage() {
               padding: "2px",
               borderRadius: "8px",
               color: "rgb(197, 157, 87)",
-              boxShadow: "-20px 2px 30px 8px",
+              boxShadow: "20px -10px 19px",
               margin: "8px 0px 8px -4px",
             }}
           >
@@ -52,7 +52,7 @@ function ManageImage() {
               padding: "2px",
               borderRadius: "8px",
               color: "rgb(197, 157, 87)",
-              boxShadow: "-20px 2px 30px 8px",
+              boxShadow: "20px -10px 19px",
               margin: "8px 0px 8px -4px",
             }}
           >
@@ -82,7 +82,7 @@ function ManageImage() {
               padding: "2px",
               borderRadius: "8px",
               color: "rgb(197, 157, 87)",
-              boxShadow: "-20px 2px 30px 8px",
+              boxShadow: "20px -10px 19px",
               margin: "8px 0px 8px -4px",
             }}
           >
@@ -97,7 +97,7 @@ function ManageImage() {
               padding: "2px",
               borderRadius: "8px",
               color: "rgb(197, 157, 87)",
-              boxShadow: "-20px 2px 30px 8px",
+              boxShadow: "20px -10px 19px",
               margin: "8px 0px 8px -4px",
             }}
           >
@@ -121,7 +121,7 @@ function ManageImage() {
               padding: "2px",
               borderRadius: "8px",
               color: "rgb(197, 157, 87)",
-              boxShadow: "-20px 2px 30px 8px",
+              boxShadow: "20px -10px 19px",
               margin: "8px 0px 8px -4px",
             }}
           >
@@ -145,7 +145,7 @@ function ManageImage() {
               padding: "2px",
               borderRadius: "8px",
               color: "rgb(197, 157, 87)",
-              boxShadow: "-20px 2px 30px 8px",
+              boxShadow: "20px -10px 19px",
               margin: "8px 0px 8px -4px",
             }}
           >
@@ -172,7 +172,7 @@ function ManageImage() {
               padding: "2px",
               borderRadius: "8px",
               color: "rgb(197, 157, 87)",
-              boxShadow: "-20px 2px 30px 8px",
+              boxShadow: "20px -10px 19px",
               margin: "8px 0px 8px -4px",
             }}
           >

@@ -9,7 +9,7 @@ import SignUpPage from "./pages/SignUpPage";
 import Giftcard from "./pages/GiftCard";
 import ManageContent from "./pages/ManageContent";
 import ManageGiftCard from "./pages/ManageGiftCard";
-import ManageFeedback from "./pages/ManageFeedback";
+import ManageEvent from "./pages/ManageEvent";
 import ManageBooking from "./pages/ManageBooking";
 import ManageImage from "./pages/ManageImage";
 import { Provider } from "react-redux";
@@ -36,7 +36,7 @@ function App() {
             <Route path="image" element={<ManageImage />} />
             <Route path="booking" element={<ManageBooking />} />
             <Route path="gift-card" element={<ManageGiftCard />} />
-            <Route path="feedback" element={<ManageFeedback />} />
+            <Route path="event" element={<ManageEvent />} />
           </Route>
         </Routes>
       </div>

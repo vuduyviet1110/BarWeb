@@ -782,22 +782,28 @@ function HomePage() {
             </div>
 
             <Carousel data-bs-theme="light">
-              <Carousel.Item style={{ display: "flex" }}>
+              <Carousel.Item>
                 <img
-                  style={{ width: "250px", height: "650px" }}
                   className="d-block w-100"
                   src={christmas}
+                  style={{
+                    width: "100%",
+                    height: "auto",
+                    borderRadius: "14px",
+                    objectFit: "cover",
+                  }}
                   alt="First slide"
                 />
-                <Carousel.Caption>
-                  <div
-                    style={{
-                      boxShadow: "2px 2px 5px 2px #333 inset",
-                      borderRadius: "8px",
-                    }}
-                  >
+                <Carousel.Caption
+                  style={{
+                    boxShadow: "2px 2px 5px 2px #333",
+                    borderRadius: "8px",
+                    backgroundColor: "rgba(0, 0, 0, 0.6)",
+                  }}
+                >
+                  <div>
                     <div className="price">
-                      <h3>Birthday Parties</h3>
+                      <h3>christmas Parties</h3>
                       <p>
                         <span>$189</span>
                       </p>
@@ -807,7 +813,6 @@ function HomePage() {
                       sed do eiusmod tempor incididunt ut labore et dolore magna
                       aliqua.
                     </p>
-
                     <p>
                       Ullamco laboris nisi ut aliquip ex ea commodo consequat.
                       Duis aute irure dolor in reprehenderit in voluptate velit
@@ -820,13 +825,19 @@ function HomePage() {
                 <img
                   className="d-block w-100"
                   src={countDown}
-                  style={{ width: "250px", height: "650px" }}
+                  style={{
+                    width: "100%",
+                    height: "auto",
+                    borderRadius: "14px",
+                    objectFit: "cover",
+                  }}
                   alt="Second slide"
                 />
                 <Carousel.Caption
                   style={{
-                    boxShadow: "2px 2px 5px 2px #333 inset",
+                    boxShadow: "2px 2px 5px 2px #333",
                     borderRadius: "8px",
+                    backgroundColor: "rgba(0, 0, 0, 0.6)",
                   }}
                 >
                   <div>
@@ -841,7 +852,6 @@ function HomePage() {
                       sed do eiusmod tempor incididunt ut labore et dolore magna
                       aliqua.
                     </p>
-
                     <p>
                       Ullamco laboris nisi ut aliquip ex ea commodo consequat.
                       Duis aute irure dolor in reprehenderit in voluptate velit
@@ -854,13 +864,19 @@ function HomePage() {
                 <img
                   className="d-block w-100"
                   src={supriseMoment}
+                  style={{
+                    width: "100%",
+                    height: "auto",
+                    borderRadius: "14px",
+                    objectFit: "cover",
+                  }}
                   alt="Third slide"
-                  style={{ width: "250px", height: "650px" }}
                 />
                 <Carousel.Caption
                   style={{
-                    boxShadow: "2px 2px 5px 2px #333 inset",
+                    boxShadow: "2px 2px 5px 2px #333",
                     borderRadius: "8px",
+                    backgroundColor: "rgba(0, 0, 0, 0.6)",
                   }}
                 >
                   <div>
@@ -875,7 +891,6 @@ function HomePage() {
                       sed do eiusmod tempor incididunt ut labore et dolore magna
                       aliqua.
                     </p>
-
                     <p>
                       Ullamco laboris nisi ut aliquip ex ea commodo consequat.
                       Duis aute irure dolor in reprehenderit in voluptate velit
