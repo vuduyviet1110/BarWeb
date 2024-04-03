@@ -109,7 +109,7 @@ function SignInPage() {
 
           {isAuth === false && (
             <span style={{ color: "red", fontSize: "18px" }}>
-              Check lại đi thằng ngu
+              Please check email or password again!!!
             </span>
           )}
           <Form.Group className="mb-3">

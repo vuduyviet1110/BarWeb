@@ -62,14 +62,14 @@ function ManageBooking() {
                 onChange={(e) => {}}
                 value={reservation.phoneNo}
               />
-              <Form.Label>D.O.B</Form.Label>
+              {/* <Form.Label>D.O.B</Form.Label>
               <Form.Control
                 style={{ margin: "8px 8px 0 0" }}
                 type="text"
                 readOnly={isEditing === index ? false : true}
                 onChange={(e) => {}}
                 value={reservation.DOB}
-              />
+              /> */}
               <Form.Label>Date</Form.Label>
               <Form.Control
                 style={{ margin: "8px 8px 0 0" }}

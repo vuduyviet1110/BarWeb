@@ -27,6 +27,7 @@ import { useSelector } from "react-redux";
 import { changePwd, selectUser } from "../redux/userSlice";
 import { useDispatch } from "react-redux";
 import {
+  ArrowRightCircle,
   ArrowUpShort,
   Facebook,
   Instagram,
@@ -43,6 +44,8 @@ function HomePage() {
   );
   const [showModalChangePwd, setModalChangePwd] = useState(false);
   const [invalidOldPwd, setInvalidOldPwd] = useState();
+  const [matchPwd, setMatchPwd] = useState();
+  const [passChanged, setPassChanged] = useState();
   console.log(CurentUser);
   const handleClose = () => {
     setModalChangePwd(false);
@@ -50,11 +53,14 @@ function HomePage() {
   const handleSaveChanges = () => {
     if (invalidOldPwd) {
       setModalChangePwd(true);
+      setPassChanged(false);
     } else {
       dispatch(changePwd(CurentUser));
       console.log(CurentUser);
-      setModalChangePwd(false);
-      alert("Your password is succesfully changed");
+      setTimeout(() => {
+        setModalChangePwd(false);
+      }, 4000);
+      setPassChanged(true);
     }
   };
   const handleShow = () => setModalChangePwd(true);
@@ -359,10 +365,10 @@ function HomePage() {
         <div className="container d-flex justify-content-center justify-content-md-between">
           <div className="contact-info d-flex align-items-center">
             <i className="bi bi-phone d-flex align-items-center">
-              <span>+1 5589 55488 55</span>
+              <span>033 779 7759</span>
             </i>
             <i className="bi bi-clock d-flex align-items-center ms-4">
-              <span> Mon-Sat: 11AM - 23PM</span>
+              <span> Mon-Sat: 6PM - 2AM</span>
             </i>
           </div>
 
@@ -509,6 +515,7 @@ function HomePage() {
                       onChange={handleOldPwd}
                       placeholder="Old Password"
                       type="password"
+                      id="oldPwd"
                     />
                     {invalidOldPwd && (
                       <div style={{ color: "red" }}>
@@ -517,6 +524,7 @@ function HomePage() {
                     )}
                     <Form.Label htmlFor="NewPwd">Your New Password</Form.Label>
                     <Form.Control
+                      id="NewPwd"
                       onChange={(e) =>
                         setCurrentUser((prevInfo) => ({
                           ...prevInfo,
@@ -526,17 +534,42 @@ function HomePage() {
                       placeholder="New Password"
                       type="password"
                     />
+                    <Form.Label htmlFor="ReNewPwd">
+                      Re-enter Your Password
+                    </Form.Label>
+                    <Form.Control
+                      onChange={(e) =>
+                        CurentUser.password === e.target.value
+                          ? setMatchPwd(true)
+                          : setMatchPwd(false)
+                      }
+                      placeholder="New Password Again"
+                      type="password"
+                      id="ReNewPwd"
+                    />
+                    {matchPwd === false && (
+                      <div style={{ color: "red" }}>
+                        Not match with your new password.
+                      </div>
+                    )}
                   </Modal.Body>
                   <Modal.Footer>
-                    <Button variant="secondary" onClick={handleClose}>
-                      Close
-                    </Button>
-                    <Button
-                      style={{ backgroundColor: "brown" }}
-                      onClick={handleSaveChanges}
-                    >
-                      Save Changes
-                    </Button>
+                    {passChanged === true && (
+                      <h4 style={{ color: "green" }}>
+                        Password has been changed
+                      </h4>
+                    )}
+                    <div>
+                      <Button variant="secondary" onClick={handleClose}>
+                        Close
+                      </Button>
+                      <Button
+                        style={{ backgroundColor: "brown" }}
+                        onClick={handleSaveChanges}
+                      >
+                        Save Changes
+                      </Button>
+                    </div>
                   </Modal.Footer>
                 </Modal>
               </Dropdown>
@@ -925,6 +958,7 @@ function HomePage() {
                     name="name"
                     className="form-control"
                     id="name"
+                    required
                     placeholder="Your Name"
                     data-rule="minlen:4"
                     data-msg="Please enter at least 4 chars"
@@ -936,6 +970,7 @@ function HomePage() {
                     type="email"
                     className="form-control"
                     name="email"
+                    required
                     id="email"
                     placeholder="Your Email"
                     data-rule="email"
@@ -949,6 +984,7 @@ function HomePage() {
                     className="form-control"
                     name="phone"
                     id="phone"
+                    required
                     placeholder="Your Phone"
                     data-rule="minlen:4"
                     data-msg="Please enter at least 4 chars"
@@ -961,6 +997,7 @@ function HomePage() {
                     name="date"
                     className="form-control"
                     id="date"
+                    required
                     placeholder="Date"
                     data-rule="minlen:4"
                     data-msg="Please enter at least 4 chars"
@@ -973,6 +1010,7 @@ function HomePage() {
                     className="form-control"
                     name="time"
                     id="time"
+                    required
                     placeholder="Time"
                     data-rule="minlen:4"
                     data-msg="Please enter at least 4 chars"
@@ -985,6 +1023,7 @@ function HomePage() {
                     className="form-control"
                     name="people"
                     id="people"
+                    required
                     placeholder="# of people"
                     data-rule="minlen:1"
                     data-msg="Please enter at least 1 chars"
@@ -1123,37 +1162,20 @@ function HomePage() {
             ></iframe>
           </div>
 
-          <div className="container" data-aos="fade-up">
+          {/* <div className="container" data-aos="fade-up">
             <div className="row mt-5">
-              <div className="col-lg-4">
-                <div className="info">
-                  <div className="address">
-                    <i className="bi bi-geo-alt"></i>
-                    <h4>Location:</h4>
-                    <p>A108 Adam Street, New York, NY 535022</p>
-                  </div>
+              <h3
+                style={{
+                  color: "#cda452",
+                  fontSize: "36px",
+                  fontWeight: "700",
+                  padding: "0 0 40px 0",
+                }}
+              >
+                Please let us know your thoughts
+              </h3>
 
-                  <div className="open-hours">
-                    <i className="bi bi-clock"></i>
-                    <h4>Open Hours:</h4>
-                    <p>Monday-Saturday: 11:00 AM - 2300 PM</p>
-                  </div>
-
-                  <div className="email">
-                    <i className="bi bi-envelope"></i>
-                    <h4>Email:</h4>
-                    <p>info@example.com</p>
-                  </div>
-
-                  <div className="phone">
-                    <i className="bi bi-phone"></i>
-                    <h4>Call:</h4>
-                    <p>+1 5589 55488 55s</p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="col-lg-8 mt-5 mt-lg-0">
+              <div className=" mt-5 mt-lg-0">
                 <form
                   action="forms/contact.php"
                   method="post"
@@ -1214,7 +1236,7 @@ function HomePage() {
                 </form>
               </div>
             </div>
-          </div>
+          </div> */}
         </section>
       </main>
 
@@ -1222,7 +1244,7 @@ function HomePage() {
         <div className="footer-top">
           <div className="container">
             <div className="row">
-              <div className="col-lg-3 col-md-6">
+              <div className="col-lg-9 col-md-6">
                 <div className="footer-info">
                   <h3>SWI:P</h3>
                   <p style={{ fontSize: "16px" }}>
@@ -1247,68 +1269,40 @@ function HomePage() {
                   </div>
                 </div>
               </div>
-
-              <div className="col-lg-2 col-md-6 footer-links">
+              <div className="col-lg-3 col-md-6 footer-links">
                 <h4>Useful Links</h4>
                 <ul>
                   <li>
-                    <i className="bx bx-chevron-right"></i> <a href="#">Home</a>
+                    <ArrowRightCircle />
+                    <a style={{ margin: "0 0px 0 10px" }} href="#">
+                      Home
+                    </a>
                   </li>
                   <li>
-                    <i className="bx bx-chevron-right"></i>{" "}
-                    <a href="#">About us</a>
+                    <ArrowRightCircle />
+                    <a style={{ margin: "0 0px 0 10px" }} href="#">
+                      About us
+                    </a>
                   </li>
                   <li>
-                    <i className="bx bx-chevron-right"></i>{" "}
-                    <a href="#">Services</a>
+                    <ArrowRightCircle />
+                    <a style={{ margin: "0 0px 0 10px" }} href="#">
+                      Services
+                    </a>
                   </li>
                   <li>
-                    <i className="bx bx-chevron-right"></i>{" "}
-                    <a href="#">Terms of service</a>
+                    <ArrowRightCircle />
+                    <a style={{ margin: "0 0px 0 10px" }} href="#">
+                      Term of service
+                    </a>
                   </li>
                   <li>
-                    <i className="bx bx-chevron-right"></i>{" "}
-                    <a href="#">Privacy policy</a>
+                    <ArrowRightCircle />
+                    <a style={{ margin: "0 0px 0 10px" }} href="#">
+                      Privacy policy
+                    </a>
                   </li>
                 </ul>
-              </div>
-
-              <div className="col-lg-3 col-md-6 footer-links">
-                <h4>Our Services</h4>
-                <ul>
-                  <li>
-                    <i className="bx bx-chevron-right"></i>{" "}
-                    <a href="#">Web Design</a>
-                  </li>
-                  <li>
-                    <i className="bx bx-chevron-right"></i>{" "}
-                    <a href="#">Web Development</a>
-                  </li>
-                  <li>
-                    <i className="bx bx-chevron-right"></i>{" "}
-                    <a href="#">Product Management</a>
-                  </li>
-                  <li>
-                    <i className="bx bx-chevron-right"></i>{" "}
-                    <a href="#">Marketing</a>
-                  </li>
-                  <li>
-                    <i className="bx bx-chevron-right"></i>{" "}
-                    <a href="#">Graphic Design</a>
-                  </li>
-                </ul>
-              </div>
-
-              <div className="col-lg-4 col-md-6 footer-newsletter">
-                <h4>Our Newsletter</h4>
-                <p>
-                  Tamen quem nulla quae legam multos aute sint culpa legam
-                  noster magna
-                </p>
-                <form action="" method="post">
-                  <input type="email" name="email" />
-                  <input type="submit" value="Subscribe" />
-                </form>
               </div>
             </div>
           </div>

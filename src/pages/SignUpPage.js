@@ -9,14 +9,27 @@ import DatePicker from "react-datepicker";
 
 function SignUpPage() {
   const [validated, setValidated] = useState(false);
-  const [phone, setPhone] = useState(0);
-  const [pwd, setPwd] = useState("");
   const [rePwd, setrePwd] = useState("");
   const [invalidLength, setinvalidLength] = useState(false);
+  const [invalidAge, setinvalidAge] = useState();
+  const [phoneLength, setPhoneLength] = useState("");
   const [selectedDate, setSelectedDate] = useState(null);
+  const [phone, setPhone] = useState("");
+  const [pwd, setPwd] = useState("");
+  console.log(selectedDate);
+  const currentDate = new Date();
+  const currentYear = currentDate.getFullYear();
+  console.log(selectedDate?.getFullYear());
+
   const handleSubmit = (event) => {
     const form = event.currentTarget;
-    if (form.checkValidity() === false || pwd.length < 6) {
+    if (
+      form.checkValidity() === false ||
+      pwd.length < 6 ||
+      invalidAge ||
+      invalidLength ||
+      phoneLength === false
+    ) {
       event.preventDefault();
       event.stopPropagation();
       if (pwd.length < 6 || rePwd !== pwd) {
@@ -47,36 +60,60 @@ function SignUpPage() {
           justifyContent: "center",
           alignItems: "center",
           flexDirection: "column",
-          minWidth: "500px",
-          minHeight: "400px",
+          minWidth: "600px",
+          minHeight: "500px",
           backgroundColor: "rgba(255, 255, 255, 0.5)",
           padding: "16px",
         }}
       >
         <h2 style={{ color: "brown" }}> Sign Up</h2>
-        <Form noValidate validated={validated} onSubmit={handleSubmit}>
-          <Row className="mb-3">
-            <Form.Group as={Col} md="4" controlId="validationCustom01">
+        <Form
+          noValidate
+          validated={validated}
+          method="Post"
+          onSubmit={handleSubmit}
+        >
+          <Row className="mb-4">
+            <Form.Group as={Col} md="6" controlId="validationCustom01">
               <Form.Label> Name</Form.Label>
               <Form.Control required type="text" placeholder="Name" />
-              <Form.Control.Feedback>Looks good!</Form.Control.Feedback>
+              <Form.Control.Feedback>Field is filled!</Form.Control.Feedback>
+              <Form.Control.Feedback type="invalid">
+                Enter your Name
+              </Form.Control.Feedback>
             </Form.Group>
-            <Form.Group as={Col} md="4" controlId="validationCustom02">
+            <Form.Group as={Col} md="6" controlId="validationCustom02">
               <Form.Label>Phone Number</Form.Label>
               <Form.Control
                 required
                 value={phone}
                 onChange={(e) => {
-                  const inputValue = e.target.value;
-                  if (!isNaN(inputValue)) {
-                    setPhone(inputValue);
+                  if (!isNaN(e.target.value)) {
+                    setPhone(e.target.value);
+                  }
+                }}
+                onBlur={() => {
+                  if (phone.length === 10) {
+                    setPhoneLength(true);
+                  } else {
+                    setPhoneLength(false);
                   }
                 }}
                 placeholder="Phone Number"
               />
-              <Form.Control.Feedback>Looks good!</Form.Control.Feedback>
+              <Form.Control.Feedback>Field is filled!</Form.Control.Feedback>
+              {phoneLength === false && (
+                <span style={{ color: "red" }}>
+                  Your phone number must be 10 digits
+                </span>
+              )}
+              <Form.Control.Feedback type="invalid">
+                Enter your Phone Number
+              </Form.Control.Feedback>
             </Form.Group>
-            <Form.Group as={Col} md="4" controlId="validationCustomUsername">
+          </Row>
+          <Row className="mb-3">
+            <Form.Group as={Col} md="6" controlId="validationCustomUsername">
               <Form.Label>Email</Form.Label>
               <InputGroup hasValidation>
                 <InputGroup.Text id="inputGroupPrepend">@</InputGroup.Text>
@@ -90,24 +127,6 @@ function SignUpPage() {
                   Enter your email address
                 </Form.Control.Feedback>
               </InputGroup>
-            </Form.Group>
-          </Row>
-          <Row className="mb-3">
-            <Form.Group as={Col} md="6">
-              <Form.Label>Address</Form.Label>
-              <Form.Control
-                type="text"
-                placeholder="Address"
-                // value={pwd}
-                // onChange={(e) => setPwd(e.target.value)}
-                required
-              />
-              <Form.Control.Feedback type="invalid"></Form.Control.Feedback>
-              {invalidLength && (
-                <span style={{ color: "red" }}>
-                  Password must be at least 6 characters!!
-                </span>
-              )}
             </Form.Group>
             <Form.Group
               as={Col}
@@ -123,10 +142,23 @@ function SignUpPage() {
                 selected={selectedDate}
                 onChange={(date) => setSelectedDate(date)}
                 dateFormat="dd/MM/yyyy"
+                onBlur={() => {
+                  if (selectedDate?.getFullYear() >= currentYear - 18) {
+                    setinvalidAge(true);
+                  } else {
+                    setinvalidAge(false);
+                  }
+                }}
                 isClearable
                 showIcon
+                required
                 placeholderText="Date Of Birth"
               />
+              {invalidAge && (
+                <span style={{ color: "red" }}>
+                  You must be at least 18 years old and do not
+                </span>
+              )}
             </Form.Group>
           </Row>
           <Row className="mb-3">
@@ -172,15 +204,17 @@ function SignUpPage() {
               )}
             </Form.Group>
           </Row>
+
           <div
             style={{
               display: "flex",
-              justifyContent: "space-evenly",
+              justifyContent: "center ",
               alignItems: "center",
-              margin: "50px 0 0",
+              margin: "40px 0 0",
             }}
           >
             <Button
+              href="/"
               style={{
                 backgroundColor: "brown",
                 width: "100px",
@@ -191,22 +225,11 @@ function SignUpPage() {
             <Button
               type="submit"
               style={{
-                display: "flex",
-                justifyContent: "center",
-                alignSelf: "center",
                 width: "100px",
-                backgroundColor: "brown",
+                backgroundColor: "#918717",
               }}
             >
               Confirm
-            </Button>
-            <Button
-              style={{
-                width: "100px",
-                backgroundColor: "brown",
-              }}
-            >
-              Cancel
             </Button>
           </div>
         </Form>

@@ -21,18 +21,21 @@ function ResetPwd() {
             <Form.Control
               type="email"
               id="typeEmail"
-              placeholder="Email input"
+              placeholder="Your Email "
             />
           </Form.Group>
-          <Button style={{ backgroundColor: "#874210" }} className="w-100">
+          <Button
+            type="submit"
+            style={{ backgroundColor: "#874210" }}
+            className="w-100"
+          >
             Reset password
           </Button>
           <div
             style={{ fontSize: "18px" }}
             className="d-flex justify-content-between mt-4"
           >
-            <a href="/sign-in">Login</a>
-            <a href="/sign-up">Register</a>
+            <a href="/sign-in">Sign-in</a>
           </div>
         </Card.Body>
       </Card>

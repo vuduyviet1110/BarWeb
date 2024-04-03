@@ -24,6 +24,8 @@ function GiftCard() {
       orderInfo.To &&
       orderInfo.RecipentEmail &&
       orderInfo.Message &&
+      orderInfo.Message.length < 6 &&
+      orderInfo.RecipentAdress &&
       orderInfo.RecipentPhoneNo !== 0
     ) {
       SetDoneBtn(true);
@@ -163,17 +165,17 @@ function GiftCard() {
                     </div>
                     <div className="row">
                       <div className="col-6">
-                        <label className="gift">Message email</label>
+                        <label className="gift">Recipent Adress</label>
                         <br />
-                        <textarea
+                        <input
                           className="gift-input"
-                          type="textarea"
-                          value={orderInfo.Message}
-                          placeholder="Happy Birthday dear friend !"
+                          type="text"
+                          value={orderInfo.RecipentAdress}
+                          placeholder="1 Houton st, California !"
                           onChange={(e) =>
                             setOrderInfo((prevOrderInfo) => ({
                               ...prevOrderInfo,
-                              Message: e.target.value,
+                              RecipentAdress: e.target.value,
                             }))
                           }
                         />
@@ -196,6 +198,29 @@ function GiftCard() {
                           }}
                         />
                       </div>
+                    </div>
+
+                    <div className="row">
+                      <div className="col-12">
+                        <label className="gift">Message email</label>
+                        <br />
+                        <textarea
+                          className="gift-input"
+                          type="textarea"
+                          value={orderInfo.Message}
+                          placeholder="Happy Birthday dear friend !"
+                          onChange={(e) =>
+                            setOrderInfo((prevOrderInfo) => ({
+                              ...prevOrderInfo,
+                              Message: e.target.value,
+                            }))
+                          }
+                          maxLength={10}
+                        />
+                      </div>
+                      {orderInfo.Message?.length > 6 && (
+                        <h5 style={{ color: "red" }}>Max length is 6!!</h5>
+                      )}
                     </div>
                     <div className="row justify-content-center">
                       {doneBtn === false && (
@@ -280,8 +305,7 @@ function GiftCard() {
                         Payment Information
                       </h2>
                       <div className="radio-group">
-                        <h4>Select payment method</h4>
-                        {["QR Code", "Transfer"].map((tab) => (
+                        {["QR Code"].map((tab) => (
                           <button
                             onClick={() => setType(tab)}
                             key={tab}
@@ -300,28 +324,40 @@ function GiftCard() {
                         ))}
                       </div>
 
-                      {type === "Transfer" ? (
-                        <div>
-                          <h3 id="credit" className="mb-3">
-                            Banking Information
-                          </h3>
-                          <div style={{ display: "flex" }}>
-                            <h4>Account No:</h4>
-                            <h4 style={{ margin: "0 0 0 8px" }}>1015023423</h4>
-                          </div>
-                          <div style={{ display: "flex" }}>
-                            <h4>Bank Name: </h4>
-                            <h4 style={{ margin: "0 0 0 8px" }}>Vietcombank</h4>
-                          </div>
-                          <div style={{ display: "flex" }}>
-                            <h4>Acount Owner: </h4>
-                            <h4 style={{ margin: "0 0 0 8px" }}> SWIP </h4>
-                          </div>
-                        </div>
-                      ) : (
-                        <div>
-                          {(orderInfo.Amount || orderInfo.Amount === 0) && (
+                      <div>
+                        {(orderInfo.Amount || orderInfo.Amount === 0) && (
+                          <div
+                            style={{
+                              backgroundColor: "rgb(0,0,0,0.1)",
+                              borderRadius: "16px",
+                              padding: "16px",
+                            }}
+                          >
+                            <h3 id="credit" className="mb-3">
+                              Banking Information
+                            </h3>
+                            <div style={{ display: "flex" }}>
+                              <h4>Account No:</h4>
+                              <h4 style={{ margin: "0 0 0 16px" }}>
+                                1015755738
+                              </h4>
+                            </div>
+                            <div style={{ display: "flex" }}>
+                              <h4>Bank Name: </h4>
+                              <h4 style={{ margin: "0 0 0 16px" }}>
+                                Vietcombank
+                              </h4>
+                            </div>
+                            <div style={{ display: "flex" }}>
+                              <h4>Acount Owner: </h4>
+                              <h4 style={{ margin: "0 0 0 16px" }}>
+                                Vu Duy Viet
+                              </h4>
+                            </div>
                             <img
+                              style={{ margin: "20px 0 0 0" }}
+                              width="50%"
+                              height="50%"
                               src={`https://img.vietqr.io/image/${
                                 MY_BANK.BANK_ID
                               }-${
@@ -331,43 +367,71 @@ function GiftCard() {
                               }&addInfo=gift-card-${orderInfo.Amount}`}
                               alt=""
                             />
-                          )}
-                          <h4 style={{ marginTop: "20px" }}>
-                            Nội dung chuyển khoản: gift-card{orderInfo.Amount}
-                          </h4>
-                          <h4 style={{ marginTop: "20px" }}>
-                            Số tiền:
-                            {new Intl.NumberFormat("en-US", {
-                              style: "currency",
-                              currency: "USD",
-                            }).format(orderInfo.Amount)}
-                            <span> ~ </span>
-                            {new Intl.NumberFormat("vi-VN", {
-                              style: "currency",
-                              currency: "VND",
-                            }).format(orderInfo.Amount * 24768)}
-                          </h4>
-                        </div>
-                      )}
+                          </div>
+                        )}
+
+                        <h4 style={{ marginTop: "20px" }}>
+                          Message: gift-card{orderInfo.Amount}
+                        </h4>
+                        <h4 style={{ marginTop: "20px" }}>
+                          Số tiền: <span> </span>
+                          {new Intl.NumberFormat("en-US", {
+                            style: "currency",
+                            currency: "USD",
+                          }).format(orderInfo.Amount)}
+                          <span> ~ </span>
+                          {new Intl.NumberFormat("vi-VN", {
+                            style: "currency",
+                            currency: "VND",
+                          }).format(orderInfo.Amount * 24768)}
+                        </h4>
+                      </div>
                     </div>
-                    <div
+                    <p
                       style={{
-                        display: "flex",
-                        margin: "-16px 0 0 0",
-                        justifyContent: "space-between",
+                        borderTop: "4px solid #bbb",
+                        borderRadius: "8px",
+                        margin: "0 0 32px 0",
                       }}
-                    >
-                      <div>
+                    ></p>
+                    <div>
+                      <div
+                        style={{
+                          backgroundColor: "rgb(0,0,0,0.1)",
+                          margin: "0 0 22px 0",
+                          padding: "10px",
+                          borderRadius: "18px",
+                        }}
+                      >
                         <h3 style={{ color: "#4f3804" }}>
                           Your Order has been Sent !
                         </h3>
-                        <h5>
-                          Status: <span>Pending</span>
-                          <div>You will receive notifications</div>
-                          <div>when payment is successfully done</div>
-                        </h5>
+                        <div>
+                          <span style={{ fontSize: "28px" }}>
+                            Status:{" "}
+                            <span style={{ color: "red" }}>Pending...</span>
+                          </span>
+
+                          <div
+                            style={{
+                              paddingTop: "8px",
+                              color: "red",
+                              fontSize: "18px",
+                            }}
+                          >
+                            You will receive notifications when payment is
+                            successfully done
+                          </div>
+                        </div>
                       </div>
-                      <div>
+                      <div
+                        style={{
+                          backgroundColor: "rgb(0,0,0,0.1)",
+                          padding: "10px",
+                          borderRadius: "18px",
+                          fontSize: "20px",
+                        }}
+                      >
                         <h3> Your order details</h3>
                         <span>
                           From: {orderInfo.From} - To: {orderInfo.To}

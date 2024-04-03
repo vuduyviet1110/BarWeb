@@ -920,10 +920,11 @@ body {
   }
   
   .menu .menu-img {
-    width: 70px;
+    width: 90px;
     border-radius: 50%;
     float: left;
-    border: 5px solid rgba(255, 255, 255, 0.2);
+    /* border: 5px solid rgba(255, 255, 255, 0.2); */
+    margin:0 16px 0 0
   }
   
   .menu .menu-content {
