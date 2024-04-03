@@ -1,14 +1,12 @@
 import { useState, useEffect } from "react";
 import "../assets/css/HomePage.css";
-import { Breadcrumb, Image } from "react-bootstrap";
+import { Breadcrumb } from "react-bootstrap";
 import Carousel from "react-bootstrap/Carousel";
 import Form from "react-bootstrap/Form";
-import Dropdown from "react-bootstrap/Dropdown";
 import anhquaybar from "../assets/images/anhquaybar.jpg";
 import christmas from "../assets/images/christmas.jpg";
 import countDown from "../assets/images/countdown.jpg";
 import supriseMoment from "../assets/images/supriseMoment.jpg";
-import talkingincouter from "../assets/images/talkingincouter.jpg";
 import Isotope from "isotope-layout";
 import AOS from "aos";
 import GLightbox from "glightbox";
@@ -19,13 +17,10 @@ import beverage4 from "../assets/images/beverage4.jpg";
 import beverage5 from "../assets/images/beverage5.jpg";
 import beverage6 from "../assets/images/beverage6.jpg";
 import beverage7 from "../assets/images/beverage7.jpg";
-import Button from "react-bootstrap/Button";
-import Modal from "react-bootstrap/Modal";
 import "swiper/css";
 import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
-import { changePwd, selectUser } from "../redux/userSlice";
-import { useDispatch } from "react-redux";
+import { selectUser } from "../redux/userSlice";
 import {
   ArrowRightCircle,
   ArrowUpShort,
@@ -34,44 +29,25 @@ import {
   TwitterX,
 } from "react-bootstrap-icons";
 import Testimonials from "../common/Testimonials";
+import ReactDatePicker from "react-datepicker";
+import ChangePwd from "../common/ChangePwd";
 
 function HomePage() {
   const { user } = useSelector(selectUser);
   console.log(user);
-  const dispatch = useDispatch();
+  const minTime = new Date();
+  minTime.setHours(20); // Giới hạn thời gian tối thiểu là 20:00 PM
+  minTime.setMinutes(180);
+
+  const maxTime = new Date();
+  maxTime.setHours(11); // Giới hạn thời gian tối đa là 02:00 AM
+  maxTime.setMinutes(20);
   const [CurentUser, setCurrentUser] = useState(
     Array.isArray(user) ? "" : user
   );
-  const [showModalChangePwd, setModalChangePwd] = useState(false);
-  const [invalidOldPwd, setInvalidOldPwd] = useState();
-  const [matchPwd, setMatchPwd] = useState();
-  const [passChanged, setPassChanged] = useState();
+  const [selectedDate, setSelectedDate] = useState();
   console.log(CurentUser);
-  const handleClose = () => {
-    setModalChangePwd(false);
-  };
-  const handleSaveChanges = () => {
-    if (invalidOldPwd) {
-      setModalChangePwd(true);
-      setPassChanged(false);
-    } else {
-      dispatch(changePwd(CurentUser));
-      console.log(CurentUser);
-      setTimeout(() => {
-        setModalChangePwd(false);
-      }, 4000);
-      setPassChanged(true);
-    }
-  };
-  const handleShow = () => setModalChangePwd(true);
-  const handleOldPwd = (e) => {
-    // fetch data từ database để xem người dùng có nhập đúng mật khẩu không
-    if (user.password !== e.target.value) {
-      setInvalidOldPwd(true);
-    } else {
-      setInvalidOldPwd(false);
-    }
-  };
+  // console.log(selectedDate);
 
   useEffect(() => {
     /**
@@ -443,136 +419,7 @@ function HomePage() {
               }}
             >
               <span style={{ color: "#fff" }}>Welcome, {user.email} </span>
-              <Dropdown>
-                <Dropdown.Toggle
-                  style={{ backgroundColor: "transparent", border: "none" }}
-                >
-                  <Image
-                    src={talkingincouter}
-                    roundedCircle
-                    style={{
-                      width: "40px",
-                      height: "40px",
-                      margin: "0 4px 0px 12px",
-                    }}
-                  />
-                </Dropdown.Toggle>
-
-                <Dropdown.Menu>
-                  <Dropdown.Item>
-                    <div>
-                      <Button
-                        style={{
-                          backgroundColor: "transparent",
-                          color: "black",
-                          border: "none",
-                        }}
-                        onClick={handleShow}
-                      >
-                        Change Password
-                      </Button>
-                    </div>
-                  </Dropdown.Item>
-                  <Dropdown.Item>
-                    <Button
-                      style={{
-                        backgroundColor: "transparent",
-                        color: "black",
-                        border: "none",
-                      }}
-                    >
-                      <Link
-                        to={{ pathname: "/profile", state: { CurentUser } }}
-                      >
-                        Edit Profile
-                      </Link>
-                    </Button>
-                  </Dropdown.Item>
-                  <Dropdown.Item onClick={() => setCurrentUser()} href="">
-                    <Button
-                      style={{
-                        backgroundColor: "transparent",
-                        color: "black",
-                        border: "none",
-                      }}
-                    >
-                      Log Out
-                    </Button>
-                  </Dropdown.Item>
-                </Dropdown.Menu>
-                <Modal show={showModalChangePwd} onHide={handleClose}>
-                  <Modal.Header closeButton>
-                    <Modal.Title style={{ color: "brown" }}>
-                      Change Your Password
-                    </Modal.Title>
-                  </Modal.Header>
-                  <Modal.Body style={{ color: "brown" }}>
-                    <Form.Label htmlFor="oldPwd">
-                      Your Current Password
-                    </Form.Label>
-
-                    <Form.Control
-                      onChange={handleOldPwd}
-                      placeholder="Old Password"
-                      type="password"
-                      id="oldPwd"
-                    />
-                    {invalidOldPwd && (
-                      <div style={{ color: "red" }}>
-                        Your Password is not correct
-                      </div>
-                    )}
-                    <Form.Label htmlFor="NewPwd">Your New Password</Form.Label>
-                    <Form.Control
-                      id="NewPwd"
-                      onChange={(e) =>
-                        setCurrentUser((prevInfo) => ({
-                          ...prevInfo,
-                          password: e.target.value,
-                        }))
-                      }
-                      placeholder="New Password"
-                      type="password"
-                    />
-                    <Form.Label htmlFor="ReNewPwd">
-                      Re-enter Your Password
-                    </Form.Label>
-                    <Form.Control
-                      onChange={(e) =>
-                        CurentUser.password === e.target.value
-                          ? setMatchPwd(true)
-                          : setMatchPwd(false)
-                      }
-                      placeholder="New Password Again"
-                      type="password"
-                      id="ReNewPwd"
-                    />
-                    {matchPwd === false && (
-                      <div style={{ color: "red" }}>
-                        Not match with your new password.
-                      </div>
-                    )}
-                  </Modal.Body>
-                  <Modal.Footer>
-                    {passChanged === true && (
-                      <h4 style={{ color: "green" }}>
-                        Password has been changed
-                      </h4>
-                    )}
-                    <div>
-                      <Button variant="secondary" onClick={handleClose}>
-                        Close
-                      </Button>
-                      <Button
-                        style={{ backgroundColor: "brown" }}
-                        onClick={handleSaveChanges}
-                      >
-                        Save Changes
-                      </Button>
-                    </div>
-                  </Modal.Footer>
-                </Modal>
-              </Dropdown>
+              <ChangePwd CurentUser={CurentUser} />
             </div>
           ) : (
             <div>
@@ -992,31 +839,23 @@ function HomePage() {
                   <div className="validate"></div>
                 </div>
                 <div className="col-lg-4 col-md-6 form-group mt-3">
-                  <input
-                    type="text"
-                    name="date"
-                    className="form-control"
-                    id="date"
-                    required
-                    placeholder="Date"
-                    data-rule="minlen:4"
-                    data-msg="Please enter at least 4 chars"
+                  <ReactDatePicker
+                    selected={selectedDate}
+                    onChange={(date) => setSelectedDate(date)}
+                    dateFormat="dd/MM/yyyy"
+                    isClearable
+                    showTimeSelect
+                    minTime={minTime}
+                    maxTime={maxTime}
+                    placeholderText="Reservation Date"
                   />
                   <div className="validate"></div>
+                  <span style={{ color: "white", margin: "20px" }}>
+                    Time: {selectedDate?.getHours()}:
+                    {selectedDate?.getMinutes()}
+                  </span>
                 </div>
-                <div className="col-lg-4 col-md-6 form-group mt-3">
-                  <input
-                    type="text"
-                    className="form-control"
-                    name="time"
-                    id="time"
-                    required
-                    placeholder="Time"
-                    data-rule="minlen:4"
-                    data-msg="Please enter at least 4 chars"
-                  />
-                  <div className="validate"></div>
-                </div>
+
                 <div className="col-lg-4 col-md-6 form-group mt-3">
                   <input
                     type="number"

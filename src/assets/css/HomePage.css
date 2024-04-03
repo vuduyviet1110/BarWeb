@@ -1225,6 +1225,8 @@ body {
   
   .book-a-table .php-email-form input {
     height: 44px;
+    width: 100%;
+
   }
   
   .book-a-table .php-email-form textarea {

@@ -22,13 +22,18 @@ function SignInPage() {
     const matchedUsers = FakeUsers.filter(
       (user) => user.email === e.target.value
     );
-    if (matchedUsers.length > 0) {
+    console.log(e.target.value);
+    if (matchedUsers.length > 0 && matchedUsers[0].email === e.target.value) {
       setCurrentUser(matchedUsers[0]);
+      console.log("đã thêm");
+      setIsAuth(true);
       // In ra người dùng nếu tìm thấy mật khẩu khớp
+    } else {
+      setIsAuth(false);
     }
   };
   const handlePwdCheck = (e) => {
-    if (CurentUser.password === e.target.value) {
+    if (CurentUser?.password === e.target.value) {
       setIsAuth(true);
     } else {
       setIsAuth(false);
@@ -78,18 +83,18 @@ function SignInPage() {
         }}
       >
         <h2 style={{ color: "brown" }}> Sign In</h2>
-        <Form noValidate validated={validated} onSubmit={handleSubmit}>
+        <Form validated={validated} onSubmit={handleSubmit}>
           <Row className="mb-3">
             <Form.Group as={Col} md="12" controlId="validationCustom01">
               <Form.Label>Email</Form.Label>
               <Form.Control
                 onChange={handleEmailCheck}
                 required
-                type="text"
+                type="email"
                 placeholder="Email"
               />
-              <Form.Control.Feedback>
-                You have fill this field{" "}
+              <Form.Control.Feedback type="invalid">
+                You fill out this field
               </Form.Control.Feedback>
             </Form.Group>
 
@@ -101,8 +106,9 @@ function SignInPage() {
                 type="password"
                 placeholder="Password"
               />
-              <Form.Control.Feedback>
-                You have fill this field
+
+              <Form.Control.Feedback type="invalid">
+                Please fill out this field
               </Form.Control.Feedback>
             </Form.Group>
           </Row>

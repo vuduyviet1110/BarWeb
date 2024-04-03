@@ -17,7 +17,7 @@ export const userSlice = createSlice({
       state.isLoggedIn = true;
       state.user = action.payload;
     },
-    changePwd: (state, action) => {
+    changePassword: (state, action) => {
       state.changePassword = true;
       state.isLoggedIn = true;
       state.user = action.payload;
@@ -34,7 +34,7 @@ export const userSlice = createSlice({
   },
 });
 
-export const { login, logout, changePwd, newUser } = userSlice.actions;
+export const { login, logout, changePassword, newUser } = userSlice.actions;
 
 export const selectUser = (state) => state.user;
 
