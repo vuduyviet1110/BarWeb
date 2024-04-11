@@ -1,63 +1,79 @@
 import { Button } from "react-bootstrap";
 import Form from "react-bootstrap/Form";
 import signIn from "../assets/images/Barava.jpg";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Col from "react-bootstrap/Col";
 import Row from "react-bootstrap/Row";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { login } from "../redux/userSlice";
-const FakeUsers = [
-  { email: "a@a", password: "password1" },
-  { email: "b@b", password: "password2" },
-  { email: "c@c", password: "password3" },
-];
+import { request } from "../utils/request";
+
 function SignInPage() {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const [validated, setValidated] = useState(false);
   const [isAuth, setIsAuth] = useState();
-  const [CurentUser, setCurrentUser] = useState({ email: "1", password: "" });
-  const navigate = useNavigate();
+  const [CurrentUser, setCurrentUser] = useState({
+    email: "1",
+    password: "",
+    id: 0,
+  });
+  // ...
   const handleEmailCheck = (e) => {
-    const matchedUsers = FakeUsers.filter(
-      (user) => user.email === e.target.value
-    );
-    console.log(e.target.value);
-    if (matchedUsers.length > 0 && matchedUsers[0].email === e.target.value) {
-      setCurrentUser(matchedUsers[0]);
-      console.log("đã thêm");
-      setIsAuth(true);
-      // In ra người dùng nếu tìm thấy mật khẩu khớp
-    } else {
-      setIsAuth(false);
-    }
+    setCurrentUser((prev) => ({ ...prev, email: e.target.value }));
   };
+
   const handlePwdCheck = (e) => {
-    if (CurentUser?.password === e.target.value) {
-      setIsAuth(true);
-    } else {
-      setIsAuth(false);
-    }
+    setCurrentUser((prev) => ({ ...prev, password: e.target.value }));
   };
-  const handleSubmit = (event) => {
-    const form = event.currentTarget;
-    if (form.checkValidity() === false) {
-      event.preventDefault();
-      event.stopPropagation();
-    } else if (
-      form.checkValidity() === true &&
-      Object.keys(CurentUser).length > 0
-    ) {
-      console.log(CurentUser);
-      event.preventDefault();
-      event.stopPropagation();
-      if (isAuth) {
-        localStorage.setItem("user_token", true);
-        dispatch(login(CurentUser));
-        return navigate("/");
+
+  useEffect(() => {
+    if (CurrentUser.id !== 0) {
+      setIsAuth(true);
+      localStorage.setItem("user_token", CurrentUser.id);
+      dispatch(login(CurrentUser));
+      navigate(`/`);
+    }
+  }, [CurrentUser]);
+  function setCookie(cname, cvalue, exdays) {
+    const d = new Date();
+    d.setTime(d.getTime() + exdays * 24 * 60 * 60 * 1000);
+    let expires = "expires=" + d.toUTCString();
+    document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+  }
+  function getCookie(cname) {
+    let name = cname + "=";
+    let decodedCookie = decodeURIComponent(document.cookie);
+    let ca = decodedCookie.split(";");
+    for (let i = 0; i < ca.length; i++) {
+      let c = ca[i];
+      while (c.charAt(0) === " ") {
+        c = c.substring(1);
+      }
+      if (c.indexOf(name) === 0) {
+        return c.substring(name.length, c.length);
       }
     }
-    setValidated(true);
+    return "";
+  }
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+
+    const form = event.currentTarget;
+    if (form.checkValidity() === false) {
+      setValidated(true);
+    } else {
+      const res = await request.post("/sign-in", CurrentUser);
+      if (res.data === "Incorrect Username and/or Password!") {
+        setIsAuth(false);
+      } else {
+        const id = res.data.data.user_id;
+        setCookie("token", res.data.token, 1);
+        setCurrentUser((prev) => ({ ...prev, id: id }));
+      }
+    }
   };
   return (
     <div
@@ -118,9 +134,7 @@ function SignInPage() {
               Please check email or password again!!!
             </span>
           )}
-          <Form.Group className="mb-3">
-            <Form.Check label="Remember " />
-          </Form.Group>
+
           <Button
             style={{
               width: "100%",

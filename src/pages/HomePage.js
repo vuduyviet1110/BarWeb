@@ -1,14 +1,14 @@
 import { useState, useEffect } from "react";
 import "../assets/css/HomePage.css";
-import { Breadcrumb } from "react-bootstrap";
+import { Breadcrumb, Button } from "react-bootstrap";
 import Carousel from "react-bootstrap/Carousel";
-import Form from "react-bootstrap/Form";
 import anhquaybar from "../assets/images/anhquaybar.jpg";
 import christmas from "../assets/images/christmas.jpg";
 import countDown from "../assets/images/countdown.jpg";
 import supriseMoment from "../assets/images/supriseMoment.jpg";
 import Isotope from "isotope-layout";
 import AOS from "aos";
+import { request } from "../utils/request";
 import GLightbox from "glightbox";
 import Swiper from "swiper";
 import beverage1 from "../assets/images/beverage1.jpg";
@@ -19,8 +19,6 @@ import beverage6 from "../assets/images/beverage6.jpg";
 import beverage7 from "../assets/images/beverage7.jpg";
 import "swiper/css";
 import { Link } from "react-router-dom";
-import { useSelector } from "react-redux";
-import { selectUser } from "../redux/userSlice";
 import {
   ArrowRightCircle,
   ArrowUpShort,
@@ -29,25 +27,42 @@ import {
   TwitterX,
 } from "react-bootstrap-icons";
 import Testimonials from "../common/Testimonials";
-import ReactDatePicker from "react-datepicker";
 import ChangePwd from "../common/ChangePwd";
-
+import BookingTable from "../common/booking";
 function HomePage() {
-  const { user } = useSelector(selectUser);
-  console.log(user);
-  const minTime = new Date();
-  minTime.setHours(20); // Giới hạn thời gian tối thiểu là 20:00 PM
-  minTime.setMinutes(180);
+  const userId = parseInt(localStorage.getItem("user_token"));
 
-  const maxTime = new Date();
-  maxTime.setHours(11); // Giới hạn thời gian tối đa là 02:00 AM
-  maxTime.setMinutes(20);
-  const [CurentUser, setCurrentUser] = useState(
-    Array.isArray(user) ? "" : user
-  );
-  const [selectedDate, setSelectedDate] = useState();
-  console.log(CurentUser);
-  // console.log(selectedDate);
+  const [CurentUser, setCurrentUser] = useState({});
+  const handleLogout = () => {
+    setCurrentUser({
+      user_DOB: "",
+      user_gmail: "",
+      user_id: 0,
+      user_name: "", // Thay đổi từ "user_nam" thành "user_name"
+      user_password: "",
+      user_phone: "",
+    });
+    localStorage.removeItem("access_token");
+    localStorage.removeItem("user_token");
+    console.log("log out");
+  };
+
+  useEffect(() => {
+    if (!userId) {
+      return;
+    }
+    const fetchApi = async () => {
+      try {
+        const res = await request.get(`/${userId}`);
+        setCurrentUser(res.data);
+        console.log(res.data); // Log dữ liệu từ API
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    fetchApi();
+  }, [userId]);
 
   useEffect(() => {
     /**
@@ -265,9 +280,6 @@ function HomePage() {
     /**
      * Initiate glightbox
      */
-    const glightbox = GLightbox({
-      selector: ".glightbox",
-    });
 
     /**
      * Events slider
@@ -319,9 +331,6 @@ function HomePage() {
     /**
      * Initiate gallery lightbox
      */
-    const galleryLightbox = GLightbox({
-      selector: ".gallery-lightbox",
-    });
 
     /**
      * Animation on scroll
@@ -397,9 +406,9 @@ function HomePage() {
                 </a>
               </li>
               <li>
-                <a className="nav-link scrollto" href="/gift-card">
-                  Giftcard
-                </a>
+                <Link to={{ pathname: "/gift-card", state: { CurentUser } }}>
+                  Gift Card
+                </Link>
               </li>
 
               <li>
@@ -410,7 +419,7 @@ function HomePage() {
             </ul>
             <i className="bi bi-list mobile-nav-toggle"></i>
           </nav>
-          {CurentUser ? (
+          {CurentUser.user_id > 0 ? (
             <div
               style={{
                 display: "flex",
@@ -418,8 +427,10 @@ function HomePage() {
                 justifyContent: "center",
               }}
             >
-              <span style={{ color: "#fff" }}>Welcome, {user.email} </span>
-              <ChangePwd CurentUser={CurentUser} />
+              <span style={{ color: "#fff" }}>
+                Welcome, {CurentUser.user_name}
+              </span>
+              <ChangePwd CurentUser={CurentUser} handleLogout={handleLogout} />
             </div>
           ) : (
             <div>
@@ -783,116 +794,8 @@ function HomePage() {
           </div>
         </section>
 
-        <section id="book-a-table" className="book-a-table">
-          <div className="container" data-aos="fade-up">
-            <div className="section-title">
-              <h2>Reservation</h2>
-              <p>Book a Table</p>
-            </div>
+        <BookingTable CurentUser={CurentUser} />
 
-            <form
-              action="forms/book-a-table.php"
-              method="post"
-              role="form"
-              className="php-email-form"
-              data-aos="fade-up"
-              data-aos-delay="100"
-            >
-              <div className="row">
-                <div className="col-lg-4 col-md-6 form-group">
-                  <input
-                    type="text"
-                    name="name"
-                    className="form-control"
-                    id="name"
-                    required
-                    placeholder="Your Name"
-                    data-rule="minlen:4"
-                    data-msg="Please enter at least 4 chars"
-                  />
-                  <div className="validate"></div>
-                </div>
-                <div className="col-lg-4 col-md-6 form-group mt-3 mt-md-0">
-                  <input
-                    type="email"
-                    className="form-control"
-                    name="email"
-                    required
-                    id="email"
-                    placeholder="Your Email"
-                    data-rule="email"
-                    data-msg="Please enter a valid email"
-                  />
-                  <div className="validate"></div>
-                </div>
-                <div className="col-lg-4 col-md-6 form-group mt-3 mt-md-0">
-                  <input
-                    type="text"
-                    className="form-control"
-                    name="phone"
-                    id="phone"
-                    required
-                    placeholder="Your Phone"
-                    data-rule="minlen:4"
-                    data-msg="Please enter at least 4 chars"
-                  />
-                  <div className="validate"></div>
-                </div>
-                <div className="col-lg-4 col-md-6 form-group mt-3">
-                  <ReactDatePicker
-                    selected={selectedDate}
-                    onChange={(date) => setSelectedDate(date)}
-                    dateFormat="dd/MM/yyyy"
-                    isClearable
-                    showTimeSelect
-                    minTime={minTime}
-                    maxTime={maxTime}
-                    placeholderText="Reservation Date"
-                  />
-                  <div className="validate"></div>
-                  <span style={{ color: "white", margin: "20px" }}>
-                    Time: {selectedDate?.getHours()}:
-                    {selectedDate?.getMinutes()}
-                  </span>
-                </div>
-
-                <div className="col-lg-4 col-md-6 form-group mt-3">
-                  <input
-                    type="number"
-                    className="form-control"
-                    name="people"
-                    id="people"
-                    required
-                    placeholder="# of people"
-                    data-rule="minlen:1"
-                    data-msg="Please enter at least 1 chars"
-                  />
-                  <div className="validate"></div>
-                </div>
-              </div>
-              <div className="form-group mt-3">
-                <textarea
-                  className="form-control"
-                  name="message"
-                  rows="5"
-                  placeholder="Message"
-                ></textarea>
-                <div className="validate"></div>
-              </div>
-              <div className="mb-3">
-                <div className="loading">Loading</div>
-                <div className="error-message"></div>
-                <div className="sent-message">
-                  Your booking request was sent. We will call back or send an
-                  Email to confirm your reservation. Thank you!
-                </div>
-              </div>
-              <div className="text-center">
-                <button type="submit">Book a Table</button>
-              </div>
-            </form>
-          </div>
-        </section>
         <section id="testimonials" className="testimonials section-bg">
           <div className="container" data-aos="fade-up">
             <div className="section-title">
@@ -1000,82 +903,6 @@ function HomePage() {
               allowFullScreen
             ></iframe>
           </div>
-
-          {/* <div className="container" data-aos="fade-up">
-            <div className="row mt-5">
-              <h3
-                style={{
-                  color: "#cda452",
-                  fontSize: "36px",
-                  fontWeight: "700",
-                  padding: "0 0 40px 0",
-                }}
-              >
-                Please let us know your thoughts
-              </h3>
-
-              <div className=" mt-5 mt-lg-0">
-                <form
-                  action="forms/contact.php"
-                  method="post"
-                  role="form"
-                  className="php-email-form"
-                >
-                  <div className="row">
-                    <div className="col-md-6 form-group">
-                      <input
-                        type="text"
-                        name="name"
-                        className="form-control"
-                        id="name"
-                        placeholder="Your Name"
-                        required
-                      />
-                    </div>
-                    <div className="col-md-6 form-group mt-3 mt-md-0">
-                      <input
-                        type="email"
-                        className="form-control"
-                        name="email"
-                        id="email"
-                        placeholder="Your Email"
-                        required
-                      />
-                    </div>
-                  </div>
-                  <div className="form-group mt-3">
-                    <input
-                      type="text"
-                      className="form-control"
-                      name="subject"
-                      id="subject"
-                      placeholder="Subject"
-                      required
-                    />
-                  </div>
-                  <div className="form-group mt-3">
-                    <textarea
-                      className="form-control"
-                      name="message"
-                      rows="8"
-                      placeholder="Message"
-                      required
-                    ></textarea>
-                  </div>
-                  <div className="my-3">
-                    <div className="loading">Loading</div>
-                    <div className="error-message"></div>
-                    <div className="sent-message">
-                      Your message has been sent. Thank you!
-                    </div>
-                  </div>
-                  <div className="text-center">
-                    <button type="submit">Send Message</button>
-                  </div>
-                </form>
-              </div>
-            </div>
-          </div> */}
         </section>
       </main>
 

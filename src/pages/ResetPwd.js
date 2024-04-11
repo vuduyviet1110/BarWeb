@@ -1,5 +1,42 @@
+import { useEffect, useState } from "react";
 import { Card, Form, Button } from "react-bootstrap";
+import { request } from "../utils/request";
 function ResetPwd() {
+  const userId = localStorage.getItem("user_token");
+  const [CurrentUser, setCurrrentUser] = useState({
+    user_id: 0,
+    user_name: "0",
+    user_gmail: "",
+  });
+
+  useEffect(() => {
+    if (!userId) {
+      return;
+    }
+
+    const fetchApi = async () => {
+      try {
+        const res = await request.get(`/${userId}`);
+        setCurrrentUser(res.data);
+        console.log(res.data);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    fetchApi();
+  }, [userId]);
+
+  const handleSubmit = async () => {
+    try {
+      const res = await request.post("/reset-password", CurrentUser);
+      if (res.data) {
+        console.log(res.data);
+      }
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  };
   return (
     <div
       style={{
@@ -17,20 +54,25 @@ function ResetPwd() {
             Enter your email address and we'll send you an email with
             instructions to reset your password.
           </p>
-          <Form.Group className="mb-3">
+          <Form.Group className="mb-3" onSubmit={handleSubmit}>
             <Form.Control
               type="email"
               id="typeEmail"
               placeholder="Your Email "
+              onChange={(e) => {
+                setCurrrentUser((prev) => ({
+                  ...prev,
+                  user_gmail: e.target.value,
+                }));
+              }}
             />
+            <Button
+              type="submit"
+              style={{ backgroundColor: "#874210", margin: "16px 0 0 0" }}
+            >
+              Reset password
+            </Button>
           </Form.Group>
-          <Button
-            type="submit"
-            style={{ backgroundColor: "#874210" }}
-            className="w-100"
-          >
-            Reset password
-          </Button>
           <div
             style={{ fontSize: "18px" }}
             className="d-flex justify-content-between mt-4"

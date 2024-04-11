@@ -8,27 +8,77 @@ import SwipLogo from "../assets/images/SwipLogo.png";
 import crystalTexture2 from "../assets/images/crystalTexture2.jpg";
 import { Link } from "react-router-dom";
 import { Button } from "react-bootstrap";
-import { giftCards } from "../Fakeapi";
+import { request } from "../utils/request";
 function GiftCard() {
+  const userId = parseInt(localStorage.getItem("user_token"));
+  const [CurrentUser, setCurrentUser] = useState({});
+  const [validEmail, setValidEmail] = useState(true);
+  const isValidEmail = (email) => {
+    // Biểu thức chính quy để kiểm tra email
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailPattern.test(email);
+  };
+
+  // Xử lý khi rời khỏi trường nhập email
+  const handleEmailBlur = (e) => {
+    const { value } = e.target;
+    if (isValidEmail(value)) {
+      setValidEmail(true);
+    } else {
+      setValidEmail(false);
+    }
+  };
+
+  useEffect(() => {
+    if (!userId) {
+      return;
+    }
+
+    const fetchApi = async () => {
+      try {
+        const res = await request.get(`/${userId}`);
+        setCurrentUser(res.data);
+        console.log(res.data);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    fetchApi();
+  }, [userId]);
   const MY_BANK = {
     BANK_ID: "vietcombank",
     ACCOUNT_NO: "1015755738",
   };
-  const [orderInfo, setOrderInfo] = useState(giftCards);
+  const [orderInfo, setOrderInfo] = useState({
+    user_id: userId,
+    receiver_name: " ",
+    user_amount: 0,
+    receiver_mail: "",
+    receiver_message: "",
+    receiver_address: "",
+    receiver_phone: "",
+  });
   const [type, setType] = useState("QR Code");
   const [doneBtn, SetDoneBtn] = useState();
-  const handleDone = () => {
+  const handleDone = async () => {
     if (
-      orderInfo.Amount !== 0 &&
-      orderInfo.From &&
-      orderInfo.To &&
-      orderInfo.RecipentEmail &&
-      orderInfo.Message &&
-      orderInfo.Message.length < 6 &&
-      orderInfo.RecipentAdress &&
-      orderInfo.RecipentPhoneNo !== 0
+      orderInfo.user_amount !== 0 &&
+      orderInfo.receiver_name &&
+      orderInfo.receiver_mail &&
+      orderInfo.receiver_message &&
+      orderInfo.receiver_message.length < 600 &&
+      validEmail &&
+      orderInfo.receiver_address &&
+      orderInfo.receiver_phone !== 0
     ) {
       SetDoneBtn(true);
+      try {
+        const res = await request.post("/giftCard", orderInfo);
+        console.log(res.data);
+      } catch (error) {
+        console.log("can not place the order");
+      }
     } else {
       SetDoneBtn(false);
     }
@@ -89,13 +139,12 @@ function GiftCard() {
                               className="gift-input"
                               type="text"
                               name="to"
-                              value={orderInfo.To}
                               placeholder="Mark"
                               required
                               onChange={(e) =>
                                 setOrderInfo((prevOrderInfo) => ({
                                   ...prevOrderInfo,
-                                  To: e.target.value,
+                                  receiver_name: e.target.value,
                                 }))
                               }
                             />
@@ -111,15 +160,8 @@ function GiftCard() {
                             <input
                               className="gift-input"
                               type="text"
-                              name="from"
-                              value={orderInfo.From}
-                              placeholder="Julia"
-                              onChange={(e) =>
-                                setOrderInfo((prevOrderInfo) => ({
-                                  ...prevOrderInfo,
-                                  From: e.target.value,
-                                }))
-                              }
+                              required
+                              value={CurrentUser.user_name}
                             />
                           </div>
                         </div>
@@ -128,34 +170,41 @@ function GiftCard() {
                     <div className="row">
                       <div className="col-6">
                         <label className="gift">Recipient email</label>
-                        <br />
                         <input
                           className="gift-input"
                           type="email"
                           name="email"
-                          value={orderInfo.RecipentEmail}
+                          required
+                          onBlur={handleEmailBlur}
+                          value={orderInfo.receiver_mail}
                           placeholder="mark@mail.org"
                           onChange={(e) =>
                             setOrderInfo((prevOrderInfo) => ({
                               ...prevOrderInfo,
-                              RecipentEmail: e.target.value,
+                              receiver_mail: e.target.value,
                             }))
                           }
                         />
+                        {!validEmail && (
+                          <h5 style={{ color: "red", margin: "-16px 0 0 0" }}>
+                            Invalid email!
+                          </h5>
+                        )}
                       </div>
                       <div className="col-6">
-                        <label className="gift">Select Amount</label>
+                        <label className="gift">Select user_amount</label>
                         <Form.Select
                           aria-label="Default select example"
+                          required
                           onChange={(e) =>
                             setOrderInfo((prevOrderInfo) => ({
                               ...prevOrderInfo,
-                              Amount: e.target.value,
+                              user_amount: e.target.value,
                             }))
                           }
-                          value={orderInfo.Amount}
+                          value={orderInfo.user_amount}
                         >
-                          <option value="">Amount</option>
+                          <option value="">user_amount</option>
                           <option value="10">10 $</option>
                           <option value="20">20 $</option>
                           <option value="50">50 $</option>
@@ -170,12 +219,13 @@ function GiftCard() {
                         <input
                           className="gift-input"
                           type="text"
-                          value={orderInfo.RecipentAdress}
+                          required
+                          value={orderInfo.receiver_address}
                           placeholder="1 Houton st, California !"
                           onChange={(e) =>
                             setOrderInfo((prevOrderInfo) => ({
                               ...prevOrderInfo,
-                              RecipentAdress: e.target.value,
+                              receiver_address: e.target.value,
                             }))
                           }
                         />
@@ -186,17 +236,23 @@ function GiftCard() {
                         <input
                           className="gift-input"
                           type="text"
-                          value={orderInfo.RecipentPhoneNo}
+                          required
+                          maxLength={10}
+                          minLength={10}
+                          value={orderInfo.receiver_phone}
                           placeholder="Phone Number"
                           onChange={(e) => {
                             if (!isNaN(e.target.value)) {
                               setOrderInfo((prevOrderInfo) => ({
                                 ...prevOrderInfo,
-                                RecipentPhoneNo: e.target.value,
+                                receiver_phone: e.target.value,
                               }));
                             }
                           }}
                         />
+                        {/* {!orderInfo.receiver_phone.length < 10 && (
+                          <span>Must be 10 digits</span>
+                        )} */}
                       </div>
                     </div>
 
@@ -207,19 +263,19 @@ function GiftCard() {
                         <textarea
                           className="gift-input"
                           type="textarea"
-                          value={orderInfo.Message}
+                          maxLength={600}
+                          value={orderInfo.receiver_message}
                           placeholder="Happy Birthday dear friend !"
                           onChange={(e) =>
                             setOrderInfo((prevOrderInfo) => ({
                               ...prevOrderInfo,
-                              Message: e.target.value,
+                              receiver_message: e.target.value,
                             }))
                           }
-                          maxLength={10}
                         />
                       </div>
-                      {orderInfo.Message?.length > 6 && (
-                        <h5 style={{ color: "red" }}>Max length is 6!!</h5>
+                      {orderInfo.receiver_message?.length > 600 && (
+                        <h5 style={{ color: "red" }}>Max length is 600!!</h5>
                       )}
                     </div>
                     <div className="row justify-content-center">
@@ -236,7 +292,8 @@ function GiftCard() {
                         <h1>Preview</h1>
                         <div
                           style={{
-                            width: orderInfo.Amount === "100" ? "67%" : "73%",
+                            width:
+                              orderInfo.user_amount === "100" ? "67%" : "73%",
                             color: "white",
                             borderRadius: "16px",
                             height: "230px",
@@ -247,7 +304,7 @@ function GiftCard() {
                             boxShadow: "rgb(175, 168, 168) 23px 14px 16px 8px",
                             alignItems: "center",
                             backgroundImage:
-                              orderInfo.Amount === "100"
+                              orderInfo.user_amount === "100"
                                 ? `url(${crystalTexture2})`
                                 : `url(${crystalTexture3})`,
                             backgroundSize: "contain",
@@ -260,7 +317,7 @@ function GiftCard() {
                               justifyContent: "flex-end",
                               alignItems: "flex-end",
                               backgroundColor:
-                                orderInfo.Amount === "100"
+                                orderInfo.user_amount === "100"
                                   ? "rgb(255 255 255 / 40%)"
                                   : "rgb(0 0 0 / 5%)",
                               backgroundImage: `url(${SwipLogo})`,
@@ -277,7 +334,7 @@ function GiftCard() {
                                 color: "#874210",
                               }}
                             >
-                              <h2>{orderInfo.Amount} $</h2>
+                              <h2>{orderInfo.user_amount} $</h2>
                             </div>
                           </div>
                         </div>
@@ -297,7 +354,7 @@ function GiftCard() {
                   </form>
                 </div>
               </div>
-              {doneBtn === true && orderInfo.Amount && (
+              {doneBtn === true && orderInfo.user_amount && (
                 <div className="col-md-6 col-sm-12 p-0 box">
                   <div className="card rounded-0 border-0 card2">
                     <div className="form-card">
@@ -325,7 +382,8 @@ function GiftCard() {
                       </div>
 
                       <div>
-                        {(orderInfo.Amount || orderInfo.Amount === 0) && (
+                        {(orderInfo.user_amount ||
+                          orderInfo.user_amount === 0) && (
                           <div
                             style={{
                               backgroundColor: "rgb(0,0,0,0.1)",
@@ -362,28 +420,28 @@ function GiftCard() {
                                 MY_BANK.BANK_ID
                               }-${
                                 MY_BANK.ACCOUNT_NO
-                              }-qr_only.png?orderInfo.Amount=${
-                                orderInfo.Amount * 24768
-                              }&addInfo=gift-card-${orderInfo.Amount}`}
+                              }-qr_only.png?orderInfo.user_amount=${
+                                orderInfo.user_amount * 24768
+                              }&addInfo=gift-card-${orderInfo.user_amount}`}
                               alt=""
                             />
                           </div>
                         )}
 
                         <h4 style={{ marginTop: "20px" }}>
-                          Message: gift-card{orderInfo.Amount}
+                          Message: gift-card{orderInfo.user_amount}
                         </h4>
                         <h4 style={{ marginTop: "20px" }}>
                           Số tiền: <span> </span>
                           {new Intl.NumberFormat("en-US", {
                             style: "currency",
                             currency: "USD",
-                          }).format(orderInfo.Amount)}
+                          }).format(orderInfo.user_amount)}
                           <span> ~ </span>
                           {new Intl.NumberFormat("vi-VN", {
                             style: "currency",
                             currency: "VND",
-                          }).format(orderInfo.Amount * 24768)}
+                          }).format(orderInfo.user_amount * 24768)}
                         </h4>
                       </div>
                     </div>
@@ -434,22 +492,22 @@ function GiftCard() {
                       >
                         <h3> Your order details</h3>
                         <span>
-                          From: {orderInfo.From} - To: {orderInfo.To}
+                          From: {orderInfo.From} - To: {orderInfo.receiver_name}
                         </span>
                         <div>
-                          Amount (1) :
+                          user_amount (1) :
                           {new Intl.NumberFormat("en-US", {
                             style: "currency",
                             currency: "USD",
-                          }).format(orderInfo.Amount)}
+                          }).format(orderInfo.user_amount)}
                           <span> ~ </span>
                           {new Intl.NumberFormat("vi-VN", {
                             style: "currency",
                             currency: "VND",
-                          }).format(orderInfo.Amount * 24768)}
+                          }).format(orderInfo.user_amount * 24768)}
                         </div>
-                        <div>Recipent's Email: {orderInfo.RecipentEmail}</div>
-                        <div>Recipent's Phone: {orderInfo.RecipentPhoneNo}</div>
+                        <div>Recipent's Email: {orderInfo.receiver_mail}</div>
+                        <div>Recipent's Phone: {orderInfo.receiver_phone}</div>
                       </div>
                     </div>
                   </div>

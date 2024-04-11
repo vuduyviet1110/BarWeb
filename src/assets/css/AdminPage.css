@@ -1,5 +1,7 @@
 .Header{
-    padding:6px 16px
+    padding:6px 16px;
+    justify-content: space-between;
+    display:flex;
 }
 .SideBar{
     min-width:18% ;

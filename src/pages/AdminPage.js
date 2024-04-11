@@ -4,12 +4,20 @@ import {
   Gift,
   ImageAlt,
   Newspaper,
-  Question,
   Ticket,
+  UsbDrive,
 } from "react-bootstrap-icons";
+import { useNavigate } from "react-router-dom";
+
 import { NavLink, Outlet } from "react-router-dom";
 import beverage3 from "../assets/images/talkingincouter.jpg";
 function AdminPage() {
+  const handleLogout = (e) => {
+    localStorage.removeItem("access_token");
+    return navigate("/login");
+  };
+  const navigate = useNavigate();
+
   return (
     <div
       style={{
@@ -25,7 +33,30 @@ function AdminPage() {
         }}
       >
         <div className="Header">
-          <h2 style={{ color: "rgba(255, 255, 255, 0.3)" }}>SWI:P</h2>
+          <h2
+            style={{
+              color: "rgba(255, 255, 255, 0.8)",
+              backgroundColor: "rgba(0, 0, 0, 0.9)",
+              padding: "8px",
+              borderRadius: "8px",
+            }}
+          >
+            SWI:P
+          </h2>
+          <h4
+            style={{
+              color: "rgba(255, 255, 255, 0.8)",
+              backgroundColor: "rgba(0, 0, 0, 0.6)",
+              padding: "8px",
+              lineHeight: "35.4px",
+              borderRadius: "8px",
+              textAlign: "center",
+              cursor: "pointer",
+            }}
+            onClick={handleLogout}
+          >
+            Log Out
+          </h4>
         </div>
 
         <div style={{ display: "flex", height: "100%" }}>
@@ -48,6 +79,11 @@ function AdminPage() {
                 icon: <Newspaper />,
                 title: "Manage Event",
                 route: "event",
+              },
+              {
+                icon: <UsbDrive />,
+                title: "Manage User",
+                route: "user",
               },
             ].map((tab, index) => (
               <h5 key={index}>

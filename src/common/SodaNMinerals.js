@@ -4,6 +4,7 @@ import Form from "react-bootstrap/Form";
 import InputGroup from "react-bootstrap/InputGroup";
 import Row from "react-bootstrap/Row";
 import { Col } from "react-bootstrap";
+import { Image } from "react-bootstrap";
 
 function SodaNMinerals({ Contents }) {
   const [drinks, setDrinks] = useState(Contents[2].Beverage.SodaNMinerals);
@@ -79,6 +80,10 @@ function SodaNMinerals({ Contents }) {
                 />
                 <InputGroup.Text>.00</InputGroup.Text>
               </InputGroup>
+              <div key={index}>
+                <Form.Control type="file" />
+                <Image src={drink.photo} thumbnail />
+              </div>
               <Button
                 style={{
                   width: "100%",

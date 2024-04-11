@@ -6,42 +6,74 @@ import Col from "react-bootstrap/Col";
 import InputGroup from "react-bootstrap/InputGroup";
 import Row from "react-bootstrap/Row";
 import DatePicker from "react-datepicker";
+import { request } from "../utils/request";
 
 function SignUpPage() {
   const [validated, setValidated] = useState(false);
   const [rePwd, setrePwd] = useState("");
+  const [formData, setFormData] = useState({
+    name: "",
+    phone: "",
+    gmail: "",
+    password: "",
+    DOB: "",
+  });
   const [invalidLength, setinvalidLength] = useState(false);
   const [invalidAge, setinvalidAge] = useState();
   const [phoneLength, setPhoneLength] = useState("");
-  const [selectedDate, setSelectedDate] = useState(null);
-  const [phone, setPhone] = useState("");
-  const [pwd, setPwd] = useState("");
-  console.log(selectedDate);
+  const [signInSuccess, setSignInSuccess] = useState();
   const currentDate = new Date();
   const currentYear = currentDate.getFullYear();
-  console.log(selectedDate?.getFullYear());
 
-  const handleSubmit = (event) => {
+  const handleChangeInfo = (e) => {
+    setFormData((prevInfo) => ({
+      ...prevInfo,
+      [e.target.name]: e.target.value,
+    }));
+  };
+
+  const handleDateChange = (date) => {
+    setFormData((prevInfo) => ({
+      ...prevInfo,
+      DOB: date ? date : false, // Set DOB field in formData to the selected date
+    }));
+  };
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
     const form = event.currentTarget;
     if (
       form.checkValidity() === false ||
-      pwd.length < 6 ||
+      formData.password.length < 6 ||
       invalidAge ||
       invalidLength ||
+      !formData.DOB ||
       phoneLength === false
     ) {
-      event.preventDefault();
       event.stopPropagation();
-      if (pwd.length < 6 || rePwd !== pwd) {
-        // Hiển thị thông báo lỗi khi mật khẩu có độ dài nhỏ hơn 6 ký tự
+      if (formData.password.length < 6 || rePwd !== formData.password) {
         setinvalidLength(true);
-      }
-      if (pwd.length >= 6) {
+      } else {
         setinvalidLength(false);
       }
+      if (!formData.DOB) {
+        setinvalidAge(true);
+      } else {
+        setinvalidAge(false);
+      }
       setValidated(true);
+      return;
+    } else {
+      try {
+        const res = await request.post("/sign-up", formData);
+        console.log(res.data);
+        setSignInSuccess(true);
+      } catch (error) {
+        console.error("Error:", error);
+      }
     }
   };
+
   return (
     <div
       style={{
@@ -67,16 +99,17 @@ function SignUpPage() {
         }}
       >
         <h2 style={{ color: "brown" }}> Sign Up</h2>
-        <Form
-          noValidate
-          validated={validated}
-          method="Post"
-          onSubmit={handleSubmit}
-        >
+        <Form noValidate validated={validated} onSubmit={handleSubmit}>
           <Row className="mb-4">
             <Form.Group as={Col} md="6" controlId="validationCustom01">
               <Form.Label> Name</Form.Label>
-              <Form.Control required type="text" placeholder="Name" />
+              <Form.Control
+                onChange={handleChangeInfo}
+                required
+                type="text"
+                placeholder="Name"
+                name="name"
+              />
               <Form.Control.Feedback>Field is filled!</Form.Control.Feedback>
               <Form.Control.Feedback type="invalid">
                 Enter your Name
@@ -86,14 +119,17 @@ function SignUpPage() {
               <Form.Label>Phone Number</Form.Label>
               <Form.Control
                 required
-                value={phone}
+                value={formData.phone}
                 onChange={(e) => {
                   if (!isNaN(e.target.value)) {
-                    setPhone(e.target.value);
+                    setFormData((prevInfo) => ({
+                      ...prevInfo,
+                      phone: e.target.value,
+                    }));
                   }
                 }}
                 onBlur={() => {
-                  if (phone.length === 10) {
+                  if (formData.phone.length === 10) {
                     setPhoneLength(true);
                   } else {
                     setPhoneLength(false);
@@ -118,10 +154,12 @@ function SignUpPage() {
               <InputGroup hasValidation>
                 <InputGroup.Text id="inputGroupPrepend">@</InputGroup.Text>
                 <Form.Control
-                  type="email"
+                  type="gmail"
                   placeholder="Email"
                   aria-describedby="inputGroupPrepend"
                   required
+                  name="gmail"
+                  onChange={handleChangeInfo}
                 />
                 <Form.Control.Feedback type="invalid">
                   Enter your email address
@@ -139,11 +177,14 @@ function SignUpPage() {
             >
               <Form.Label>Date Of Birth</Form.Label>
               <DatePicker
-                selected={selectedDate}
-                onChange={(date) => setSelectedDate(date)}
+                selected={formData.DOB}
+                onChange={handleDateChange}
                 dateFormat="dd/MM/yyyy"
                 onBlur={() => {
-                  if (selectedDate?.getFullYear() >= currentYear - 18) {
+                  if (
+                    formData.DOB &&
+                    formData.DOB.getFullYear() >= currentYear - 18
+                  ) {
                     setinvalidAge(true);
                   } else {
                     setinvalidAge(false);
@@ -156,7 +197,7 @@ function SignUpPage() {
               />
               {invalidAge && (
                 <span style={{ color: "red" }}>
-                  You must be at least 18 years old and do not
+                  This field is required/ You must be at least 18 years
                 </span>
               )}
             </Form.Group>
@@ -167,10 +208,11 @@ function SignUpPage() {
               <Form.Control
                 type="text"
                 placeholder="Password"
-                value={pwd}
-                onChange={(e) => setPwd(e.target.value)}
+                value={formData.password}
+                name="password"
+                onChange={handleChangeInfo}
                 onBlur={() => {
-                  if (pwd.length >= 6) {
+                  if (formData.password.length >= 6) {
                     setinvalidLength(false);
                   } else {
                     setinvalidLength(true);
@@ -199,12 +241,16 @@ function SignUpPage() {
               <Form.Control.Feedback type="invalid">
                 Please re-enter your password
               </Form.Control.Feedback>
-              {pwd !== rePwd && (
-                <span style={{ color: "red" }}> Password must giống nhau</span>
+              {formData.password !== rePwd && (
+                <span style={{ color: "red" }}> Password is not matched</span>
               )}
             </Form.Group>
           </Row>
-
+          {signInSuccess && (
+            <div style={{ color: "green", fontSize: "20px" }}>
+              You have successfully signed up!!!
+            </div>
+          )}
           <div
             style={{
               display: "flex",

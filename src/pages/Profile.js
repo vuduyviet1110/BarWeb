@@ -1,14 +1,50 @@
 import { Container, Row, Col, Card, Button } from "react-bootstrap";
 import DatePicker from "react-datepicker";
-import { useState } from "react";
-import { useSelector } from "react-redux";
-import { selectUser } from "../redux/userSlice";
+import { useEffect, useState } from "react";
 import { Facebook, Instagram, TwitterX } from "react-bootstrap-icons";
-const UserProfile = () => {
-  const [selectedDate, setSelectedDate] = useState();
-  const { user } = useSelector(selectUser);
+import { request } from "../utils/request";
 
-  console.log(user);
+const UserProfile = () => {
+  const userId = parseInt(localStorage.getItem("user_token"));
+  const [CurrentUser, setCurrentUser] = useState({
+    user_DOB: "",
+    user_gmail: "",
+    user_id: 0,
+    user_name: "",
+    user_phone: "",
+    user_address: "",
+  });
+  const [updateSucess, setUpdateSucess] = useState(false);
+  useEffect(() => {
+    if (!userId) {
+      return;
+    }
+
+    const fetchApi = async () => {
+      try {
+        const res = await request.get(`/${userId}`);
+        setCurrentUser(res.data);
+        console.log(res.data);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    fetchApi();
+  }, [userId]);
+
+  const handleUpdate = async () => {
+    try {
+      const res = await request.put("/profile", CurrentUser);
+      if (res.data) {
+        setUpdateSucess(true);
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      setUpdateSucess(false);
+    }
+  };
+
   return (
     <section className="vh-100" style={{ backgroundColor: "#f4f5f7" }}>
       <Container className="py-5 h-100">
@@ -25,12 +61,12 @@ const UserProfile = () => {
                   }}
                 >
                   <img
-                    src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-chat/ava1-bg.webp"
+                    src="https://cdn-icons-png.flaticon.com/512/6596/6596121.png"
                     alt="Avatar"
                     className="img-fluid my-5"
                     style={{ width: "80px" }}
                   />
-                  <h5 style={{ color: "red" }}>Marie Horwitz</h5>
+                  <h5 style={{ color: "red" }}>{CurrentUser.user_name}</h5>
                   <p style={{ color: "red" }}>Web Designer</p>
                 </Col>
                 <Col md={8}>
@@ -40,76 +76,102 @@ const UserProfile = () => {
                     <Row className="pt-1">
                       <Col className="mb-3">
                         <h6>Name</h6>
-                        <p className="text-muted">{user.email}</p>
-                        <Button
-                          style={{
-                            margin: "-6x 0 0 8px",
-                            backgroundColor: "#b63635",
-                            border: "none",
-                            color: "#fff",
-                            height: "30px",
+                        <input
+                          className="form-control"
+                          value={CurrentUser.user_name}
+                          onChange={(e) => {
+                            setCurrentUser((prev) => ({
+                              ...prev,
+                              user_name: e.target.value,
+                            }));
                           }}
-                        >
-                          Edit
-                        </Button>
+                        />
                       </Col>
                       <Col className="mb-3">
                         <h6>Date Of Birth</h6>
                         <DatePicker
-                          selected={selectedDate}
-                          onChange={(date) => setSelectedDate(date)}
+                          selected={CurrentUser.user_DOB} // Set selected date
+                          onChange={(date) => {
+                            setCurrentUser((prev) => ({
+                              ...prev,
+                              user_DOB: date, // Update user_DOB directly with the selected date
+                            }));
+                          }}
                           dateFormat="dd/MM/yyyy"
                           isClearable
                           placeholderText="Date Of Birth"
+                          className="form-control"
                         />
-                        <Button
-                          style={{
-                            margin: "8px 0 0 0",
-                            backgroundColor: "#b63635",
-                            border: "none",
-                            color: "#fff",
-                            height: "30px",
-                          }}
-                        >
-                          Save
-                        </Button>
                       </Col>
                     </Row>
                     <Row className="pt-1">
                       <Col className="mb-3">
                         <h6>Email</h6>
-
-                        <p className="text-muted">info@example.com</p>
-                        <Button
-                          style={{
-                            margin: "-6x 0 0 8px",
-                            backgroundColor: "#b63635",
-                            border: "none",
-                            color: "#fff",
-                            height: "30px",
+                        <input
+                          className="form-control"
+                          value={CurrentUser.user_gmail}
+                          onChange={(e) => {
+                            setCurrentUser((prev) => ({
+                              ...prev,
+                              user_gmail: e.target.value,
+                            }));
                           }}
-                        >
-                          Edit
-                        </Button>
+                        />
                       </Col>
                       <Col className="mb-3">
                         <h6>Phone</h6>
-                        <p className="text-muted">123456789</p>
-                        <Button
-                          style={{
-                            margin: "0x 0 0 8px",
-                            backgroundColor: "#b63635",
-                            border: "none",
-                            color: "#fff",
-                            height: "30px",
+                        <input
+                          className="form-control"
+                          value={CurrentUser.user_phone}
+                          onChange={(e) => {
+                            setCurrentUser((prev) => ({
+                              ...prev,
+                              user_phone: e.target.value,
+                            }));
                           }}
-                        >
-                          Edit
-                        </Button>
+                        />
                       </Col>
                     </Row>
+                    <Row>
+                      <Col className="mb-3">
+                        <h6>Address</h6>
+                        <input
+                          className="form-control"
+                          value={CurrentUser.user_address}
+                          onChange={(e) => {
+                            setCurrentUser((prev) => ({
+                              ...prev,
+                              user_address: e.target.value,
+                            }));
+                          }}
+                        />
+                      </Col>
+                    </Row>
+                    {updateSucess === true && (
+                      <div style={{ color: "green", fontSize: "18px" }}>
+                        Update Sucessfully!!
+                      </div>
+                    )}
+                    <Row className="pt-1">
+                      <Button
+                        onClick={handleUpdate}
+                        style={{
+                          backgroundColor: "#b63635",
+                          border: "none",
+                          color: "#fff",
+                          height: "40px",
+                        }}
+                      >
+                        Update
+                      </Button>
+                    </Row>
 
-                    <div className="d-flex justify-content-start">
+                    <div
+                      className="d-flex justify-content-start"
+                      style={{
+                        margin: "16px 0 0 0 ",
+                      }}
+                    >
                       <a href="#!">
                         <Facebook className="fab fa-facebook-f fa-lg me-3" />
                       </a>

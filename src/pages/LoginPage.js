@@ -22,7 +22,7 @@ export default function LoginPage() {
   };
 
   const handleClick = () => {
-    if (admin.id === "admin" && admin.password === "password") {
+    if (admin.id === "admin" && admin.password === "1") {
       localStorage.setItem("access_token", true);
       return navigate("/admin/content");
     } else {
