@@ -1,16 +1,27 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Button, Col, Container, Form, Row } from "react-bootstrap";
 import { giftCards as initialGiftCards } from "../Fakeapi";
+import { request } from "../utils/request";
 function ManageGiftCard() {
   const [giftcards, setGiftCard] = useState(initialGiftCards);
-  const [isEditing, setIsEditing] = useState(false);
   const handleRemoveReservation = (indexToRemove) => {
     const updatedReservations = [...giftcards];
     updatedReservations.splice(indexToRemove, 1);
     setGiftCard(updatedReservations);
   };
-  const handleEditReservation = (indexToRemove) => {
-    setIsEditing(indexToRemove);
+  const handleChange = (index, field, value) => {
+    const updatedGiftcards = [...giftcards];
+    updatedGiftcards[index][field] = value;
+    setGiftCard(updatedGiftcards);
+  };
+  const handleUpdateReservation = async (indexToUpdate) => {
+    try {
+      const updatedReservation = giftcards[indexToUpdate];
+      const res = await request.put("/admin/gift-card/", updatedReservation);
+      console.log(res.data);
+    } catch (error) {
+      console.error(error);
+    }
   };
   const handleAddReservation = () => {
     const newReservation = {
@@ -24,8 +35,19 @@ function ManageGiftCard() {
     };
 
     setGiftCard([...giftcards, newReservation]);
-    setIsEditing(false);
   };
+  useEffect(() => {
+    const fetchApi = async () => {
+      try {
+        const res = await request.get("/admin/gift-card");
+        setGiftCard(res.data);
+        console.log(res.data);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    fetchApi();
+  }, []);
   return (
     <Container
       style={{
@@ -41,58 +63,74 @@ function ManageGiftCard() {
       <h1 className="mt-1 ">Bar Management</h1>
       <div>
         <h3>All GiftCards Order</h3>
+
         <Row lg={4}>
           {giftcards.map((order, index) => (
             <Col key={index}>
-              <h4>Order: {order.orderId}</h4>
+              <h4>
+                Order: {order.card_order_id}
+                <Button
+                  style={{
+                    backgroundColor: "rgb(169 43 43 / 80%)",
+                    border: "none",
+                  }}
+                  onClick={() => handleRemoveReservation(index)}
+                >
+                  X
+                </Button>
+              </h4>
               <Form.Label>To</Form.Label>
               <Form.Control
                 style={{ margin: "8px 8px 0 0" }}
                 type="text"
-                readOnly={isEditing === index ? false : true}
-                onChange={(e) => {}}
-                value={order.To}
+                onChange={(e) =>
+                  handleChange(index, "receiver_name", e.target.value)
+                }
+                value={order.receiver_name}
               />
 
               <Form.Label>From</Form.Label>
               <Form.Control
                 style={{ margin: "8px 8px 0 0" }}
                 type="text"
-                readOnly={isEditing === index ? false : true}
-                onChange={(e) => {}}
+                onChange={(e) =>
+                  handleChange(index, "receiver_name", e.target.value)
+                }
                 value={order.From}
               />
               <Form.Label>Message</Form.Label>
               <Form.Control
                 style={{ margin: "8px 8px 0 0" }}
                 type="text"
-                readOnly={isEditing === index ? false : true}
-                onChange={(e) => {}}
-                value={order.Message}
+                onChange={(e) => handleChange(index, "message", e.target.value)}
+                value={order.message}
               />
               <Form.Label>Recepient's Email</Form.Label>
               <Form.Control
                 style={{ margin: "8px 8px 0 0" }}
                 type="text"
-                readOnly={isEditing === index ? false : true}
-                onChange={(e) => {}}
-                value={order.RecipentEmail}
+                onChange={(e) =>
+                  handleChange(index, "receiver_email", e.target.value)
+                }
+                value={order.receiver_mail}
               />
               <Form.Label>Recepient's Phone Number</Form.Label>
               <Form.Control
                 style={{ margin: "8px 8px 0 0" }}
                 type="text"
-                readOnly={isEditing === index ? false : true}
-                onChange={(e) => {}}
-                value={order.RecipentPhoneNo}
+                onChange={(e) =>
+                  handleChange(index, "receiver_phone", e.target.value)
+                }
+                value={order.receiver_phone}
               />
-              <Form.Label>Amount</Form.Label>
+              <Form.Label>
+                Amount(card_id - 1:10, 2:20, 3:50, 4:100 )
+              </Form.Label>
               <Form.Control
                 className="mt-3 mr-3"
                 type="text"
-                readOnly={isEditing === index ? false : true}
-                onChange={(e) => {}}
-                value={order.Amount}
+                onChange={(e) => handleChange(index, "card_id", e.target.value)}
+                value={order.card_id}
               />
               <div>
                 <Button
@@ -101,25 +139,16 @@ function ManageGiftCard() {
                     border: "none",
                     margin: "10px",
                   }}
-                  onClick={() => handleEditReservation(index)}
+                  onClick={() => handleUpdateReservation(index)}
                 >
-                  Edit
-                </Button>
-                <Button
-                  style={{
-                    backgroundColor: "rgba(0, 0, 0, 0.7)",
-                    border: "none",
-                  }}
-                  onClick={() => handleRemoveReservation(index)}
-                >
-                  Remove
+                  Update
                 </Button>
               </div>
             </Col>
           ))}
         </Row>
       </div>
-      {/* <Button
+      <Button
         style={{
           backgroundColor: "rgb(169 43 43 / 80%)",
           border: "none",
@@ -129,7 +158,7 @@ function ManageGiftCard() {
         onClick={handleAddReservation}
       >
         + Add GiftCard Order
-      </Button> */}
+      </Button>
     </Container>
   );
 }

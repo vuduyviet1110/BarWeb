@@ -11,13 +11,26 @@ import { useNavigate } from "react-router-dom";
 
 import { NavLink, Outlet } from "react-router-dom";
 import beverage3 from "../assets/images/talkingincouter.jpg";
+import { useEffect } from "react";
+import { request } from "../utils/request";
 function AdminPage() {
   const handleLogout = (e) => {
     localStorage.removeItem("access_token");
     return navigate("/login");
   };
   const navigate = useNavigate();
+  // useEffect(() => {
+  //   const fetchApi = async () => {
+  //     try {
+  //       const res = await request.get(`/`);
+  //       console.log(res.data);
+  //     } catch (error) {
+  //       console.error(error);
+  //     }
+  //   };
 
+  //   fetchApi();
+  // }, []);
   return (
     <div
       style={{

@@ -1,31 +1,64 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Button, Col, Container, Form, Row } from "react-bootstrap";
-import { reservations as initialReservations } from "../Fakeapi";
+import { request } from "../utils/request";
 function ManageBooking() {
-  const [reservations, setReservations] = useState(initialReservations);
-  const [isEditing, setIsEditing] = useState(false);
+  const [reservations, setReservations] = useState([
+    {
+      user_id: 0,
+      user_name: "",
+      user_phone: "",
+      user_gmail: "",
+      table_time: "",
+      no_people: "",
+      message: "",
+    },
+  ]);
   const handleRemoveReservation = (indexToRemove) => {
     const updatedReservations = [...reservations];
     updatedReservations.splice(indexToRemove, 1);
     setReservations(updatedReservations);
   };
-  const handleEditReservation = (indexToRemove) => {
-    setIsEditing(indexToRemove);
+  const handleEditReservation = (indexToRemove) => {};
+  const handleInputChange = (event, index) => {
+    // Destructure the target reservation for clarity
+    const { target } = event;
+    const { name, value } = target; // Get name and value from the event
+
+    // Update a copy of the reservations array
+    const updatedReservations = [...reservations];
+    updatedReservations[index] = {
+      ...updatedReservations[index],
+      [name]: value, // Update specific property based on name
+    };
+
+    setReservations(updatedReservations);
   };
   const handleAddReservation = () => {
     const newReservation = {
-      id: "",
-      name: "",
-      phoneNo: "",
-      email: "",
-      time: new Date(),
-      NoPpl: 0,
-      DOB: new Date(),
+      user_id: 0,
+      user_name: "",
+      user_phone: "",
+      user_gmail: "",
+      table_time: new Date(),
+      No_people: 0,
+      message: "",
     };
 
     setReservations([...reservations, newReservation]);
-    setIsEditing(false);
   };
+
+  useEffect(() => {
+    const fetchApi = async () => {
+      try {
+        const res = await request.get("/admin/reservation");
+        setReservations(res.data);
+        console.log(res.data);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    fetchApi();
+  }, []);
   return (
     <Container
       style={{
@@ -45,55 +78,67 @@ function ManageBooking() {
           {reservations.map((reservation, index) => (
             <Col key={index}>
               <h4>Reservation: {reservation.id}</h4>
-              <Form.Label>Name</Form.Label>
-              <Form.Control
-                style={{ margin: "8px 8px 0 0" }}
-                type="text"
-                readOnly={isEditing === index ? false : true}
-                onChange={(e) => {}}
-                value={reservation.name}
-              />
-              <Form.Label>Phone</Form.Label>
+              <Form.Group>
+                <Form.Label>{reservation.user_name}</Form.Label>
+                <Form.Control
+                  style={{ margin: "0 0 8px 0" }}
+                  type="text"
+                  name="user_name"
+                  onChange={(event) => handleInputChange(event, index)}
+                  value={reservation.user_name}
+                />
+              </Form.Group>
+              <Form.Group>
+                <Form.Label>phone</Form.Label>
+                <Form.Control
+                  style={{ margin: "0 0 8px 0" }}
+                  type="text"
+                  name="user_phone"
+                  onChange={(event) => handleInputChange(event, index)}
+                  value={reservation.user_phone}
+                />
+              </Form.Group>
+              <Form.Group>
+                <Form.Label>Date</Form.Label>
+                <Form.Control
+                  style={{ margin: "0 0 8px 0" }}
+                  type="text"
+                  name="table_date"
+                  onChange={(event) => handleInputChange(event, index)}
+                  value={reservation.table_time}
+                />
+              </Form.Group>
+              <Form.Group>
+                <Form.Label>Email</Form.Label>
+                <Form.Control
+                  style={{ margin: "0 0 8px 0" }}
+                  type="text"
+                  name="user_gmail"
+                  onChange={(event) => handleInputChange(event, index)}
+                  value={reservation.user_gmail}
+                />
+              </Form.Group>
+              <Form.Group>
+                <Form.Label>N.o ppl</Form.Label>
+                <Form.Control
+                  className="mt-3 mr-3"
+                  type="text"
+                  name="no_people"
+                  onChange={(event) => handleInputChange(event, index)}
+                  value={reservation.number_people}
+                />
+              </Form.Group>
+              <Form.Group>
+                <Form.Label>Message</Form.Label>
+                <Form.Control
+                  className="mt-3 mr-3"
+                  type="text"
+                  name="message"
+                  onChange={(event) => handleInputChange(event, index)}
+                  value={reservation.message}
+                />
+              </Form.Group>
 
-              <Form.Control
-                style={{ margin: "8px 8px 0 0" }}
-                type="text"
-                readOnly={isEditing === index ? false : true}
-                onChange={(e) => {}}
-                value={reservation.phoneNo}
-              />
-              {/* <Form.Label>D.O.B</Form.Label>
-              <Form.Control
-                style={{ margin: "8px 8px 0 0" }}
-                type="text"
-                readOnly={isEditing === index ? false : true}
-                onChange={(e) => {}}
-                value={reservation.DOB}
-              /> */}
-              <Form.Label>Date</Form.Label>
-              <Form.Control
-                style={{ margin: "8px 8px 0 0" }}
-                type="text"
-                readOnly={isEditing === index ? false : true}
-                onChange={(e) => {}}
-                value={reservation.time}
-              />
-              <Form.Label>Email</Form.Label>
-              <Form.Control
-                style={{ margin: "8px 8px 0 0" }}
-                type="text"
-                readOnly={isEditing === index ? false : true}
-                onChange={(e) => {}}
-                value={reservation.email}
-              />
-              <Form.Label>N.o ppl</Form.Label>
-              <Form.Control
-                className="mt-3 mr-3"
-                type="text"
-                readOnly={isEditing === index ? false : true}
-                onChange={(e) => {}}
-                value={reservation.NoPpl}
-              />
               <div>
                 <Button
                   style={{

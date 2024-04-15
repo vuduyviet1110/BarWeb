@@ -3,37 +3,50 @@ import Form from "react-bootstrap/Form";
 import Col from "react-bootstrap/Col";
 import Row from "react-bootstrap/Row";
 import ReactDatePicker from "react-datepicker";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { request } from "../utils/request";
 function BookingTable({ CurentUser }) {
   const [bookingInfo, setBookingInfo] = useState({
-    ...CurentUser,
-    date: "",
-    time: "",
-    people: "",
+    user_id: 0,
+    table_date: "",
+    table_time: "",
+    number_people: "",
     message: "",
   });
-  const [bookingSucess, setBookingSucess] = useState({});
+
+  useEffect(() => {
+    // Kiểm tra xem CurentUser đã có giá trị chưa
+    if (CurentUser && CurentUser.user_id) {
+      // Cập nhật bookingInfo với user_id từ CurentUser
+      setBookingInfo((prev) => ({
+        ...prev,
+        user_id: CurentUser.user_id,
+      }));
+    }
+  }, [CurentUser]); // Sẽ chạy lại khi CurentUser thay đổi
+
+  console.log(bookingInfo);
+  const [bookingSucess, setBookingSucess] = useState();
   const navigate = useNavigate();
-  console.log(CurentUser);
   const handleSubmit = async (event) => {
     event.preventDefault();
     event.stopPropagation();
-
     const form = event.currentTarget;
-    if (form.checkValidity() === false || bookingInfo.time === "") {
-      //   setValidated(true);
+    if (form.checkValidity() === false || bookingInfo.table_time === "") {
       setBookingSucess(false);
-      setBookingInfo((prev) => ({ ...prev, time: 0 }));
+      setBookingInfo((prev) => ({ ...prev, table_time: 0 }));
     } else {
-      if (CurentUser !== "No Users have been found") {
+      if (
+        CurentUser &&
+        Object.keys(CurentUser).length !== 0 &&
+        CurentUser.table_time !== 0
+      ) {
         const res = await request.post("/booking", bookingInfo);
         if (res.data === "Incorrect Username and/or Password!") {
-          // setIsAuth(false);
+          // Handle incorrect username/password case
         } else {
           setBookingSucess(true);
-          alert("Booking Successful");
         }
       } else {
         navigate("/sign-in");
@@ -105,9 +118,9 @@ function BookingTable({ CurentUser }) {
                 }}
               >
                 <ReactDatePicker
-                  selected={bookingInfo.date}
+                  selected={bookingInfo.table_date}
                   onChange={(date) =>
-                    setBookingInfo((prev) => ({ ...prev, date: date }))
+                    setBookingInfo((prev) => ({ ...prev, table_date: date }))
                   }
                   required
                   dateFormat="MMMM d, yyyy "
@@ -123,35 +136,50 @@ function BookingTable({ CurentUser }) {
               >
                 <Form.Select
                   onChange={(e) => {
-                    if (e.target.value > 0) {
-                      setBookingInfo((prev) => ({
-                        ...prev,
-                        time: e.target.value,
-                      }));
+                    const value = e.target.value; // Giá trị được chọn từ dropdown
+                    let timeValue = ""; // Biến để lưu giá trị thời gian sau khi chuyển đổi
+
+                    // Kiểm tra nếu giá trị được chọn là '0' thì không cần chuyển đổi, vẫn giữ nguyên là '0'
+                    if (value === "0") {
+                      timeValue = "0";
+                    } else {
+                      // Chuyển đổi giá trị giờ sang định dạng 'hour'
+                      const hour = parseInt(value); // Lấy giờ từ giá trị được chọn
+                      const minute = value.includes(":") ? 30 : 0; // Kiểm tra nếu giá trị được chọn có phải là 'hour:30' không
+                      const hourString = hour < 10 ? `0${hour}` : `${hour}`; // Định dạng lại giờ
+                      const minuteString = minute === 0 ? "00" : "30"; // Định dạng lại phút
+
+                      timeValue = `${hourString}:${minuteString}:00`; // Tạo giá trị thời gian mới
                     }
+
+                    // Cập nhật giá trị của table_time trong bookingInfo
+                    setBookingInfo((prev) => ({
+                      ...prev,
+                      table_time: timeValue,
+                    }));
                   }}
                   aria-label="Default select example"
                   required
                 >
                   <option value="0">Time</option>
                   <option value="18">18h</option>
-                  <option value="18.5">18h30</option>
+                  <option value="18:30:00">18h30</option>
                   <option value="19">19h</option>
-                  <option value="19.5">19h30</option>
+                  <option value="19:30:00">19h30</option>
                   <option value="20">20h</option>
-                  <option value="20.5">20h30</option>
+                  <option value="20:30:00">20h30</option>
                   <option value="21">21h</option>
-                  <option value="21.5">21h30</option>
+                  <option value="21:30:00">21h30</option>
                   <option value="22">22h</option>
-                  <option value="22.5">22h30</option>
+                  <option value="22:30:00">22h30</option>
                   <option value="23">23h</option>
-                  <option value="23.5">23h30</option>
-                  <option value="24">24</option>
-                  <option value="24.5">24h30</option>
+                  <option value="23:30:00">23h30</option>
+                  <option value="00">24</option>
+                  <option value="00:30:00">24h30</option>
                   <option value="1">1h</option>
-                  <option value="1.5">1h30</option>
+                  <option value="01:30:00">1h30</option>
                 </Form.Select>
-                {bookingInfo.time === 0 && (
+                {bookingInfo.table_time === 0 && (
                   <div style={{ color: "red" }}>You must select a time</div>
                 )}
               </Form.Group>
@@ -165,7 +193,7 @@ function BookingTable({ CurentUser }) {
                     if (e.target.value > 0) {
                       setBookingInfo((prev) => ({
                         ...prev,
-                        people: e.target.value,
+                        number_people: e.target.value,
                       }));
                     }
                   }}
@@ -195,10 +223,12 @@ function BookingTable({ CurentUser }) {
           <div className="mb-3">
             <div className="loading">Loading</div>
             <div className="error-message"></div>
-            <div className="sent-message">
-              Your booking request was sent. We will call back or send an Email
-              to confirm your reservation. Thank you!
-            </div>
+            {bookingSucess && (
+              <div style={{ color: "green" }}>
+                Your booking request was sent. We will call back or send an
+                Email to confirm your reservation. Thank you!
+              </div>
+            )}
           </div>
           <div className="text-center">
             <Button type="submit">Book a Table</Button>
