@@ -796,7 +796,7 @@ function HomePage() {
 
         <BookingTable CurentUser={CurentUser} />
 
-        <section id="testimonials" className="testimonials section-bg">
+        {/* <section id="testimonials" className="testimonials section-bg">
           <div className="container" data-aos="fade-up">
             <div className="section-title">
               <h2>Testimonials</h2>
@@ -804,7 +804,7 @@ function HomePage() {
             </div>
             <Testimonials />
           </div>
-        </section>
+        </section> */}
 
         <section id="gallery" className="gallery">
           <div className="container" data-aos="fade-up">

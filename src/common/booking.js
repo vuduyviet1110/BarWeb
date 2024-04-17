@@ -225,8 +225,8 @@ function BookingTable({ CurentUser }) {
             <div className="error-message"></div>
             {bookingSucess && (
               <div style={{ color: "green" }}>
-                Your booking request was sent. We will call back or send an
-                Email to confirm your reservation. Thank you!
+                Your booking request was sent. We will call back to confirm your
+                reservation. Thank you!
               </div>
             )}
           </div>

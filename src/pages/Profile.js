@@ -3,9 +3,12 @@ import DatePicker from "react-datepicker";
 import { useEffect, useState } from "react";
 import { Facebook, Instagram, TwitterX } from "react-bootstrap-icons";
 import { request } from "../utils/request";
+import { Form } from "react-bootstrap";
 
 const UserProfile = () => {
   const userId = parseInt(localStorage.getItem("user_token"));
+  const currentDate = new Date();
+  const currentYear = currentDate.getFullYear();
   const [CurrentUser, setCurrentUser] = useState({
     user_DOB: "",
     user_gmail: "",
@@ -15,6 +18,24 @@ const UserProfile = () => {
     user_address: "",
   });
   const [updateSucess, setUpdateSucess] = useState(false);
+  const [validEmail, setValidEmail] = useState(true);
+  const [invalidAge, setinvalidAge] = useState();
+
+  const isValidEmail = (email) => {
+    // Biểu thức chính quy để kiểm tra email
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailPattern.test(email);
+  };
+
+  // Xử lý khi rời khỏi trường nhập email
+  const handleEmailBlur = (e) => {
+    const { value } = e.target;
+    if (isValidEmail(value)) {
+      setValidEmail(true);
+    } else {
+      setValidEmail(false);
+    }
+  };
   useEffect(() => {
     if (!userId) {
       return;
@@ -33,16 +54,26 @@ const UserProfile = () => {
     fetchApi();
   }, [userId]);
 
-  const handleUpdate = async () => {
-    try {
-      const res = await request.put("/profile", CurrentUser);
-      if (res.data) {
-        setUpdateSucess(true);
-      }
-    } catch (error) {
-      console.error("Error:", error);
+  const handleUpdate = async (e) => {
+    e.preventDefault();
+    const form = e.currentTarget;
+    if (
+      form.checkValidity() === false ||
+      !validEmail ||
+      invalidAge ||
+      !CurrentUser.user_DOB
+    ) {
       setUpdateSucess(false);
-    }
+    } else
+      try {
+        const res = await request.put("/profile", CurrentUser);
+        if (res.data) {
+          setUpdateSucess(true);
+        }
+      } catch (error) {
+        console.error("Error:", error);
+        setUpdateSucess(false);
+      }
   };
 
   return (
@@ -70,119 +101,144 @@ const UserProfile = () => {
                   <p style={{ color: "red" }}>Web Designer</p>
                 </Col>
                 <Col md={8}>
-                  <Card.Body className="p-4">
-                    <h6>Information</h6>
-                    <hr className="mt-0 mb-4" />
-                    <Row className="pt-1">
-                      <Col className="mb-3">
-                        <h6>Name</h6>
-                        <input
-                          className="form-control"
-                          value={CurrentUser.user_name}
-                          onChange={(e) => {
-                            setCurrentUser((prev) => ({
-                              ...prev,
-                              user_name: e.target.value,
-                            }));
+                  <Form onSubmit={handleUpdate}>
+                    <Card.Body className="p-4">
+                      <h6>Information</h6>
+                      <hr className="mt-0 mb-4" />
+                      <Row className="pt-1">
+                        <Col className="mb-3">
+                          <h6>Name</h6>
+                          <input
+                            className="form-control"
+                            value={CurrentUser.user_name}
+                            onChange={(e) => {
+                              setCurrentUser((prev) => ({
+                                ...prev,
+                                user_name: e.target.value,
+                              }));
+                            }}
+                            required
+                          />
+                        </Col>
+                        <Col className="mb-3">
+                          <h6>Date Of Birth</h6>
+                          <DatePicker
+                            selected={CurrentUser.user_DOB} // Set selected date
+                            onChange={(date) => {
+                              setCurrentUser((prev) => ({
+                                ...prev,
+                                user_DOB: date, // Update user_DOB directly with the selected date
+                              }));
+                            }}
+                            onBlur={() => {
+                              if (
+                                CurrentUser.user_DOB &&
+                                CurrentUser.user_DOB.getFullYear() >=
+                                  currentYear - 18
+                              ) {
+                                setinvalidAge(true);
+                              } else {
+                                setinvalidAge(false);
+                              }
+                            }}
+                            dateFormat="dd/MM/yyyy"
+                            isClearable
+                            placeholderText="Date Of Birth"
+                            className="form-control"
+                            required
+                          />
+                          {invalidAge && (
+                            <span style={{ color: "red" }}>
+                              You must be at least 18 years
+                            </span>
+                          )}
+                        </Col>
+                      </Row>
+                      <Row className="pt-1">
+                        <Col className="mb-3">
+                          <h6>Email</h6>
+                          <input
+                            className="form-control"
+                            value={CurrentUser.user_gmail}
+                            onChange={(e) => {
+                              setCurrentUser((prev) => ({
+                                ...prev,
+                                user_gmail: e.target.value,
+                              }));
+                            }}
+                            onBlur={handleEmailBlur}
+                            required
+                          />
+                          {!validEmail && <span>invalid email</span>}
+                        </Col>
+                        <Col className="mb-3">
+                          <h6>Phone</h6>
+                          <input
+                            className="form-control"
+                            value={CurrentUser.user_phone}
+                            onChange={(e) => {
+                              setCurrentUser((prev) => ({
+                                ...prev,
+                                user_phone: e.target.value,
+                              }));
+                            }}
+                            required
+                          />
+                        </Col>
+                      </Row>
+                      <Row>
+                        <Col className="mb-3">
+                          <h6>Address</h6>
+                          <input
+                            className="form-control"
+                            value={CurrentUser.user_address}
+                            onChange={(e) => {
+                              setCurrentUser((prev) => ({
+                                ...prev,
+                                user_address: e.target.value,
+                              }));
+                            }}
+                            required
+                          />
+                        </Col>
+                      </Row>
+                      {updateSucess === true && (
+                        <div style={{ color: "green", fontSize: "18px" }}>
+                          Update Sucessfully!!
+                        </div>
+                      )}
+                      <Row className="pt-1">
+                        <Button
+                          type="submit"
+                          style={{
+                            backgroundColor: "#b63635",
+                            border: "none",
+                            color: "#fff",
+                            height: "40px",
                           }}
-                        />
-                      </Col>
-                      <Col className="mb-3">
-                        <h6>Date Of Birth</h6>
-                        <DatePicker
-                          selected={CurrentUser.user_DOB} // Set selected date
-                          onChange={(date) => {
-                            setCurrentUser((prev) => ({
-                              ...prev,
-                              user_DOB: date, // Update user_DOB directly with the selected date
-                            }));
-                          }}
-                          dateFormat="dd/MM/yyyy"
-                          isClearable
-                          placeholderText="Date Of Birth"
-                          className="form-control"
-                        />
-                      </Col>
-                    </Row>
-                    <Row className="pt-1">
-                      <Col className="mb-3">
-                        <h6>Email</h6>
-                        <input
-                          className="form-control"
-                          value={CurrentUser.user_gmail}
-                          onChange={(e) => {
-                            setCurrentUser((prev) => ({
-                              ...prev,
-                              user_gmail: e.target.value,
-                            }));
-                          }}
-                        />
-                      </Col>
-                      <Col className="mb-3">
-                        <h6>Phone</h6>
-                        <input
-                          className="form-control"
-                          value={CurrentUser.user_phone}
-                          onChange={(e) => {
-                            setCurrentUser((prev) => ({
-                              ...prev,
-                              user_phone: e.target.value,
-                            }));
-                          }}
-                        />
-                      </Col>
-                    </Row>
-                    <Row>
-                      <Col className="mb-3">
-                        <h6>Address</h6>
-                        <input
-                          className="form-control"
-                          value={CurrentUser.user_address}
-                          onChange={(e) => {
-                            setCurrentUser((prev) => ({
-                              ...prev,
-                              user_address: e.target.value,
-                            }));
-                          }}
-                        />
-                      </Col>
-                    </Row>
-                    {updateSucess === true && (
-                      <div style={{ color: "green", fontSize: "18px" }}>
-                        Update Sucessfully!!
-                      </div>
-                    )}
-                    <Row className="pt-1">
-                      <Button
-                        onClick={handleUpdate}
+                        >
+                          Save
+                        </Button>
+                      </Row>
+
+                      <div
+                        className="d-flex justify-content-start"
                         style={{
-                          backgroundColor: "#b63635",
-                          border: "none",
-                          color: "#fff",
-                          height: "40px",
+                          margin: "16px 0 0 0 ",
                         }}
                       >
-                        Update
-                      </Button>
-                    </Row>
-
-                    <div
-                      className="d-flex justify-content-start"
-                      style={{
-                        margin: "16px 0 0 0 ",
-                      }}
-                    >
-                      <a href="#!">
-                        <Facebook className="fab fa-facebook-f fa-lg me-3" />
-                      </a>
-                      <a href="#!">
-                        <TwitterX className="fab fa-twitter fa-lg me-3" />
-                      </a>
-                      <a href="#!">
-                        <Instagram className="fab fa-instagram fa-lg" />
-                      </a>
-                    </div>
-                  </Card.Body>
+                        <a href="#!">
+                          <Facebook className="fab fa-facebook-f fa-lg me-3" />
+                        </a>
+                        <a href="#!">
+                          <TwitterX className="fab fa-twitter fa-lg me-3" />
+                        </a>
+                        <a href="#!">
+                          <Instagram className="fab fa-instagram fa-lg" />
+                        </a>
+                      </div>
+                    </Card.Body>
+                  </Form>
                 </Col>
               </Row>
             </Card>

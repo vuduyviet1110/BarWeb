@@ -250,9 +250,6 @@ function GiftCard() {
                             }
                           }}
                         />
-                        {/* {!orderInfo.receiver_phone.length < 10 && (
-                          <span>Must be 10 digits</span>
-                        )} */}
                       </div>
                     </div>
 
@@ -265,7 +262,7 @@ function GiftCard() {
                           type="textarea"
                           maxLength={600}
                           value={orderInfo.receiver_message}
-                          placeholder="Happy Birthday dear friend !"
+                          placeholder="Happy Birthday dear friend (Max Length is 600) !"
                           onChange={(e) =>
                             setOrderInfo((prevOrderInfo) => ({
                               ...prevOrderInfo,
@@ -492,7 +489,8 @@ function GiftCard() {
                       >
                         <h3> Your order details</h3>
                         <span>
-                          From: {orderInfo.From} - To: {orderInfo.receiver_name}
+                          From: {CurrentUser.user_name} - To:{" "}
+                          {orderInfo.receiver_name}
                         </span>
                         <div>
                           user_amount (1) :

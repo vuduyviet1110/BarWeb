@@ -70,7 +70,7 @@ function ResetPwd() {
               )}
               {!validEmail && (
                 <p style={{ color: "red" }} className="card-text py-2">
-                  Are you sure you have signed in with ?
+                  Please check your email again
                 </p>
               )}
               <Button

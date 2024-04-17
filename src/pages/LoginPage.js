@@ -120,9 +120,6 @@ export default function LoginPage() {
               Please check your id and password !
             </span>
           )}
-          <Form.Group style={{}} className="mb-3">
-            <Form.Check label="Remember " />
-          </Form.Group>
         </div>
         <div style={{ border: " 1px solid rgb(200,200,200)", margin: "16px" }}>
           <button

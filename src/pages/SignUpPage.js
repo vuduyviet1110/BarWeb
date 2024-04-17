@@ -154,7 +154,7 @@ function SignUpPage() {
               <InputGroup hasValidation>
                 <InputGroup.Text id="inputGroupPrepend">@</InputGroup.Text>
                 <Form.Control
-                  type="gmail"
+                  type="email"
                   placeholder="Email"
                   aria-describedby="inputGroupPrepend"
                   required
@@ -162,7 +162,7 @@ function SignUpPage() {
                   onChange={handleChangeInfo}
                 />
                 <Form.Control.Feedback type="invalid">
-                  Enter your email address
+                  Invalid !!!
                 </Form.Control.Feedback>
               </InputGroup>
             </Form.Group>

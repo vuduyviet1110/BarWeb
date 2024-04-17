@@ -33,7 +33,6 @@ function ChangePwd({ CurentUser, handleLogout }) {
       invalidOldPwd
     ) {
       console.log("failed");
-      setMatchPwd(false);
       setPassChanged(false);
       setinvalidLength(false);
     } else {
