@@ -13,12 +13,23 @@ function GiftCard() {
   const userId = parseInt(localStorage.getItem("user_token"));
   const [CurrentUser, setCurrentUser] = useState({});
   const [validEmail, setValidEmail] = useState(true);
+  const [validePhone, setValidPhone] = useState(true);
   const isValidEmail = (email) => {
     // Biểu thức chính quy để kiểm tra email
     const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailPattern.test(email);
   };
+  function validatePhoneField(phoneNumberField) {
+    // Get the phone number value
+    const { value } = phoneNumberField.target;
+    console.log(value);
 
+    // Check if the phone number matches the regular expression
+    if (value.length !== 10) {
+      console.log("invalid phone");
+      setValidPhone(false);
+    } else setValidPhone(true);
+  }
   // Xử lý khi rời khỏi trường nhập email
   const handleEmailBlur = (e) => {
     const { value } = e.target;
@@ -52,7 +63,7 @@ function GiftCard() {
   };
   const [orderInfo, setOrderInfo] = useState({
     user_id: userId,
-    receiver_name: " ",
+    receiver_name: "",
     user_amount: 0,
     receiver_mail: "",
     receiver_message: "",
@@ -70,7 +81,8 @@ function GiftCard() {
       orderInfo.receiver_message.length < 600 &&
       validEmail &&
       orderInfo.receiver_address &&
-      orderInfo.receiver_phone !== 0
+      orderInfo.receiver_phone !== 0 &&
+      validePhone
     ) {
       SetDoneBtn(true);
       try {
@@ -119,7 +131,7 @@ function GiftCard() {
                         src={ava}
                         height="200px"
                         width="200px"
-                        alt="gift card image"
+                        alt="gift card imaSSge"
                         style={{
                           borderRadius: "18px",
                         }}
@@ -249,7 +261,11 @@ function GiftCard() {
                               }));
                             }
                           }}
+                          onBlur={validatePhoneField}
                         />
+                        {!validePhone && (
+                          <span style={{ color: "red" }}>must 10 digits</span>
+                        )}
                       </div>
                     </div>
 

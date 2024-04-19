@@ -1,7 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import ava from "../assets/images/Barava.jpg";
 import { useNavigate } from "react-router-dom";
-import Form from "react-bootstrap/Form";
 export default function LoginPage() {
   const [admin, setAdmin] = useState({ id: "", password: "" });
   const [isValid, setIsValid] = useState(true);
@@ -20,6 +19,8 @@ export default function LoginPage() {
       password: e.target.value,
     }));
   };
+
+  useEffect(() => {}, []);
 
   const handleClick = () => {
     if (admin.id === "admin" && admin.password === "1") {

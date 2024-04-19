@@ -22,6 +22,7 @@ function SignUpPage() {
   const [invalidAge, setinvalidAge] = useState();
   const [phoneLength, setPhoneLength] = useState("");
   const [signInSuccess, setSignInSuccess] = useState();
+  const [existedEmail, setExistedEmail] = useState(false);
   const currentDate = new Date();
   const currentYear = currentDate.getFullYear();
 
@@ -66,8 +67,14 @@ function SignUpPage() {
     } else {
       try {
         const res = await request.post("/sign-up", formData);
-        console.log(res.data);
-        setSignInSuccess(true);
+
+        if (res.data === "existed email") {
+          setSignInSuccess(false);
+          setExistedEmail(true);
+        } else {
+          setSignInSuccess(true);
+          setExistedEmail(false);
+        }
       } catch (error) {
         console.error("Error:", error);
       }
@@ -152,18 +159,22 @@ function SignUpPage() {
             <Form.Group as={Col} md="6" controlId="validationCustomUsername">
               <Form.Label>Email</Form.Label>
               <InputGroup hasValidation>
-                <InputGroup.Text id="inputGroupPrepend">@</InputGroup.Text>
-                <Form.Control
-                  type="email"
-                  placeholder="Email"
-                  aria-describedby="inputGroupPrepend"
-                  required
-                  name="gmail"
-                  onChange={handleChangeInfo}
-                />
-                <Form.Control.Feedback type="invalid">
-                  Invalid !!!
-                </Form.Control.Feedback>
+                <div>
+                  <Form.Control
+                    type="email"
+                    placeholder="Email"
+                    aria-describedby="inputGroupPrepend"
+                    required
+                    name="gmail"
+                    onChange={handleChangeInfo}
+                  />
+                  <Form.Control.Feedback type="invalid">
+                    Invalid !!!
+                  </Form.Control.Feedback>
+                </div>
+                {existedEmail && (
+                  <div style={{ color: "red" }}>Existed Email</div>
+                )}
               </InputGroup>
             </Form.Group>
             <Form.Group
