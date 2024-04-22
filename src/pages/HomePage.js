@@ -406,9 +406,13 @@ function HomePage() {
                 </a>
               </li>
               <li>
-                <Link to={{ pathname: "/gift-card", state: { CurentUser } }}>
-                  Gift Card
-                </Link>
+                {CurentUser.user_id > 0 ? (
+                  <Link to={{ pathname: "/gift-card", state: { CurentUser } }}>
+                    Gift Card
+                  </Link>
+                ) : (
+                  <Link to={{ pathname: "/sign-in" }}>Gift Card</Link>
+                )}
               </li>
 
               <li>

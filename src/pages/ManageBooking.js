@@ -6,9 +6,11 @@ function ManageBooking() {
   const [show, setShow] = useState(false);
   const [existedAcc, setExistedAcc] = useState(false);
   const [showRemove, setShowRemove] = useState(false);
-  const [updateSuccess, setUpdateSuccess] = useState("false");
-  const [currentOrderId, setcurrentOrderId] = useState(0);
+  const [currentReservationId, setcurrReservationId] = useState(0);
   const [showAccStatus, setShowAccStatus] = useState(false);
+  const [isFieldCompleted, setIsFieldCompleted] = useState(true);
+  const [validEmail, setValidEmail] = useState(true);
+  const [validePhone, setValidPhone] = useState(true);
   const [reservations, setReservations] = useState([
     {
       user_id: 0,
@@ -21,6 +23,36 @@ function ManageBooking() {
       message: "",
     },
   ]);
+  const isValidEmail = (email) => {
+    // Biểu thức chính quy để kiểm tra email
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailPattern.test(email);
+  };
+  function validatePhoneField(phoneNumberField) {
+    // Get the phone number value
+    const { value } = phoneNumberField.target;
+
+    // Create a regular expression to match 10-digit numbers
+    const phoneNumberRegex = /^\d{10}$/;
+
+    // Check if the phone number matches the regular expression
+    if (!phoneNumberRegex.test(value)) {
+      console.log("Invalid phone number:", value);
+      setValidPhone(false);
+    } else {
+      setValidPhone(true);
+      console.log("Valid phone number:", value);
+    }
+  }
+  // Xử lý khi rời khỏi trường nhập email
+  const handleEmailBlur = (e) => {
+    const { value } = e.target;
+    if (isValidEmail(value)) {
+      setValidEmail(true);
+    } else {
+      setValidEmail(false);
+    }
+  };
   const handleRemoveReservation = async (reservation_id) => {
     try {
       const res = await request.delete("/admin/reservation", {
@@ -42,11 +74,12 @@ function ManageBooking() {
     const isAnyFieldEmpty = Object.values(MatchedReservation).some(
       (value) => value === "" || value === 0
     );
-    if (!isAnyFieldEmpty) {
+    if (!isAnyFieldEmpty && validEmail && validePhone) {
       try {
         const res = await request.put("/admin/reservation", {
           MatchedReservation,
         });
+        setIsFieldCompleted(true);
         setShow(true);
         setTimeout(() => {
           setShow(false);
@@ -55,9 +88,12 @@ function ManageBooking() {
         console.error(error);
       }
     } else {
-      setUpdateSuccess(false);
-      setcurrentOrderId(reservationId); // Set currentOrderId to highlight the item with missing fields
-      console.log(updateSuccess);
+      setcurrReservationId(reservationId); // Set currentReservationId to highlight the item with missing fields
+      if (isAnyFieldEmpty) {
+        setIsFieldCompleted(false);
+      } else {
+        setIsFieldCompleted(true);
+      }
     }
 
     console.log("matchedRes: ", MatchedReservation);
@@ -78,19 +114,23 @@ function ManageBooking() {
 
     setReservations(updatedReservations);
   };
-  const handleAddReservation = () => {};
+  const handleAddReservation = () => {
+    setShowAccStatus(true);
+  };
   const handleExistedAcc = () => {
     setExistedAcc(true);
     setShowAccStatus(false); // Ẩn modal sau khi chọn Existed Account
     const updatedBooking = [
       ...reservations,
       {
-        card_id: "",
+        user_id: 0,
+        user_name: "",
+        user_phone: "",
+        user_gmail: "",
+        table_time: "",
+        table_date: "",
         message: "",
-        receiver_address: "",
-        receiver_mail: "",
-        receiver_name: 0,
-        receiver_phone: "",
+        reservation_id: 0,
         account_status: true, // Set account_status thành true
       },
     ];
@@ -105,33 +145,57 @@ function ManageBooking() {
     const updatedBooking = [
       ...reservations,
       {
-        reservation_id: "",
         user_id: 0,
         user_name: "",
         user_phone: "",
         user_gmail: "",
         table_time: "",
         table_date: "",
-        No_people: 0,
         message: "",
+        reservation_id: 0,
         account_status: false, // Set account_status thành true
       },
     ];
     setReservations(updatedBooking);
   };
   useEffect(() => {
-    setNewReservation(reservations[reservations.length - 1]);
+    reservations.forEach((r) => {
+      if (r.account_status) {
+        setNewReservation(reservations[reservations.length - 1]);
+      }
+    });
   }, [reservations]);
-  console.log("all reservations:", reservations);
-  console.log("New reservation:", newReservation);
 
-  const handleAddNewReservationToDBS = async () => {
-    try {
-      const res = await request.post("/admin/reservation", {
-        newReservation,
-      });
-    } catch (error) {
-      console.error(error);
+  const handleAddNewReservationToDBS = async (resID) => {
+    const MatchedRes = reservations.find((res) => res.reservation_id === resID);
+    console.log(MatchedRes);
+    const isAnyFieldEmpty = Object.values(MatchedRes).some(
+      (value) => value === "" || value === null || value === undefined
+    );
+    console.log(!isAnyFieldEmpty, "vaf", validEmail, "vaf", validePhone);
+    if (!isAnyFieldEmpty && validEmail && validePhone) {
+      try {
+        // const res = await request.post("/admin/reservation", {
+        //   newReservation,
+        // });
+        console.log("all reservations:", reservations);
+        console.log("New reservation:", newReservation);
+        setIsFieldCompleted(true);
+        setShow(true);
+        setTimeout(() => {
+          setShow(false);
+        }, 3000);
+      } catch (error) {
+        console.error(error);
+      }
+    } else {
+      setcurrReservationId(resID); // Set currentReservationId to highlight the item with missing fields
+      if (isAnyFieldEmpty) {
+        setIsFieldCompleted(false);
+      } else {
+        setIsFieldCompleted(true);
+        console.log(isAnyFieldEmpty);
+      }
     }
   };
 
@@ -167,7 +231,9 @@ function ManageBooking() {
             <Col key={reservation.reservation_id}>
               <h4>Reservation: {reservation.reservation_id}</h4>
               <Form.Group>
-                <Form.Label>Name</Form.Label>
+                <Form.Label>
+                  Name <strong style={{ color: "red" }}>(Fixed)</strong>
+                </Form.Label>
                 <Form.Control
                   style={{ margin: "0 0 8px 0" }}
                   type="text"
@@ -179,7 +245,9 @@ function ManageBooking() {
                 />
               </Form.Group>
               <Form.Group>
-                <Form.Label>Phone</Form.Label>
+                <Form.Label>
+                  Phone <strong style={{ color: "red" }}>(Fixed)</strong>
+                </Form.Label>
                 <Form.Control
                   style={{ margin: "0 0 8px 0" }}
                   type="text"
@@ -188,7 +256,12 @@ function ManageBooking() {
                     handleInputChange(event, reservation.reservation_id)
                   }
                   value={reservation.user_phone}
+                  onBlur={validatePhoneField}
                 />
+                {!validePhone &&
+                  reservation.reservation_id === currentReservationId && (
+                    <span style={{ color: "red" }}>must 10 digits</span>
+                  )}
               </Form.Group>
               <Form.Group>
                 <Form.Label>Date</Form.Label>
@@ -215,7 +288,9 @@ function ManageBooking() {
                 />
               </Form.Group>
               <Form.Group>
-                <Form.Label>Email</Form.Label>
+                <Form.Label>
+                  Email <strong style={{ color: "red" }}>(Fixed)</strong>
+                </Form.Label>
                 <Form.Control
                   style={{ margin: "0 0 8px 0" }}
                   type="text"
@@ -223,8 +298,13 @@ function ManageBooking() {
                   onChange={(event) =>
                     handleInputChange(event, reservation.reservation_id)
                   }
+                  onBlur={handleEmailBlur}
                   value={reservation.user_gmail}
                 />
+                {!validEmail &&
+                  reservation.reservation_id === currentReservationId && (
+                    <h5 style={{ color: "red" }}>Invalid email!</h5>
+                  )}
               </Form.Group>
               <Form.Group>
                 <Form.Label>N.o ppl</Form.Label>
@@ -250,41 +330,48 @@ function ManageBooking() {
                   value={reservation.message}
                 />
               </Form.Group>
-              {updateSuccess === false &&
-                reservation.reservation_id === currentOrderId && (
+              {reservation.reservation_id === currentReservationId &&
+                isFieldCompleted === false && (
                   <div style={{ color: "red", fontSize: "18px" }}>
                     You need to complete all the field
                   </div>
                 )}
               <div>
-                <Button
-                  style={{
-                    backgroundColor: "rgba(0, 0, 0, 0.8)",
-                    border: "none",
-                    margin: "10px",
-                  }}
-                  onClick={() =>
-                    handleEditReservation(reservation.reservation_id)
-                  }
-                >
-                  Update
-                </Button>
-                <Button
-                  style={{
-                    backgroundColor: "rgba(0, 0, 0, 0.7)",
-                    border: "none",
-                  }}
-                  onClick={() =>
-                    handleRemoveReservation(reservation.reservation_id)
-                  }
-                >
-                  Remove
-                </Button>
-                {/* {reservation.reservation_id === "" && (
+                {reservation.account_status === undefined && (
+                  <Button
+                    style={{
+                      backgroundColor: "rgba(0, 0, 0, 0.8)",
+                      border: "none",
+                      margin: "10px",
+                    }}
+                    onClick={() =>
+                      handleEditReservation(reservation.reservation_id)
+                    }
+                  >
+                    Update
+                  </Button>
+                )}
+                {reservation.account_status === undefined && (
                   <Button
                     style={{
                       backgroundColor: "rgba(0, 0, 0, 0.7)",
                       border: "none",
+                    }}
+                    onClick={() =>
+                      handleRemoveReservation(reservation.reservation_id)
+                    }
+                  >
+                    Remove
+                  </Button>
+                )}
+
+                {(reservation.account_status === false ||
+                  reservation.account_status === true) && (
+                  <Button
+                    style={{
+                      backgroundColor: "rgba(0, 0, 0, 0.7)",
+                      border: "none",
+                      margin: "0 0 0 8px",
                     }}
                     onClick={() =>
                       handleAddNewReservationToDBS(reservation.reservation_id)
@@ -292,7 +379,23 @@ function ManageBooking() {
                   >
                     Add New
                   </Button>
-                )} */}
+                )}
+                {(reservation.account_status === false ||
+                  reservation.account_status === true) && (
+                  <Button
+                    style={{
+                      backgroundColor: "rgba(0, 0, 0, 0.7)",
+                      border: "none",
+                      margin: "0 0 0 8px",
+                    }}
+                    onClick={() => {
+                      const updatedRes = reservations.slice(0, -1); // Tạo một bản sao mới của mảng mà không bao gồm phần tử cuối cùng
+                      setReservations(updatedRes);
+                    }}
+                  >
+                    Cancel
+                  </Button>
+                )}
                 <Modal show={show} onHide={() => setShow(false)}>
                   <Modal.Header closeButton>
                     <Modal.Title style={{ color: "green" }}>

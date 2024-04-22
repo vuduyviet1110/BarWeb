@@ -3,10 +3,13 @@ import { Button, Col, Container, Form, Modal, Row } from "react-bootstrap";
 import { request } from "../utils/request";
 function ManageGiftCard() {
   const [show, setShow] = useState(false);
-  const [showAccStatus, setShowAccStatus] = useState(false);
-  const [showRemove, setShowRemove] = useState(false);
+  const [newGiftCardOrder, setNewGiftCardOrder] = useState();
   const [existedAcc, setExistedAcc] = useState(false);
-  const [updateSuccess, setUpdateSuccess] = useState("false");
+  const [showRemove, setShowRemove] = useState(false);
+  const [showAccStatus, setShowAccStatus] = useState(false);
+  const [isFieldCompleted, setIsFieldCompleted] = useState(true);
+  const [validEmail, setValidEmail] = useState(true);
+  const [validePhone, setValidPhone] = useState(true);
   const [currentOrderId, setcurrentOrderId] = useState(0);
   const [giftcards, setGiftCard] = useState([
     {
@@ -46,24 +49,27 @@ function ManageGiftCard() {
     const isAnyFieldEmpty = Object.values(MatchedGiftCard).some(
       (value) => value === "" || value === 0
     );
-    if (!isAnyFieldEmpty) {
+    if (!isAnyFieldEmpty && validEmail && validePhone) {
       try {
         const res = await request.put("/admin/gift-card", {
           MatchedGiftCard,
         });
         setShow(true);
+        setIsFieldCompleted(true);
         setTimeout(() => {
           setShow(false);
         }, 3000);
-        setUpdateSuccess(true);
         setcurrentOrderId(0); // Reset currentOrderId
       } catch (error) {
         console.error(error);
       }
     } else {
-      setUpdateSuccess(false);
       setcurrentOrderId(giftcardId); // Set currentOrderId to highlight the item with missing fields
-      console.log(updateSuccess);
+      if (isAnyFieldEmpty) {
+        setIsFieldCompleted(false);
+      } else {
+        setIsFieldCompleted(true);
+      }
     }
     console.log("matchedRes: ", MatchedGiftCard);
   };
@@ -84,6 +90,7 @@ function ManageGiftCard() {
 
     setGiftCard(updatedGiftCard);
   };
+
   const handleExistedAcc = () => {
     setExistedAcc(true);
     setShowAccStatus(false); // Ẩn modal sau khi chọn Existed Account
@@ -94,31 +101,35 @@ function ManageGiftCard() {
         message: "",
         receiver_address: "",
         receiver_mail: "",
-        receiver_name: 0,
+        receiver_name: "",
         receiver_phone: "",
+        card_order_id: 0,
         account_status: true, // Set account_status thành true
       },
     ];
     setGiftCard(updatedGiftCards);
   };
+  useEffect(() => {}, [existedAcc]);
   useEffect(() => {
-    console.log("existedAcc:", existedAcc);
-  }, [existedAcc]);
+    giftcards.forEach((g) => {
+      if (g.account_status) {
+        setNewGiftCardOrder(giftcards[giftcards.length - 1]);
+      }
+    });
+  }, [giftcards]);
   const handleGuestAcc = () => {
     setExistedAcc(false);
-    setShowAccStatus(false); // Ẩn modal sau khi chọn Guest
+    setShowAccStatus(false);
     const updatedGiftCards = [
       ...giftcards,
       {
-        reservation_id: "",
-        user_id: 0,
-        user_name: "",
-        user_phone: "",
-        user_gmail: "",
-        table_time: "",
-        table_date: "",
-        No_people: 0,
+        card_id: "",
         message: "",
+        receiver_address: "",
+        receiver_mail: "",
+        receiver_name: "",
+        receiver_phone: "",
+        card_order_id: 0,
         account_status: false, // Set account_status thành true
       },
     ];
@@ -128,12 +139,75 @@ function ManageGiftCard() {
     setShowAccStatus(true);
     // Update the gift cards state using the spread operator
   };
+  const isValidEmail = (email) => {
+    // Biểu thức chính quy để kiểm tra email
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailPattern.test(email);
+  };
+  function validatePhoneField(phoneNumberField) {
+    // Get the phone number value
+    const { value } = phoneNumberField.target;
+
+    // Create a regular expression to match 10-digit numbers
+    const phoneNumberRegex = /^\d{10}$/;
+
+    // Check if the phone number matches the regular expression
+    if (!phoneNumberRegex.test(value)) {
+      console.log("Invalid phone number:", value);
+      setValidPhone(false);
+    } else {
+      setValidPhone(true);
+      console.log("Valid phone number:", value);
+    }
+  }
+  // Xử lý khi rời khỏi trường nhập email
+  const handleEmailBlur = (e) => {
+    const { value } = e.target;
+    if (isValidEmail(value) && value.length > 0) {
+      setValidEmail(true);
+      console.log(" valid email: ", validEmail);
+    } else {
+      setValidEmail(false);
+    }
+  };
+  const handleAddNewReservationToDBS = async (giftcardId) => {
+    const MatchedGiftCard = giftcards.find(
+      (giftcard) => giftcard.card_order_id === giftcardId
+    );
+    const isAnyFieldEmpty = Object.values(MatchedGiftCard).some(
+      (value) => value === "" || value === null || value === undefined
+    );
+
+    console.log(!isAnyFieldEmpty, "vaf", validEmail, "vaf", validePhone);
+    if (!isAnyFieldEmpty && validEmail && validePhone) {
+      try {
+        // const res = await request.post("/admin/gift-card", {
+        //   newGiftCardOrder,
+        // });
+        console.log("New giftcard - order:", newGiftCardOrder);
+        setIsFieldCompleted(true);
+        setShow(true);
+        setTimeout(() => {
+          setShow(false);
+        }, 3000);
+      } catch (error) {
+        console.error(error);
+      }
+    } else {
+      setcurrentOrderId(currentOrderId); // Set currentReservationId to highlight the item with missing fields
+      if (isAnyFieldEmpty) {
+        setIsFieldCompleted(false);
+      } else {
+        setIsFieldCompleted(true);
+        console.log(isAnyFieldEmpty);
+      }
+    }
+  };
 
   useEffect(() => {
     const fetchApi = async () => {
       try {
         const res = await request.get("/admin/gift-card");
-        console.log(res.data);
         setGiftCard(res.data);
       } catch (error) {
         console.error(error);
@@ -141,7 +215,6 @@ function ManageGiftCard() {
     };
     fetchApi();
   }, []);
-  console.log(giftcards);
   return (
     <Container
       style={{
@@ -208,7 +281,11 @@ function ManageGiftCard() {
                 type="text"
                 onChange={(e) => handleInputChange(e, order.card_order_id)}
                 value={order.receiver_mail}
+                onBlur={handleEmailBlur}
               />
+              {!validEmail && order.card_order_id === currentOrderId && (
+                <h5 style={{ color: "red" }}>Invalid email!</h5>
+              )}
               <Form.Label>Recepient's Phone Number</Form.Label>
               <Form.Control
                 style={{ margin: "8px 8px 0 0" }}
@@ -216,7 +293,13 @@ function ManageGiftCard() {
                 type="text"
                 onChange={(e) => handleInputChange(e, order.card_order_id)}
                 value={order.receiver_phone}
+                onBlur={validatePhoneField}
               />
+              {!validePhone && order.card_order_id === currentOrderId && (
+                <span style={{ color: "red" }}>
+                  Phone must 10 digits/ must be number
+                </span>
+              )}
               <Form.Label>Recepient's Address</Form.Label>
               <Form.Control
                 style={{ margin: "8px 8px 0 0" }}
@@ -235,34 +318,69 @@ function ManageGiftCard() {
                 value={order.card_id}
                 name="card_id"
               />
-              {console.log(order.card_order_id, currentOrderId)}
-              {updateSuccess === false &&
+
+              {isFieldCompleted === false &&
                 order.card_order_id === currentOrderId && (
                   <div style={{ color: "red", fontSize: "18px" }}>
                     You need to complete all the field
                   </div>
                 )}
               <div>
-                <Button
-                  style={{
-                    backgroundColor: "rgba(0, 0, 0, 0.8)",
-                    border: "none",
-                    margin: "10px",
-                  }}
-                  onClick={() => handleUpdateGiftcard(order.card_order_id)}
-                >
-                  Update
-                </Button>
-                <Button
-                  style={{
-                    backgroundColor: "rgba(0, 0, 0, 0.8)",
-                    border: "none",
-                    margin: "10px",
-                  }}
-                  onClick={() => handleRemoveReservation(order.card_order_id)}
-                >
-                  Remove
-                </Button>
+                {order.account_status === undefined && (
+                  <Button
+                    style={{
+                      backgroundColor: "rgba(0, 0, 0, 0.8)",
+                      border: "none",
+                      margin: "10px 8px 8px 0",
+                    }}
+                    onClick={() => handleUpdateGiftcard(order.card_order_id)}
+                  >
+                    Update
+                  </Button>
+                )}
+
+                {order.account_status === undefined && (
+                  <Button
+                    style={{
+                      backgroundColor: "rgba(0, 0, 0, 0.8)",
+                      border: "none",
+                    }}
+                    onClick={() => handleRemoveReservation(order.card_order_id)}
+                  >
+                    Remove
+                  </Button>
+                )}
+                {(order.account_status === false ||
+                  order.account_status === true) && (
+                  <Button
+                    style={{
+                      backgroundColor: "rgba(0, 0, 0, 0.7)",
+                      border: "none",
+                      margin: "0 0 0 8px",
+                    }}
+                    onClick={() =>
+                      handleAddNewReservationToDBS(order.card_order_id)
+                    }
+                  >
+                    Add New
+                  </Button>
+                )}
+                {(order.account_status === false ||
+                  order.account_status === true) && (
+                  <Button
+                    style={{
+                      backgroundColor: "rgba(0, 0, 0, 0.7)",
+                      border: "none",
+                      margin: "0 0 0 8px",
+                    }}
+                    onClick={() => {
+                      const updatedGiftCards = giftcards.slice(0, -1); // Tạo một bản sao mới của mảng mà không bao gồm phần tử cuối cùng
+                      setGiftCard(updatedGiftCards);
+                    }}
+                  >
+                    Cancel
+                  </Button>
+                )}
                 <Modal
                   show={showAccStatus}
                   onHide={() => setShowAccStatus(false)}
