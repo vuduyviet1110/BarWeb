@@ -22,16 +22,20 @@ import { Link } from "react-router-dom";
 import {
   ArrowRightCircle,
   ArrowUpShort,
+  CurrencyExchange,
   Facebook,
   Instagram,
   TwitterX,
 } from "react-bootstrap-icons";
-import Testimonials from "../common/Testimonials";
 import ChangePwd from "../common/ChangePwd";
 import BookingTable from "../common/booking";
 function HomePage() {
   const userId = parseInt(localStorage.getItem("user_token"));
-
+  const [currency, setCurrency] = useState(false);
+  const ExchangeCurrenciesToVND = (amount) => {
+    const vnd = amount * 24768;
+    return vnd + " VND";
+  };
   const [CurentUser, setCurrentUser] = useState({});
   const handleLogout = () => {
     setCurrentUser({
@@ -556,6 +560,24 @@ function HomePage() {
                   <li data-filter=".filter-specialty">Soda and minerals</li>
                 </ul>
               </div>
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <Button
+                  style={{
+                    backgroundColor: "transparent",
+                    width: "5%",
+                    border: "1px solid white",
+                  }}
+                  onClick={() => setCurrency(!currency)}
+                >
+                  <CurrencyExchange></CurrencyExchange>
+                </Button>
+              </div>
             </div>
 
             <div
@@ -567,7 +589,11 @@ function HomePage() {
                 <img src={beverage1} className="menu-img" alt="" />
                 <div className="menu-content">
                   <a href="#">Beverage 1</a>
-                  <span>$5.95</span>
+                  {currency ? (
+                    <span>{ExchangeCurrenciesToVND(6.95)}</span>
+                  ) : (
+                    <span>$6.95</span>
+                  )}
                 </div>
                 <div className="menu-ingredients">
                   Lorem, deren, trataro, filede, nerada
@@ -578,7 +604,11 @@ function HomePage() {
                 <img src={beverage2} className="menu-img" alt="" />
                 <div className="menu-content">
                   <a href="#">Bread Barrel</a>
-                  <span>$6.95</span>
+                  {currency ? (
+                    <span>{ExchangeCurrenciesToVND(6.95)}</span>
+                  ) : (
+                    <span>$6.95</span>
+                  )}
                 </div>
                 <div className="menu-ingredients">
                   Lorem, deren, trataro, filede, nerada
@@ -589,7 +619,11 @@ function HomePage() {
                 <img src={beverage7} className="menu-img" alt="" />
                 <div className="menu-content">
                   <a href="#">Crab Cake</a>
-                  <span>$7.95</span>
+                  {currency ? (
+                    <span>{ExchangeCurrenciesToVND(6.95)}</span>
+                  ) : (
+                    <span>$6.95</span>
+                  )}
                 </div>
                 <div className="menu-ingredients">
                   A delicate crab cake served on a toasted roll with lettuce and
@@ -601,7 +635,11 @@ function HomePage() {
                 <img src={beverage4} className="menu-img" alt="" />
                 <div className="menu-content">
                   <a href="#">Caesar Selections</a>
-                  <span>$8.95</span>
+                  {currency ? (
+                    <span>{ExchangeCurrenciesToVND(6.95)}</span>
+                  ) : (
+                    <span>$6.95</span>
+                  )}
                 </div>
                 <div className="menu-ingredients">
                   Lorem, deren, trataro, filede, nerada
@@ -612,7 +650,11 @@ function HomePage() {
                 <img src={beverage5} className="menu-img" alt="" />
                 <div className="menu-content">
                   <a href="#">Tuscan Grilled</a>
-                  <span>$9.95</span>
+                  {currency ? (
+                    <span>{ExchangeCurrenciesToVND(6.95)}</span>
+                  ) : (
+                    <span>$6.95</span>
+                  )}
                 </div>
                 <div className="menu-ingredients">
                   Grilled chicken with provolone, artichoke hearts, and roasted
@@ -624,7 +666,11 @@ function HomePage() {
                 <img src={beverage6} className="menu-img" alt="" />
                 <div className="menu-content">
                   <a href="#">Mozzarella Stick</a>
-                  <span>$4.95</span>
+                  {currency ? (
+                    <span>{ExchangeCurrenciesToVND(6.95)}</span>
+                  ) : (
+                    <span>$6.95</span>
+                  )}
                 </div>
                 <div className="menu-ingredients">
                   Lorem, deren, trataro, filede, nerada
@@ -635,7 +681,11 @@ function HomePage() {
                 <img src={beverage7} className="menu-img" alt="" />
                 <div className="menu-content">
                   <a href="#">Greek Salad</a>
-                  <span>$9.95</span>
+                  {currency ? (
+                    <span>{ExchangeCurrenciesToVND(6.95)}</span>
+                  ) : (
+                    <span>$6.95</span>
+                  )}
                 </div>
                 <div className="menu-ingredients">
                   Fresh spinach, crisp romaine, tomatoes, and Greek olives
@@ -646,7 +696,11 @@ function HomePage() {
                 <img src={beverage1} className="menu-img" alt="" />
                 <div className="menu-content">
                   <a href="#">Spinach Salad</a>
-                  <span>$9.95</span>
+                  {currency ? (
+                    <span>{ExchangeCurrenciesToVND(6.95)}</span>
+                  ) : (
+                    <span>$6.95</span>
+                  )}
                 </div>
                 <div className="menu-ingredients">
                   Fresh spinach with mushrooms, hard boiled egg, and warm bacon
@@ -658,7 +712,11 @@ function HomePage() {
                 <img src={beverage2} className="menu-img" alt="" />
                 <div className="menu-content">
                   <a href="#">Lobster Roll</a>
-                  <span>$12.95</span>
+                  {currency ? (
+                    <span>{ExchangeCurrenciesToVND(6.95)}</span>
+                  ) : (
+                    <span>$6.95</span>
+                  )}
                 </div>
                 <div className="menu-ingredients">
                   Plump lobster meat, mayo and crisp lettuce on a toasted bulky
@@ -799,16 +857,6 @@ function HomePage() {
         </section>
 
         <BookingTable CurentUser={CurentUser} />
-
-        {/* <section id="testimonials" className="testimonials section-bg">
-          <div className="container" data-aos="fade-up">
-            <div className="section-title">
-              <h2>Testimonials</h2>
-              <p>What they're saying about us</p>
-            </div>
-            <Testimonials />
-          </div>
-        </section> */}
 
         <section id="gallery" className="gallery">
           <div className="container" data-aos="fade-up">

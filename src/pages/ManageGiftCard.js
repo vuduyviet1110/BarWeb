@@ -11,13 +11,12 @@ function ManageGiftCard() {
   const [validEmail, setValidEmail] = useState(true);
   const [validePhone, setValidPhone] = useState(true);
   const [currentOrderId, setcurrentOrderId] = useState(0);
+  const [ExistedAccount, setExistedAccount] = useState();
   const [giftcards, setGiftCard] = useState([
     {
-      card_id: "",
       card_order_id: "",
       card_status_id: "",
       message: "",
-      payment_method: "",
       receiver_address: "",
       receiver_mail: "",
       receiver_name: "",
@@ -87,7 +86,7 @@ function ManageGiftCard() {
       }
       return giftcard; // Trả về phần tử không thay đổi cho các card_order_id khác
     });
-
+    console.log(giftcards);
     setGiftCard(updatedGiftCard);
   };
 
@@ -97,13 +96,15 @@ function ManageGiftCard() {
     const updatedGiftCards = [
       ...giftcards,
       {
-        card_id: "",
         message: "",
         receiver_address: "",
         receiver_mail: "",
+        user_name: "",
+        user_gmail: "",
+        user_phone: "",
+        user_amount: "",
         receiver_name: "",
         receiver_phone: "",
-        card_order_id: 0,
         account_status: true, // Set account_status thành true
       },
     ];
@@ -117,27 +118,9 @@ function ManageGiftCard() {
       }
     });
   }, [giftcards]);
-  const handleGuestAcc = () => {
-    setExistedAcc(false);
-    setShowAccStatus(false);
-    const updatedGiftCards = [
-      ...giftcards,
-      {
-        card_id: "",
-        message: "",
-        receiver_address: "",
-        receiver_mail: "",
-        receiver_name: "",
-        receiver_phone: "",
-        card_order_id: 0,
-        account_status: false, // Set account_status thành true
-      },
-    ];
-    setGiftCard(updatedGiftCards);
-  };
+
   const handleAddGiftCard = () => {
     setShowAccStatus(true);
-    // Update the gift cards state using the spread operator
   };
   const isValidEmail = (email) => {
     // Biểu thức chính quy để kiểm tra email
@@ -179,17 +162,24 @@ function ManageGiftCard() {
     );
 
     console.log(!isAnyFieldEmpty, "vaf", validEmail, "vaf", validePhone);
+    console.log("New giftcard - order:", newGiftCardOrder);
+
     if (!isAnyFieldEmpty && validEmail && validePhone) {
       try {
-        // const res = await request.post("/admin/gift-card", {
-        //   newGiftCardOrder,
-        // });
+        const res = await request.post("/admin/gift-card", {
+          newGiftCardOrder,
+        });
+        if (res.data.message === "no acc") {
+          setExistedAccount(true);
+          alert(ExistedAccount);
+        } else {
+          setIsFieldCompleted(true);
+          setShow(true);
+          setTimeout(() => {
+            setShow(false);
+          }, 3000);
+        }
         console.log("New giftcard - order:", newGiftCardOrder);
-        setIsFieldCompleted(true);
-        setShow(true);
-        setTimeout(() => {
-          setShow(false);
-        }, 3000);
       } catch (error) {
         console.error(error);
       }
@@ -235,26 +225,62 @@ function ManageGiftCard() {
           {giftcards.map((order) => (
             <Col key={order.card_order_id}>
               <h4>Order: {order.card_order_id}</h4>
-              <Form.Label>To</Form.Label>
+              <Form.Label>
+                Sender Name <strong style={{ color: "red" }}>(Fixed)</strong>
+              </Form.Label>
               <Form.Control
-                style={{ margin: "8px 8px 0 0" }}
-                type="text"
-                name="receiver_name"
-                onChange={(e) => handleInputChange(e, order.card_order_id)}
-                value={order.receiver_name}
-              />
-
-              <Form.Label>From</Form.Label>
-              <Form.Control
-                style={{ margin: "8px 8px 0 0" }}
+                style={{ margin: "0 0 20px 0" }}
                 name="user_name"
                 type="text"
                 onChange={(e) => handleInputChange(e, order.card_order_id)}
                 value={order.user_name}
               />
+              <Form.Label>
+                Sender Email <strong style={{ color: "red" }}>(Fixed)</strong>
+              </Form.Label>
+              <Form.Control
+                style={{ margin: "0 0 20px 0" }}
+                name="user_gmail"
+                type="text"
+                onChange={(e) => handleInputChange(e, order.card_order_id)}
+                value={order.user_gmail}
+              />
+
+              <Form.Label>
+                Sender Phone <strong style={{ color: "red" }}>(Fixed)</strong>
+              </Form.Label>
+              <Form.Control
+                style={{ margin: "0 0 20px 0" }}
+                name="user_phone"
+                type="text"
+                onChange={(e) => handleInputChange(e, order.card_order_id)}
+                value={order.user_phone}
+              />
+              <Form.Label>To</Form.Label>
+              <Form.Control
+                style={{ margin: "0 0 20px 0" }}
+                type="text"
+                name="receiver_name"
+                onChange={(e) => handleInputChange(e, order.card_order_id)}
+                value={order.receiver_name}
+              />
+              <Form.Label>Card_status</Form.Label>
+
+              <Form.Select
+                aria-label="Default select example"
+                required
+                name="card_status_id"
+                onChange={(e) => handleInputChange(e, order.card_order_id)}
+                value={order.card_status_id}
+              >
+                <option value=""></option>
+                <option value="1">Pending</option>
+                <option value="2">Success</option>
+              </Form.Select>
+
               <Form.Label>Message</Form.Label>
               <Form.Control
-                style={{ margin: "8px 8px 0 0" }}
+                style={{ margin: "0 0 20px 0" }}
                 name="message"
                 type="text"
                 onChange={(e) => handleInputChange(e, order.card_order_id)}
@@ -276,7 +302,7 @@ function ManageGiftCard() {
 
               <Form.Label>Recepient's Email</Form.Label>
               <Form.Control
-                style={{ margin: "8px 8px 0 0" }}
+                style={{ margin: "0 0 20px 0" }}
                 name="receiver_mail"
                 type="text"
                 onChange={(e) => handleInputChange(e, order.card_order_id)}
@@ -288,7 +314,7 @@ function ManageGiftCard() {
               )}
               <Form.Label>Recepient's Phone Number</Form.Label>
               <Form.Control
-                style={{ margin: "8px 8px 0 0" }}
+                style={{ margin: "0 0 20px 0" }}
                 name="receiver_phone"
                 type="text"
                 onChange={(e) => handleInputChange(e, order.card_order_id)}
@@ -302,22 +328,26 @@ function ManageGiftCard() {
               )}
               <Form.Label>Recepient's Address</Form.Label>
               <Form.Control
-                style={{ margin: "8px 8px 0 0" }}
+                style={{ margin: "0 0 20px 0" }}
                 type="text"
                 name="receiver_address"
                 onChange={(e) => handleInputChange(e, order.card_order_id)}
                 value={order.receiver_address}
               />
-              <Form.Label>
-                Amount(card_id - 1:10, 2:20, 3:50, 4:100 )
-              </Form.Label>
-              <Form.Control
-                className="mt-3 mr-3"
-                type="text"
+              <Form.Label>Amount</Form.Label>
+              <Form.Select
+                aria-label="Default select example"
+                required
+                name="user_amount"
                 onChange={(e) => handleInputChange(e, order.card_order_id)}
-                value={order.card_id}
-                name="card_id"
-              />
+                value={order.user_amount}
+              >
+                <option value=""></option>
+                <option value="10">10 $</option>
+                <option value="20">20 $</option>
+                <option value="50">50 $</option>
+                <option value="100">100 $</option>
+              </Form.Select>
 
               {isFieldCompleted === false &&
                 order.card_order_id === currentOrderId && (
@@ -325,6 +355,12 @@ function ManageGiftCard() {
                     You need to complete all the field
                   </div>
                 )}
+              {console.log(currentOrderId)}
+              {ExistedAccount && order.card_order_id === currentOrderId && (
+                <div style={{ color: "red", fontSize: "18px" }}>
+                  This person you add do not have account yet
+                </div>
+              )}
               <div>
                 {order.account_status === undefined && (
                   <Button
@@ -381,26 +417,7 @@ function ManageGiftCard() {
                     Cancel
                   </Button>
                 )}
-                <Modal
-                  show={showAccStatus}
-                  onHide={() => setShowAccStatus(false)}
-                >
-                  <Modal.Header closeButton>
-                    <Modal.Title style={{ color: "green" }}>
-                      Is this user you want to add an giftcard order already
-                      have an account ?
-                    </Modal.Title>
-                  </Modal.Header>
-                  <Modal.Body>Existed Account or Guest?</Modal.Body>
-                  <Modal.Footer>
-                    <Button variant="secondary" onClick={handleExistedAcc}>
-                      Existed Account
-                    </Button>
-                    <Button variant="secondary" onClick={handleGuestAcc}>
-                      Guest
-                    </Button>
-                  </Modal.Footer>
-                </Modal>
+
                 <Modal show={showRemove} onHide={() => setShowRemove(false)}>
                   <Modal.Header>
                     <Modal.Title style={{ color: "red" }}>
@@ -436,6 +453,21 @@ function ManageGiftCard() {
       >
         + Add GiftCard Order
       </Button>
+      <Modal show={showAccStatus} onHide={() => setShowAccStatus(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title style={{ color: "green" }}>
+            Registered Account?
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          Make sure that you this user have an registered account
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleExistedAcc}>
+            Confirm
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </Container>
   );
 }

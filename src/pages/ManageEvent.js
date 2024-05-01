@@ -64,13 +64,6 @@ function ManageEvent() {
                 value={event.title}
                 onChange={(e) => handleTitlesChange(e, index)}
               />
-              <Button
-                style={{ backgroundColor: "#c59d5a" }}
-                onClick={() => console.log(events)}
-                id="button-addon2"
-              >
-                Update
-              </Button>
             </InputGroup>
 
             <h2> Description: </h2>
@@ -83,18 +76,24 @@ function ManageEvent() {
                 aria-label="SWI:P"
                 onChange={(e) => handleDesChange(e, index)}
               />
-              <Button
-                onClick={() => console.log(events)}
-                style={{ backgroundColor: "#c59d5a" }}
-                id="button-addon2"
-              >
-                Update
-              </Button>
             </InputGroup>
 
-            <h2> Photo: </h2>
-            <Form.Control type="file" />
-            <Image width="20%" height="20%" src={event.photo} thumbnail />
+            <div>
+              <h2> Photo: </h2>
+              <Form.Control type="file" />
+              <Image width="20%" height="20%" src={event.photo} thumbnail />
+            </div>
+            <Button
+              onClick={() => console.log(events)}
+              style={{
+                backgroundColor: "#c59d5a",
+                width: "20%",
+                margin: "16px 0 0 0 ",
+              }}
+              id="button-addon2"
+            >
+              Update
+            </Button>
           </Col>
         ))}
       </Row>

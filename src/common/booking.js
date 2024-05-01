@@ -17,11 +17,19 @@ function BookingTable({ CurentUser }) {
 
   useEffect(() => {
     // Kiểm tra xem CurentUser đã có giá trị chưa
-    if (CurentUser && CurentUser.user_id) {
+    if (CurentUser.user_id > 0) {
       // Cập nhật bookingInfo với user_id từ CurentUser
       setBookingInfo((prev) => ({
         ...prev,
         user_id: CurentUser.user_id,
+        user_gmail: CurentUser.user_gmail,
+        user_phone: CurentUser.user_phone,
+        user_name: CurentUser.user_name,
+      }));
+    } else {
+      setBookingInfo((prev) => ({
+        ...prev,
+        user_id: 0,
       }));
     }
   }, [CurentUser]); // Sẽ chạy lại khi CurentUser thay đổi
@@ -37,20 +45,8 @@ function BookingTable({ CurentUser }) {
       setBookingSucess(false);
       setBookingInfo((prev) => ({ ...prev, table_time: 0 }));
     } else {
-      if (
-        CurentUser &&
-        Object.keys(CurentUser).length !== 0 &&
-        CurentUser.table_time !== 0
-      ) {
-        const res = await request.post("/booking", bookingInfo);
-        if (res.data === "Incorrect Username and/or Password!") {
-          // Handle incorrect username/password case
-        } else {
-          setBookingSucess(true);
-        }
-      } else {
-        navigate("/sign-in");
-      }
+      const res = await request.post("/booking", bookingInfo);
+      setBookingSucess(true);
     }
   };
   return (
@@ -72,8 +68,20 @@ function BookingTable({ CurentUser }) {
               <Form.Group style={{ margin: "0 0 16px 0" }}>
                 <Form.Control
                   type="text"
-                  value={CurentUser?.user_name}
+                  value={
+                    CurentUser.user_id > 0
+                      ? CurentUser.user_name
+                      : bookingInfo.user_name
+                  }
                   required
+                  onChange={(e) => {
+                    if (CurentUser.user_id === 0) {
+                      setBookingInfo((prev) => ({
+                        ...prev,
+                        user_name: e.target.value,
+                      }));
+                    }
+                  }}
                   placeholder="Your Name"
                   minLength={4}
                 />
@@ -86,9 +94,21 @@ function BookingTable({ CurentUser }) {
               <Form.Group>
                 <Form.Control
                   type="email"
-                  value={CurentUser.user_gmail}
+                  value={
+                    CurentUser.user_id > 0
+                      ? CurentUser.user_gmail
+                      : bookingInfo.user_gmail
+                  }
                   required
                   id="email"
+                  onChange={(e) => {
+                    if (CurentUser.user_id === 0) {
+                      setBookingInfo((prev) => ({
+                        ...prev,
+                        user_gmail: e.target.value,
+                      }));
+                    }
+                  }}
                   placeholder="Your Email"
                 />
                 <Form.Control.Feedback type="invalid">
@@ -100,10 +120,22 @@ function BookingTable({ CurentUser }) {
               <Form.Group>
                 <Form.Control
                   type="text"
-                  value={CurentUser?.user_phone}
+                  value={
+                    CurentUser.user_id > 0
+                      ? CurentUser.user_phone
+                      : bookingInfo.user_phone
+                  }
                   id="phone"
                   required
                   placeholder="Your Phone"
+                  onChange={(e) => {
+                    if (CurentUser.user_id === 0) {
+                      setBookingInfo((prev) => ({
+                        ...prev,
+                        user_phone: e.target.value,
+                      }));
+                    }
+                  }}
                   minLength={4}
                 />
                 <Form.Control.Feedback type="invalid">

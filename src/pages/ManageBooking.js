@@ -123,14 +123,12 @@ function ManageBooking() {
     const updatedBooking = [
       ...reservations,
       {
-        user_id: 0,
         user_name: "",
         user_phone: "",
         user_gmail: "",
         table_time: "",
         table_date: "",
         message: "",
-        reservation_id: 0,
         account_status: true, // Set account_status thành true
       },
     ];
@@ -141,18 +139,16 @@ function ManageBooking() {
   }, [existedAcc]);
   const handleGuestAcc = () => {
     setExistedAcc(false);
-    setShowAccStatus(false); // Ẩn modal sau khi chọn Guest
+    setShowAccStatus(false); // Ẩn modal sau khi chọn Existed Account
     const updatedBooking = [
       ...reservations,
       {
-        user_id: 0,
         user_name: "",
         user_phone: "",
         user_gmail: "",
         table_time: "",
         table_date: "",
         message: "",
-        reservation_id: 0,
         account_status: false, // Set account_status thành true
       },
     ];
@@ -160,7 +156,7 @@ function ManageBooking() {
   };
   useEffect(() => {
     reservations.forEach((r) => {
-      if (r.account_status) {
+      if (r.account_status === true || r.account_status === false) {
         setNewReservation(reservations[reservations.length - 1]);
       }
     });
@@ -175,9 +171,9 @@ function ManageBooking() {
     console.log(!isAnyFieldEmpty, "vaf", validEmail, "vaf", validePhone);
     if (!isAnyFieldEmpty && validEmail && validePhone) {
       try {
-        // const res = await request.post("/admin/reservation", {
-        //   newReservation,
-        // });
+        const res = await request.post("/admin/reservation", {
+          newReservation,
+        });
         console.log("all reservations:", reservations);
         console.log("New reservation:", newReservation);
         setIsFieldCompleted(true);
@@ -260,7 +256,7 @@ function ManageBooking() {
                 />
                 {!validePhone &&
                   reservation.reservation_id === currentReservationId && (
-                    <span style={{ color: "red" }}>must 10 digits</span>
+                    <span style={{ color: "red" }}>invalid phone number</span>
                   )}
               </Form.Group>
               <Form.Group>
@@ -431,26 +427,6 @@ function ManageBooking() {
                     </Button>
                   </Modal.Footer>
                 </Modal>
-                <Modal
-                  show={showAccStatus}
-                  onHide={() => setShowAccStatus(false)}
-                >
-                  <Modal.Header closeButton>
-                    <Modal.Title style={{ color: "green" }}>
-                      Is this user you want to add an giftcard order already
-                      have an account ?
-                    </Modal.Title>
-                  </Modal.Header>
-                  <Modal.Body>Existed Account or Guest?</Modal.Body>
-                  <Modal.Footer>
-                    <Button variant="secondary" onClick={handleExistedAcc}>
-                      Existed Account
-                    </Button>
-                    <Button variant="secondary" onClick={handleGuestAcc}>
-                      Guest
-                    </Button>
-                  </Modal.Footer>
-                </Modal>
               </div>
             </Col>
           ))}
@@ -467,6 +443,23 @@ function ManageBooking() {
       >
         + Add Reservation
       </Button>
+      <Modal show={showAccStatus} onHide={() => setShowAccStatus(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title style={{ color: "green" }}>
+            Is this user you want to add an giftcard order already have an
+            account ?
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body>Existed Account or Guest?</Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleExistedAcc}>
+            Existed Account
+          </Button>
+          <Button variant="secondary" onClick={handleGuestAcc}>
+            Guest
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </Container>
   );
 }
