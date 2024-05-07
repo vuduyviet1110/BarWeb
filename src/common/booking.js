@@ -17,7 +17,7 @@ function BookingTable({ CurentUser }) {
 
   useEffect(() => {
     // Kiểm tra xem CurentUser đã có giá trị chưa
-    if (CurentUser.user_id > 0) {
+    if (CurentUser && CurentUser.user_id > 0) {
       // Cập nhật bookingInfo với user_id từ CurentUser
       setBookingInfo((prev) => ({
         ...prev,
@@ -36,7 +36,6 @@ function BookingTable({ CurentUser }) {
 
   console.log(bookingInfo);
   const [bookingSucess, setBookingSucess] = useState();
-  const navigate = useNavigate();
   const handleSubmit = async (event) => {
     event.preventDefault();
     event.stopPropagation();
@@ -75,7 +74,7 @@ function BookingTable({ CurentUser }) {
                   }
                   required
                   onChange={(e) => {
-                    if (CurentUser.user_id === 0) {
+                    if (CurentUser.user_id === undefined) {
                       setBookingInfo((prev) => ({
                         ...prev,
                         user_name: e.target.value,
@@ -95,14 +94,15 @@ function BookingTable({ CurentUser }) {
                 <Form.Control
                   type="email"
                   value={
-                    CurentUser.user_id > 0
+                    CurentUser && CurentUser.user_id > 0
                       ? CurentUser.user_gmail
                       : bookingInfo.user_gmail
                   }
                   required
                   id="email"
                   onChange={(e) => {
-                    if (CurentUser.user_id === 0) {
+                    // Nếu user_id là 0 và CurentUser tồn tại
+                    if (CurentUser && CurentUser.user_id === undefined) {
                       setBookingInfo((prev) => ({
                         ...prev,
                         user_gmail: e.target.value,
@@ -129,7 +129,7 @@ function BookingTable({ CurentUser }) {
                   required
                   placeholder="Your Phone"
                   onChange={(e) => {
-                    if (CurentUser.user_id === 0) {
+                    if (CurentUser.user_id === undefined) {
                       setBookingInfo((prev) => ({
                         ...prev,
                         user_phone: e.target.value,

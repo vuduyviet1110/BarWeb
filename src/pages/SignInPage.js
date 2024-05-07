@@ -15,23 +15,23 @@ function SignInPage() {
   const [validated, setValidated] = useState(false);
   const [isAuth, setIsAuth] = useState();
   const [CurrentUser, setCurrentUser] = useState({
-    email: "1",
-    password: "",
-    id: 0,
+    user_gmail: "1",
+    user_password: "",
+    user_id: 0,
   });
   // ...
   const handleEmailCheck = (e) => {
-    setCurrentUser((prev) => ({ ...prev, email: e.target.value }));
+    setCurrentUser((prev) => ({ ...prev, user_gmail: e.target.value }));
   };
 
   const handlePwdCheck = (e) => {
-    setCurrentUser((prev) => ({ ...prev, password: e.target.value }));
+    setCurrentUser((prev) => ({ ...prev, user_password: e.target.value }));
   };
 
   useEffect(() => {
-    if (CurrentUser.id !== 0) {
+    if (CurrentUser.user_id !== 0) {
       setIsAuth(true);
-      localStorage.setItem("user_token", CurrentUser.id);
+      localStorage.setItem("user_token", CurrentUser.user_id);
       dispatch(login(CurrentUser));
       navigate(`/`);
     }
@@ -70,8 +70,9 @@ function SignInPage() {
         setIsAuth(false);
       } else {
         const id = res.data.data.user_id;
+        console.log(res.data.data.user_id);
         setCookie("token", res.data.token, 1);
-        setCurrentUser((prev) => ({ ...prev, id: id }));
+        setCurrentUser((prev) => ({ ...prev, user_id: id }));
       }
     }
   };
