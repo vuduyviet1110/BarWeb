@@ -6,6 +6,7 @@ function ManageBooking() {
   const [show, setShow] = useState(false);
   const [existedAcc, setExistedAcc] = useState(false);
   const [showRemove, setShowRemove] = useState(false);
+  const [showAdd, setShowAdd] = useState(false);
   const [currentReservationId, setcurrReservationId] = useState(0);
   const [showAccStatus, setShowAccStatus] = useState(false);
   const [isFieldCompleted, setIsFieldCompleted] = useState(true);
@@ -177,9 +178,9 @@ function ManageBooking() {
         console.log("all reservations:", reservations);
         console.log("New reservation:", newReservation);
         setIsFieldCompleted(true);
-        setShow(true);
+        setShowAdd(true);
         setTimeout(() => {
-          setShow(false);
+          setShowAdd(false);
         }, 3000);
       } catch (error) {
         console.error(error);
@@ -225,6 +226,12 @@ function ManageBooking() {
         <Row lg={4}>
           {reservations.map((reservation) => (
             <Col key={reservation.reservation_id}>
+              {console.log(
+                "currentId: ",
+                currentReservationId,
+                "reseId: ",
+                reservation.resservation_id
+              )}
               <h4>Reservation: {reservation.reservation_id}</h4>
               <Form.Group>
                 <Form.Label>
@@ -392,6 +399,25 @@ function ManageBooking() {
                     Cancel
                   </Button>
                 )}
+                <Modal show={showAdd} onHide={() => setShowAdd(false)}>
+                  <Modal.Header closeButton>
+                    <Modal.Title style={{ color: "green" }}>
+                      Successfully Added!!
+                    </Modal.Title>
+                  </Modal.Header>
+                  <Modal.Body>
+                    You have successfully Add new Reservation
+                    {reservation.reservation_id}
+                  </Modal.Body>
+                  <Modal.Footer>
+                    <Button
+                      variant="secondary"
+                      onClick={() => setShowAdd(false)}
+                    >
+                      Close
+                    </Button>
+                  </Modal.Footer>
+                </Modal>
                 <Modal show={show} onHide={() => setShow(false)}>
                   <Modal.Header closeButton>
                     <Modal.Title style={{ color: "green" }}>
@@ -399,7 +425,7 @@ function ManageBooking() {
                     </Modal.Title>
                   </Modal.Header>
                   <Modal.Body>
-                    You have successfully updated Card id
+                    You have successfully updated Ca
                     {reservation.reservation_id}
                   </Modal.Body>
                   <Modal.Footer>

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
 import Cocktails from "../common/Cocktails";
@@ -9,27 +9,70 @@ import { Col } from "react-bootstrap";
 import SodaNMinerals from "../common/SodaNMinerals";
 import Beers from "../common/Beer";
 import { Contents } from "../Fakeapi";
+import { request } from "../utils/request";
+
 function ManageContent() {
   const [type, setType] = useState("Title");
-  const [contents, setContents] = useState({
-    title: "Title",
-    des: "A space that gives you the most intimate experiences right in the heart of Hanoi's Old Quarter",
+  const [isEmpty, setisEmpty] = useState();
+  const [sameImage, setSameImage] = useState();
+  const [sucess, setSucess] = useState();
+  const [contents, setContents] = useState({});
+  const [ourStory, setOurstory] = useState({
     storyTitle: "storyTile",
     storyDes: "storyDes",
-    homeImages: Contents[0].HomePage.HomeImage.barAva,
-    storyImages: Contents[1].OurStory,
+    storyBgImage: "",
+    storySlideImage: "",
   });
-  const handleSaveChangesTitle = () => {
+  const handleSaveChangesTitle = async () => {
     // Handle saving the title here
-    console.log("Updated Title:", contents.title);
-    // You can perform further actions like sending data to backend, etc.
-    console.log("Updated Des:", contents.des);
+    try {
+      const formData = new FormData();
+      formData.append("title", contents.title);
+      formData.append("content", contents.content);
+      formData.append("image", contents.image); // Thêm tệp tin vào FormData
+      const isAnyFieldEmpty = Object.values(contents).some(
+        (value) => value === "" || value === 0 || value === "undefined"
+      );
+      console.log(isAnyFieldEmpty);
+      if (!isAnyFieldEmpty) {
+        const res = await request.put("/admin/content", formData, {
+          headers: {
+            "Content-Type": "multipart/form-data", // Important for FormData
+          },
+        });
+
+        if (res.data === "same image") {
+          console.log("Response from server:", res.data);
+          setSameImage(true);
+        } else {
+          console.log("Response from server:", res.data);
+          setContents((prev) => ({ ...prev, image: res.data }));
+        }
+        setSucess(true);
+      } else {
+        setisEmpty(true);
+      }
+    } catch (error) {
+      console.error("Error:", error);
+    }
   };
   const handleSaveChangesOurStory = () => {
     // Handle saving the title here
-    console.log("Updated Title:", contents.storyTitle);
-    console.log("Updated Des:", contents.storyDes);
+    console.log("Our story", ourStory);
   };
+  useEffect(() => {
+    const fetchApi = async () => {
+      try {
+        const res = await request.get("/admin/content");
+        setContents(res.data[0]);
+        console.log(res.data[0]);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    fetchApi();
+  }, []);
   return (
     <div
       style={{
@@ -58,7 +101,7 @@ function ManageContent() {
         ))}
       </div>
       {type === "Title" && (
-        <div style={{ margin: "16px", color: "#c59d5a", height: "100vh" }}>
+        <div style={{ margin: "16px", color: "#c59d5a" }}>
           <Form.Label>
             <h1
               style={{
@@ -77,7 +120,6 @@ function ManageContent() {
           <h2>Current Title: </h2>
           <InputGroup className="mb-3">
             <Form.Control
-              aria-label="SWI:P"
               value={contents.title}
               onChange={(e) => {
                 setContents((prev) => ({ ...prev, title: e.target.value }));
@@ -88,13 +130,11 @@ function ManageContent() {
           <h2>Current Description: </h2>
           <InputGroup className="mb-3">
             <Form.Control
-              value={contents.des}
+              value={contents.content}
               style={{ height: "150px" }}
               as="textarea"
-              placeholder="A space that gives you the most intimate experiences right in the heart of Hanoi's Old Quarter"
-              aria-label="SWI:P"
               onChange={(e) => {
-                setContents((prev) => ({ ...prev, des: e.target.value }));
+                setContents((prev) => ({ ...prev, content: e.target.value }));
               }}
             />
           </InputGroup>
@@ -102,23 +142,33 @@ function ManageContent() {
             <Row xs={1} md={3} className="g-4">
               <Col>
                 <Form.Control
-                  onChange={(e) =>
-                    setContents((prev) => ({
-                      ...prev,
-                      homeImages: e.target.value,
-                    }))
-                  }
+                  onChange={(e) => {
+                    if (e.target.files.length > 0) {
+                      setContents((prev) => ({
+                        ...prev,
+                        image: e.target.files[0],
+                      }));
+                    } else {
+                    }
+                  }}
                   type="file"
                 />
                 <Image
-                  width="15%"
-                  height="15%"
-                  src={contents.homeImages}
+                  width="50%"
+                  height="50%"
+                  src={contents.image}
                   thumbnail
                 />
               </Col>
             </Row>
           </Form.Group>
+          {isEmpty && <div>Please complete all the fields</div>}
+          {/* {sameImage && <div>Same image???</div>} */}
+          {sucess && (
+            <div style={{ color: "green", fontSize: "30px" }}>
+              Sucessfully updated!!!
+            </div>
+          )}
           <Button
             onClick={handleSaveChangesTitle}
             style={{ backgroundColor: "#c59d5a" }}
@@ -151,10 +201,11 @@ function ManageContent() {
           <InputGroup className="mb-3">
             <Form.Control
               aria-label="SWI:P"
+              placeholder="hello"
               aria-describedby="basic-addon2"
               value={contents.storyTitle}
               onChange={(e) => {
-                setContents((prev) => ({
+                setOurstory((prev) => ({
                   ...prev,
                   storyTitle: e.target.value,
                 }));
@@ -171,20 +222,36 @@ function ManageContent() {
               placeholder="A space that gives you the most intimate experiences right in the heart of Hanoi's Old Quarter"
               aria-label="SWI:P"
               onChange={(e) => {
-                setContents((prev) => ({ ...prev, storyDes: e.target.value }));
+                setOurstory((prev) => ({ ...prev, storyDes: e.target.value }));
               }}
             />
           </InputGroup>
           <div style={{ display: "flex" }}>
             <div>
               <h4>Background Image </h4>
-              <Form.Control type="file" />
-              <Image src={contents.storyImages.BackgroundImage} thumbnail />
+              <Form.Control
+                type="file"
+                onChange={(e) =>
+                  setOurstory((prev) => ({
+                    ...prev,
+                    storyBgImage: e.target.files[0],
+                  }))
+                }
+              />
+              <Image src={ourStory.storyBgImage} thumbnail />
             </div>
             <div>
               <h4> Side Image </h4>
-              <Form.Control type="file" />
-              <Image src={contents.storyImages.SideImage} thumbnail />
+              <Form.Control
+                type="file"
+                onChange={(e) =>
+                  setOurstory((prev) => ({
+                    ...prev,
+                    storySlideImage: e.target.files[0],
+                  }))
+                }
+              />
+              <Image src={ourStory.storySlideImage} thumbnail />
             </div>
           </div>
           <Button

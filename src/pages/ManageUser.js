@@ -106,14 +106,7 @@ function ManageUser() {
                 onChange={(e) => handleInputChange(e, user.user_id)}
                 value={user.user_gmail}
               />
-              <Form.Label>Address</Form.Label>
-              <Form.Control
-                style={{ margin: "8px 8px 0 0" }}
-                name="user_address"
-                type="text"
-                onChange={(e) => handleInputChange(e, user.user_id)}
-                value={user.user_address}
-              />
+
               <Form.Label> DOB </Form.Label>
               <Form.Control
                 style={{ margin: "8px 8px 0 0" }}

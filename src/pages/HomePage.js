@@ -32,6 +32,7 @@ import BookingTable from "../common/booking";
 function HomePage() {
   const userId = parseInt(localStorage.getItem("user_token"));
   const [currency, setCurrency] = useState(false);
+  const [titleContent, setTitleContent] = useState();
   const ExchangeCurrenciesToVND = (amount) => {
     const vnd = amount * 24768;
     return vnd + " VND";
@@ -348,6 +349,19 @@ function HomePage() {
       });
     });
   }, []);
+
+  useEffect(() => {
+    const fetchApi = async () => {
+      try {
+        const res = await request.get("/admin/content");
+        setTitleContent(res.data[0]);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    fetchApi();
+  }, []);
+
   return (
     <div className="main">
       <div id="topbar" className="d-flex align-items-center fixed-top">
@@ -451,7 +465,13 @@ function HomePage() {
         </div>
       </header>
 
-      <section id="hero" className="d-flex align-items-center">
+      <section
+        id="hero"
+        style={{
+          background: `url(${titleContent?.image}) top/99%`,
+        }}
+        className="d-flex align-items-center"
+      >
         <div
           className="container position-relative text-center text-lg-start"
           data-aos="zoom-in"
@@ -460,10 +480,13 @@ function HomePage() {
           <div className="row">
             <div className="col-lg-8">
               <h1>
-                Welcome to <span>SWI:P</span>
+                Welcome to
+                <span> {titleContent?.title || "Swip"}</span>
               </h1>
-              <h2>A space that gives you the most intimate experiences</h2>
-              <h2>right in the heart of Hanoi's Old Quarter</h2>
+
+              <h2 style={{ maxWidth: "60%", margin: "16px 0 0 0 " }}>
+                {titleContent?.content}
+              </h2>
 
               <div className="btns">
                 <a
@@ -590,9 +613,9 @@ function HomePage() {
                 <div className="menu-content">
                   <a href="#">Beverage 1</a>
                   {currency ? (
-                    <span>{ExchangeCurrenciesToVND(6.95)}</span>
+                    <span>{ExchangeCurrenciesToVND(50)}</span>
                   ) : (
-                    <span>$6.95</span>
+                    <span>$50</span>
                   )}
                 </div>
                 <div className="menu-ingredients">

@@ -186,22 +186,7 @@ const UserProfile = () => {
                           />
                         </Col>
                       </Row>
-                      <Row>
-                        <Col className="mb-3">
-                          <h6>Address</h6>
-                          <input
-                            className="form-control"
-                            value={CurrentUser.user_address}
-                            onChange={(e) => {
-                              setCurrentUser((prev) => ({
-                                ...prev,
-                                user_address: e.target.value,
-                              }));
-                            }}
-                            required
-                          />
-                        </Col>
-                      </Row>
+
                       {updateSucess === true && (
                         <div style={{ color: "green", fontSize: "18px" }}>
                           Update Sucessfully!!

@@ -46,7 +46,7 @@ function ManageGiftCard() {
       (giftcard) => giftcard.card_order_id === giftcardId
     );
     const isAnyFieldEmpty = Object.values(MatchedGiftCard).some(
-      (value) => value === "" || value === 0
+      (value) => value === "" || value === null || value === undefined
     );
     if (!isAnyFieldEmpty && validEmail && validePhone) {
       try {
@@ -58,7 +58,6 @@ function ManageGiftCard() {
         setTimeout(() => {
           setShow(false);
         }, 3000);
-        setcurrentOrderId(0); // Reset currentOrderId
       } catch (error) {
         console.error(error);
       }
@@ -68,9 +67,9 @@ function ManageGiftCard() {
         setIsFieldCompleted(false);
       } else {
         setIsFieldCompleted(true);
+        console.log("isAnyFieldEmpty: ", isAnyFieldEmpty);
       }
     }
-    console.log("matchedRes: ", MatchedGiftCard);
   };
 
   const handleInputChange = (e, giftcardId) => {
@@ -110,7 +109,6 @@ function ManageGiftCard() {
     ];
     setGiftCard(updatedGiftCards);
   };
-  useEffect(() => {}, [existedAcc]);
   useEffect(() => {
     giftcards.forEach((g) => {
       if (g.account_status) {
@@ -146,7 +144,7 @@ function ManageGiftCard() {
   // Xử lý khi rời khỏi trường nhập email
   const handleEmailBlur = (e) => {
     const { value } = e.target;
-    if (isValidEmail(value) && value.length > 0) {
+    if (isValidEmail(value)) {
       setValidEmail(true);
       console.log(" valid email: ", validEmail);
     } else {
@@ -162,7 +160,6 @@ function ManageGiftCard() {
     );
 
     console.log(!isAnyFieldEmpty, "vaf", validEmail, "vaf", validePhone);
-    console.log("New giftcard - order:", newGiftCardOrder);
 
     if (!isAnyFieldEmpty && validEmail && validePhone) {
       try {
@@ -170,7 +167,7 @@ function ManageGiftCard() {
           newGiftCardOrder,
         });
         if (res.data.message === "no acc") {
-          setExistedAccount(true);
+          // setExistedAccount(true);
           alert(ExistedAccount);
         } else {
           setIsFieldCompleted(true);
@@ -189,7 +186,6 @@ function ManageGiftCard() {
         setIsFieldCompleted(false);
       } else {
         setIsFieldCompleted(true);
-        console.log(isAnyFieldEmpty);
       }
     }
   };
@@ -224,6 +220,12 @@ function ManageGiftCard() {
         <Row lg={4}>
           {giftcards.map((order) => (
             <Col key={order.card_order_id}>
+              {console.log(
+                "currentId: ",
+                currentOrderId,
+                "card_order: ",
+                order.card_order_id
+              )}
               <h4>Order: {order.card_order_id}</h4>
               <Form.Label>
                 Sender Name <strong style={{ color: "red" }}>(Fixed)</strong>
@@ -238,6 +240,7 @@ function ManageGiftCard() {
               <Form.Label>
                 Sender Email <strong style={{ color: "red" }}>(Fixed)</strong>
               </Form.Label>
+              {!validEmail && <h5 style={{ color: "red" }}>Invalid email!</h5>}
               <Form.Control
                 style={{ margin: "0 0 20px 0" }}
                 name="user_gmail"
@@ -256,6 +259,11 @@ function ManageGiftCard() {
                 onChange={(e) => handleInputChange(e, order.card_order_id)}
                 value={order.user_phone}
               />
+              {!validePhone && order.card_order_id === currentOrderId && (
+                <span style={{ color: "red" }}>
+                  Phone must 10 digits/ must be number
+                </span>
+              )}
               <Form.Label>To</Form.Label>
               <Form.Control
                 style={{ margin: "0 0 20px 0" }}
