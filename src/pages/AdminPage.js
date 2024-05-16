@@ -10,27 +10,31 @@ import {
 import { useNavigate } from "react-router-dom";
 
 import { NavLink, Outlet } from "react-router-dom";
-import beverage3 from "../assets/images/talkingincouter.jpg";
-import { useEffect } from "react";
+import beverage3 from "../assets/images/beverage5.jpg";
+import { useEffect, useState } from "react";
 import { request } from "../utils/request";
+import { useParams } from "react-router-dom";
 function AdminPage() {
+  const { id } = useParams();
+  const [ad, setAd] = useState();
   const handleLogout = (e) => {
     localStorage.removeItem("access_token");
     return navigate("/login");
   };
   const navigate = useNavigate();
-  // useEffect(() => {
-  //   const fetchApi = async () => {
-  //     try {
-  //       const res = await request.get(`/`);
-  //       console.log(res.data);
-  //     } catch (error) {
-  //       console.error(error);
-  //     }
-  //   };
+  useEffect(() => {
+    const fetchApi = async () => {
+      try {
+        const res = await request.get(`/admin/auth/${id}`);
+        console.log(res.data);
+        setAd(res.data);
+      } catch (error) {
+        console.error(error);
+      }
+    };
 
-  //   fetchApi();
-  // }, []);
+    fetchApi();
+  }, []);
   return (
     <div
       style={{
@@ -41,8 +45,8 @@ function AdminPage() {
       <div
         style={{
           padding: "8px",
-          background: `url(${beverage3})`,
-          backgroundColor: "rgba(0,0,0,0.3)",
+          background: `url(${beverage3}) top/70%`,
+          // backgroundColor: "rgba(0,0,0,0.9)",
         }}
       >
         <div className="Header">
@@ -56,20 +60,34 @@ function AdminPage() {
           >
             SWI:P
           </h2>
-          <h4
-            style={{
-              color: "rgba(255, 255, 255, 0.8)",
-              backgroundColor: "rgba(0, 0, 0, 0.6)",
-              padding: "8px",
-              lineHeight: "35.4px",
-              borderRadius: "8px",
-              textAlign: "center",
-              cursor: "pointer",
-            }}
-            onClick={handleLogout}
-          >
-            Log Out
-          </h4>
+          <div style={{ display: "flex" }}>
+            <div
+              style={{
+                color: "rgba(255, 255, 255, 0.8)",
+                padding: "8px",
+                borderRadius: "8px",
+                textAlign: "center",
+                fontSize: "20px",
+                margin: "0 16px 0 0",
+              }}
+            >
+              Hello👋, {ad?.name}
+            </div>
+            <h4
+              style={{
+                color: "rgba(255, 255, 255, 0.8)",
+                backgroundColor: "rgba(0, 0, 0, 0.6)",
+                padding: "8px",
+                lineHeight: "35.4px",
+                borderRadius: "8px",
+                textAlign: "center",
+                cursor: "pointer",
+              }}
+              onClick={handleLogout}
+            >
+              Log Out
+            </h4>
+          </div>
         </div>
 
         <div style={{ display: "flex", height: "100%" }}>

@@ -33,6 +33,8 @@ function HomePage() {
   const userId = parseInt(localStorage.getItem("user_token"));
   const [currency, setCurrency] = useState(false);
   const [titleContent, setTitleContent] = useState();
+  const [ourStoryContent, setourStoryContent] = useState();
+  const [gallery, setGallery] = useState();
   const ExchangeCurrenciesToVND = (amount) => {
     const vnd = amount * 24768;
     return vnd + " VND";
@@ -353,15 +355,29 @@ function HomePage() {
   useEffect(() => {
     const fetchApi = async () => {
       try {
-        const res = await request.get("/admin/content");
-        setTitleContent(res.data[0]);
+        const restitle = await request.get("/admin/content/title");
+        const resOurstory = await request.get("/admin/content/ourstory");
+        setTitleContent(restitle.data[0]);
+        setourStoryContent(resOurstory.data[0]);
+        console.log(resOurstory.data[0]);
       } catch (error) {
         console.error(error);
       }
     };
     fetchApi();
   }, []);
-
+  useEffect(() => {
+    const fetchApi = async () => {
+      try {
+        const res = await request.get("/admin/gallery");
+        setGallery(res.data);
+        console.log(res.data);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    fetchApi();
+  }, []);
   return (
     <div className="main">
       <div id="topbar" className="d-flex align-items-center fixed-top">
@@ -507,7 +523,13 @@ function HomePage() {
       </section>
 
       <main id="main">
-        <section id="about" className="about">
+        <section
+          id="about"
+          style={{
+            background: `url(${ourStoryContent?.bgimage}) center/99%`,
+          }}
+          className="about"
+        >
           <div className="container" data-aos="fade-up">
             <div className="row">
               <div
@@ -516,7 +538,7 @@ function HomePage() {
                 data-aos-delay="100"
               >
                 <div className="about-img">
-                  <img src={anhquaybar} alt="" />
+                  <img src={ourStoryContent?.slideimage} alt="" />
                 </div>
               </div>
               <div
@@ -529,37 +551,8 @@ function HomePage() {
                   color: "#fff",
                 }}
               >
-                <h3>
-                  Voluptatem dignissimos provident quasi corporis voluptates sit
-                  assumenda.
-                </h3>
-                <p className="fst-italic">
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed
-                  do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-                </p>
-                <ul>
-                  <li>
-                    <i className="bi bi-check-circle"></i> Ullamco laboris nisi
-                    ut aliquip ex ea commodo consequat.
-                  </li>
-                  <li>
-                    <i className="bi bi-check-circle"></i> Duis aute irure dolor
-                    in reprehenderit in voluptate velit.
-                  </li>
-                  <li>
-                    <i className="bi bi-check-circle"></i> Ullamco laboris nisi
-                    ut aliquip ex ea commodo consequat. Duis aute irure dolor in
-                    reprehenderit in voluptate trideta storacalaperda mastiro
-                    dolore eu fugiat nulla pariatur.
-                  </li>
-                </ul>
-                <p>
-                  Ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis
-                  aute irure dolor in reprehenderit in voluptate velit esse
-                  cillum dolore eu fugiat nulla pariatur. Excepteur sint
-                  occaecat cupidatat non proident, sunt in culpa qui officia
-                  deserunt mollit anim id est laborum
-                </p>
+                <h3>{ourStoryContent?.title}</h3>
+                <p className="fst-italic">{ourStoryContent?.content}</p>
               </div>
             </div>
           </div>
@@ -895,69 +888,19 @@ function HomePage() {
             data-aos-delay="100"
           >
             <div className="row g-0">
-              <div className="col-lg-3 col-md-4">
-                <div className="gallery-item">
-                  <div className="gallery-lightbox" data-gall="gallery-item">
-                    <img src={beverage1} alt="" className="img-fluid" />
+              {gallery?.map((img) => (
+                <div key={img.img_id} className="col-lg-3 col-md-4">
+                  <div className="gallery-item">
+                    <div className="gallery-lightbox" data-gall="gallery-item">
+                      <img
+                        src={img.img}
+                        alt={img.img_alt || "Image"}
+                        className="img-fluid"
+                      />
+                    </div>
                   </div>
                 </div>
-              </div>
-
-              <div className="col-lg-3 col-md-4">
-                <div className="gallery-item">
-                  <div className="gallery-lightbox" data-gall="gallery-item">
-                    <img src={beverage2} alt="" className="img-fluid" />
-                  </div>
-                </div>
-              </div>
-
-              <div className="col-lg-3 col-md-4">
-                <div className="gallery-item">
-                  <div className="gallery-lightbox" data-gall="gallery-item">
-                    <img src={beverage4} alt="" className="img-fluid" />
-                  </div>
-                </div>
-              </div>
-
-              <div className="col-lg-3 col-md-4">
-                <div className="gallery-item">
-                  <div className="gallery-lightbox" data-gall="gallery-item">
-                    <img src={beverage6} alt="" className="img-fluid" />
-                  </div>
-                </div>
-              </div>
-
-              <div className="col-lg-3 col-md-4">
-                <div className="gallery-item">
-                  <div className="gallery-lightbox" data-gall="gallery-item">
-                    <img src={beverage5} alt="" className="img-fluid" />
-                  </div>
-                </div>
-              </div>
-
-              <div className="col-lg-3 col-md-4">
-                <div className="gallery-item">
-                  <div className="gallery-lightbox" data-gall="gallery-item">
-                    <img src={beverage4} alt="" className="img-fluid" />
-                  </div>
-                </div>
-              </div>
-
-              <div className="col-lg-3 col-md-4">
-                <div className="gallery-item">
-                  <div className="gallery-lightbox" data-gall="gallery-item">
-                    <img src={beverage1} alt="" className="img-fluid" />
-                  </div>
-                </div>
-              </div>
-
-              <div className="col-lg-3 col-md-4">
-                <div className="gallery-item">
-                  <div className="gallery-lightbox" data-gall="gallery-item">
-                    <img src={beverage2} alt="" className="img-fluid" />
-                  </div>
-                </div>
-              </div>
+              ))}
             </div>
           </div>
         </section>

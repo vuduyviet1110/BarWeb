@@ -1,20 +1,60 @@
-import { Image } from "react-bootstrap";
+import { Button, Image } from "react-bootstrap";
 import Form from "react-bootstrap/Form";
 import { Contents } from "../Fakeapi";
 
 import Row from "react-bootstrap/Row";
 import { Col } from "react-bootstrap";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { request } from "../utils/request";
 function ManageImage() {
-  const [beverageImages, setBeverageImages] = useState(Contents[2].Beverage);
   const [galleryImgs, setGalleryImgs] = useState(Contents[3].Gallery);
+  const [success, setSuccess] = useState(false);
+  const [noUpdate, setNoUpdate] = useState(false);
+  useEffect(() => {
+    const fetchApi = async () => {
+      try {
+        const res = await request.get("/admin/gallery");
+        setGalleryImgs(res.data);
+      } catch (error) {
+        console.error(error);
+      }
+    };
 
+    fetchApi();
+  }, []);
+
+  const handleImageChange = (index, newImage) => {
+    setGalleryImgs((prevImgs) =>
+      prevImgs.map((img, i) =>
+        i + 1 === index ? { ...img, img: newImage } : img
+      )
+    );
+  };
+  const handleUpdate = async () => {
+    const formData = new FormData();
+    galleryImgs.forEach((img) => {
+      formData.append(`images${img.img_id}`, img.img); // Assuming 'images[]' is the field name on the server
+    });
+    const res = await request.put("/admin/gallery", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data", // Important for FormData
+      },
+    });
+
+    if (res.data === "successfully") {
+      setSuccess(true);
+      setNoUpdate(false);
+    } else if (res.data === "No images uploaded") {
+      setNoUpdate(true);
+    }
+  };
   return (
     <div
       style={{
         color: "rgb(161, 158, 158)",
         margin: "0 0 0 22px",
-        height: "100vh",
+        padding: "0 0 20px 0",
+        height: "100%",
       }}
     >
       <Form.Group controlId="formFile" className="mb-3">
@@ -35,15 +75,38 @@ function ManageImage() {
         </Form.Label>
         <div style={{ display: "flex" }}>
           <Row xs={1} md={4} className="g-4">
-            {galleryImgs.map((photo, index) => (
-              <Col key={index}>
-                <h6>Name: {photo}</h6>
-                <Form.Control type="file" />
-                <Image width="20%" height="20%" src={photo} thumbnail />
+            {galleryImgs.map((photo) => (
+              <Col key={photo.img_id}>
+                <Form.Control
+                  type="file"
+                  onChange={(e) => {
+                    handleImageChange(photo.img_id, e.target.files[0]);
+                  }}
+                />
+                <h5>Current Image: </h5>
+                <Image width="50%" height="50%" src={photo.img} thumbnail />
               </Col>
             ))}
           </Row>
         </div>
+        {success && (
+          <div style={{ color: "green" }}>Update image successfully!!!</div>
+        )}
+
+        {noUpdate && (
+          <div style={{ color: "gold" }}>No new image uploaded!!</div>
+        )}
+        <Button
+          style={{
+            display: "flex",
+            margin: "16px 0 0 0",
+            backgroundColor: "brown",
+            border: "none",
+          }}
+          onClick={handleUpdate}
+        >
+          Update
+        </Button>
       </Form.Group>
     </div>
   );

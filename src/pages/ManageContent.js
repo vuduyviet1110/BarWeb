@@ -10,32 +10,28 @@ import SodaNMinerals from "../common/SodaNMinerals";
 import Beers from "../common/Beer";
 import { Contents } from "../Fakeapi";
 import { request } from "../utils/request";
-
+import { useParams } from "react-router-dom";
 function ManageContent() {
   const [type, setType] = useState("Title");
   const [isEmpty, setisEmpty] = useState();
-  const [sameImage, setSameImage] = useState();
   const [sucess, setSucess] = useState();
   const [contents, setContents] = useState({});
-  const [ourStory, setOurstory] = useState({
-    storyTitle: "storyTile",
-    storyDes: "storyDes",
-    storyBgImage: "",
-    storySlideImage: "",
-  });
+  const [ourStory, setOurstory] = useState({ title: "", content: "" });
+  const { id } = useParams();
   const handleSaveChangesTitle = async () => {
     // Handle saving the title here
     try {
       const formData = new FormData();
       formData.append("title", contents.title);
       formData.append("content", contents.content);
+      formData.append("ad_id", id);
       formData.append("image", contents.image); // Thêm tệp tin vào FormData
       const isAnyFieldEmpty = Object.values(contents).some(
         (value) => value === "" || value === 0 || value === "undefined"
       );
       console.log(isAnyFieldEmpty);
       if (!isAnyFieldEmpty) {
-        const res = await request.put("/admin/content", formData, {
+        const res = await request.put("/admin/content/title", formData, {
           headers: {
             "Content-Type": "multipart/form-data", // Important for FormData
           },
@@ -43,12 +39,12 @@ function ManageContent() {
 
         if (res.data === "same image") {
           console.log("Response from server:", res.data);
-          setSameImage(true);
         } else {
           console.log("Response from server:", res.data);
           setContents((prev) => ({ ...prev, image: res.data }));
         }
         setSucess(true);
+        setisEmpty(false);
       } else {
         setisEmpty(true);
       }
@@ -56,15 +52,58 @@ function ManageContent() {
       console.error("Error:", error);
     }
   };
-  const handleSaveChangesOurStory = () => {
+  const handleSaveChangesOurStory = async () => {
     // Handle saving the title here
-    console.log("Our story", ourStory);
+    try {
+      const formData = new FormData();
+      formData.append("title", ourStory.title);
+      formData.append("content", ourStory.content);
+      formData.append("storyBgImage", ourStory.bgimage); // Thêm tệp tin vào FormData
+      formData.append("storySlideImage", ourStory.slideimage); // Thêm tệp tin vào FormData
+      const isAnyFieldEmpty = Object.values(ourStory).some(
+        (value) => value === "" || value === 0 || value === "undefined"
+      );
+      console.log(isAnyFieldEmpty);
+      if (!isAnyFieldEmpty) {
+        const res = await request.put("/admin/content/ourstory", formData, {
+          headers: {
+            "Content-Type": "multipart/form-data", // Important for FormData
+          },
+        });
+
+        if (res.data === "same image") {
+          console.log("Response from server:", res.data);
+        } else {
+          console.log("Response from server:", res.data);
+          // setContents((prev) => ({ ...prev, storyBgImage: res.data }));
+        }
+        setSucess(true);
+        setisEmpty(false);
+      } else {
+        setisEmpty(true);
+      }
+    } catch (error) {
+      console.error("Error:", error);
+    }
   };
   useEffect(() => {
     const fetchApi = async () => {
       try {
-        const res = await request.get("/admin/content");
+        const res = await request.get("/admin/content/title");
         setContents(res.data[0]);
+        console.log(res.data[0]);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    fetchApi();
+  }, []);
+  useEffect(() => {
+    const fetchApi = async () => {
+      try {
+        const res = await request.get("/admin/content/ourstory");
+        setOurstory(res.data[0]);
         console.log(res.data[0]);
       } catch (error) {
         console.error(error);
@@ -179,7 +218,7 @@ function ManageContent() {
         </div>
       )}
       {type === "Our Story" && (
-        <div style={{ margin: "16px", color: "#c59d5a", height: "100vh" }}>
+        <div style={{ margin: "16px", color: "#c59d5a", height: "100%" }}>
           <Form.Group controlId="formFile" className="mb-3">
             <Form.Label>
               <h1
@@ -203,11 +242,11 @@ function ManageContent() {
               aria-label="SWI:P"
               placeholder="hello"
               aria-describedby="basic-addon2"
-              value={contents.storyTitle}
+              value={ourStory.title}
               onChange={(e) => {
                 setOurstory((prev) => ({
                   ...prev,
-                  storyTitle: e.target.value,
+                  title: e.target.value,
                 }));
               }}
             />
@@ -216,13 +255,13 @@ function ManageContent() {
           <h2>Current Story Description: </h2>
           <InputGroup className="mb-3">
             <Form.Control
-              value={contents.storyDes}
+              value={ourStory.content}
               as="textarea"
               style={{ height: "150px" }}
               placeholder="A space that gives you the most intimate experiences right in the heart of Hanoi's Old Quarter"
               aria-label="SWI:P"
               onChange={(e) => {
-                setOurstory((prev) => ({ ...prev, storyDes: e.target.value }));
+                setOurstory((prev) => ({ ...prev, content: e.target.value }));
               }}
             />
           </InputGroup>
@@ -234,11 +273,15 @@ function ManageContent() {
                 onChange={(e) =>
                   setOurstory((prev) => ({
                     ...prev,
-                    storyBgImage: e.target.files[0],
+                    bgimage: e.target.files[0],
                   }))
                 }
               />
-              <Image src={ourStory.storyBgImage} thumbnail />
+              <Image
+                src={ourStory.bgimage}
+                style={{ width: "50%", height: "50%" }}
+                thumbnail
+              />
             </div>
             <div>
               <h4> Side Image </h4>
@@ -247,13 +290,24 @@ function ManageContent() {
                 onChange={(e) =>
                   setOurstory((prev) => ({
                     ...prev,
-                    storySlideImage: e.target.files[0],
+                    slideimage: e.target.files[0],
                   }))
                 }
               />
-              <Image src={ourStory.storySlideImage} thumbnail />
+              <Image
+                src={ourStory.slideimage}
+                style={{ width: "60%", height: "60%" }}
+                thumbnail
+              />
             </div>
           </div>
+          {isEmpty && <div>Please complete all the fields</div>}
+          {/* {sameImage && <div>Same image???</div>} */}
+          {sucess && (
+            <div style={{ color: "green", fontSize: "30px" }}>
+              Sucessfully updated!!!
+            </div>
+          )}
           <Button
             onClick={handleSaveChangesOurStory}
             style={{ backgroundColor: "#c59d5a", marginTop: "16px" }}

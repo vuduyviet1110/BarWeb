@@ -3,15 +3,16 @@ import { Button, Col, Container, Form, Row, Modal } from "react-bootstrap";
 import { request } from "../utils/request";
 function ManageBooking() {
   const [newReservation, setNewReservation] = useState();
-  const [show, setShow] = useState(false);
-  const [existedAcc, setExistedAcc] = useState(false);
   const [showRemove, setShowRemove] = useState(false);
   const [showAdd, setShowAdd] = useState(false);
+  const [show, setShow] = useState(false);
+  const [existedAcc, setExistedAcc] = useState(false);
   const [currentReservationId, setcurrReservationId] = useState(0);
   const [showAccStatus, setShowAccStatus] = useState(false);
   const [isFieldCompleted, setIsFieldCompleted] = useState(true);
   const [validEmail, setValidEmail] = useState(true);
   const [validePhone, setValidPhone] = useState(true);
+  const [validDate, setIsValidDate] = useState(true);
   const [reservations, setReservations] = useState([
     {
       user_id: 0,
@@ -24,6 +25,21 @@ function ManageBooking() {
       message: "",
     },
   ]);
+  const isValidDate = (dateString) => {
+    // Biểu thức chính quy để kiểm tra định dạng YYYY-MM-DD
+    const datePattern = /^\d{4}-\d{2}-\d{2}$/;
+    if (!datePattern.test(dateString)) {
+      return false;
+    }
+    // Kiểm tra xem ngày có hợp lệ không (ví dụ: 2024-02-30 là ngày không hợp lệ)
+    const date = new Date(dateString);
+    const [year, month, day] = dateString.split("-").map(Number);
+    return (
+      date.getFullYear() === year &&
+      date.getMonth() + 1 === month &&
+      date.getDate() === day
+    );
+  };
   const isValidEmail = (email) => {
     // Biểu thức chính quy để kiểm tra email
     const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -75,7 +91,7 @@ function ManageBooking() {
     const isAnyFieldEmpty = Object.values(MatchedReservation).some(
       (value) => value === "" || value === 0
     );
-    if (!isAnyFieldEmpty && validEmail && validePhone) {
+    if (!isAnyFieldEmpty && validEmail && validePhone && validDate) {
       try {
         const res = await request.put("/admin/reservation", {
           MatchedReservation,
@@ -233,6 +249,11 @@ function ManageBooking() {
                 reservation.resservation_id
               )}
               <h4>Reservation: {reservation.reservation_id}</h4>
+              {reservation.user_id === 1 ? (
+                <div>Guest booking</div>
+              ) : (
+                <div>Existed account booking</div>
+              )}
               <Form.Group>
                 <Form.Label>
                   Name <strong style={{ color: "red" }}>(Fixed)</strong>
@@ -244,7 +265,11 @@ function ManageBooking() {
                   onChange={(event) =>
                     handleInputChange(event, reservation.reservation_id)
                   }
-                  value={reservation.user_name}
+                  value={
+                    reservation.user_id === 1
+                      ? reservation.guest_name
+                      : reservation.user_name
+                  }
                 />
               </Form.Group>
               <Form.Group>
@@ -258,7 +283,11 @@ function ManageBooking() {
                   onChange={(event) =>
                     handleInputChange(event, reservation.reservation_id)
                   }
-                  value={reservation.user_phone}
+                  value={
+                    reservation.user_id === 1
+                      ? reservation.guest_phone
+                      : reservation.user_phone
+                  }
                   onBlur={validatePhoneField}
                 />
                 {!validePhone &&
@@ -267,7 +296,7 @@ function ManageBooking() {
                   )}
               </Form.Group>
               <Form.Group>
-                <Form.Label>Date</Form.Label>
+                <Form.Label>Date (YYYY-MM-DD)</Form.Label>
                 <Form.Control
                   style={{ margin: "0 0 8px 0" }}
                   type="text"
@@ -275,8 +304,16 @@ function ManageBooking() {
                   onChange={(event) =>
                     handleInputChange(event, reservation.reservation_id)
                   }
+                  onBlur={(e) => {
+                    const { value } = e.target;
+                    setIsValidDate(isValidDate(value));
+                  }}
                   value={reservation.table_date}
                 />
+                {!validDate &&
+                  reservation.reservation_id === currentReservationId && (
+                    <span style={{ color: "red" }}>invalid date format</span>
+                  )}
               </Form.Group>
               <Form.Group>
                 <Form.Label>Time</Form.Label>
@@ -302,7 +339,11 @@ function ManageBooking() {
                     handleInputChange(event, reservation.reservation_id)
                   }
                   onBlur={handleEmailBlur}
-                  value={reservation.user_gmail}
+                  value={
+                    reservation.user_id === 1
+                      ? reservation.guest_gmail
+                      : reservation.user_gmail
+                  }
                 />
                 {!validEmail &&
                   reservation.reservation_id === currentReservationId && (
@@ -315,9 +356,11 @@ function ManageBooking() {
                   className="mt-3 mr-3"
                   type="text"
                   name="number_people"
-                  onChange={(event) =>
-                    handleInputChange(event, reservation.reservation_id)
-                  }
+                  onChange={(e) => {
+                    if (!isNaN(e.target.value)) {
+                      handleInputChange(e, reservation.reservation_id);
+                    }
+                  }}
                   value={reservation.number_people}
                 />
               </Form.Group>

@@ -4,14 +4,13 @@ import { request } from "../utils/request";
 function ManageGiftCard() {
   const [show, setShow] = useState(false);
   const [newGiftCardOrder, setNewGiftCardOrder] = useState();
-  const [existedAcc, setExistedAcc] = useState(false);
   const [showRemove, setShowRemove] = useState(false);
   const [showAccStatus, setShowAccStatus] = useState(false);
   const [isFieldCompleted, setIsFieldCompleted] = useState(true);
   const [validEmail, setValidEmail] = useState(true);
   const [validePhone, setValidPhone] = useState(true);
   const [currentOrderId, setcurrentOrderId] = useState(0);
-  const [ExistedAccount, setExistedAccount] = useState();
+  const [ExistedAccount, setExistedAccount] = useState(true);
   const [giftcards, setGiftCard] = useState([
     {
       card_order_id: "",
@@ -90,7 +89,6 @@ function ManageGiftCard() {
   };
 
   const handleExistedAcc = () => {
-    setExistedAcc(true);
     setShowAccStatus(false); // Ẩn modal sau khi chọn Existed Account
     const updatedGiftCards = [
       ...giftcards,
@@ -166,22 +164,22 @@ function ManageGiftCard() {
         const res = await request.post("/admin/gift-card", {
           newGiftCardOrder,
         });
-        if (res.data.message === "no acc") {
-          // setExistedAccount(true);
-          alert(ExistedAccount);
+        if (res.data === "not existed") {
+          setExistedAccount(false);
         } else {
-          setIsFieldCompleted(true);
+          setExistedAccount(true);
           setShow(true);
           setTimeout(() => {
             setShow(false);
           }, 3000);
         }
+        setIsFieldCompleted(true);
         console.log("New giftcard - order:", newGiftCardOrder);
       } catch (error) {
         console.error(error);
       }
     } else {
-      setcurrentOrderId(currentOrderId); // Set currentReservationId to highlight the item with missing fields
+      setcurrentOrderId(giftcardId); // Set currentReservationId to highlight the item with missing fields
       if (isAnyFieldEmpty) {
         setIsFieldCompleted(false);
       } else {
@@ -238,7 +236,8 @@ function ManageGiftCard() {
                 value={order.user_name}
               />
               <Form.Label>
-                Sender Email <strong style={{ color: "red" }}>(Fixed)</strong>
+                Sender Email{" "}
+                <strong style={{ color: "red" }}>(*) (Fixed)</strong>
               </Form.Label>
               {!validEmail && <h5 style={{ color: "red" }}>Invalid email!</h5>}
               <Form.Control
@@ -259,12 +258,10 @@ function ManageGiftCard() {
                 onChange={(e) => handleInputChange(e, order.card_order_id)}
                 value={order.user_phone}
               />
-              {!validePhone && order.card_order_id === currentOrderId && (
-                <span style={{ color: "red" }}>
-                  Phone must 10 digits/ must be number
-                </span>
-              )}
-              <Form.Label>To</Form.Label>
+
+              <Form.Label>
+                To <strong style={{ color: "red" }}>(*) </strong>
+              </Form.Label>
               <Form.Control
                 style={{ margin: "0 0 20px 0" }}
                 type="text"
@@ -272,7 +269,9 @@ function ManageGiftCard() {
                 onChange={(e) => handleInputChange(e, order.card_order_id)}
                 value={order.receiver_name}
               />
-              <Form.Label>Card_status</Form.Label>
+              <Form.Label>
+                Card_status <strong style={{ color: "red" }}>(*) </strong>
+              </Form.Label>
 
               <Form.Select
                 aria-label="Default select example"
@@ -286,7 +285,9 @@ function ManageGiftCard() {
                 <option value="2">Success</option>
               </Form.Select>
 
-              <Form.Label>Message</Form.Label>
+              <Form.Label>
+                Message <strong style={{ color: "red" }}>(*) </strong>
+              </Form.Label>
               <Form.Control
                 style={{ margin: "0 0 20px 0" }}
                 name="message"
@@ -308,7 +309,9 @@ function ManageGiftCard() {
                 </Modal.Footer>
               </Modal>
 
-              <Form.Label>Recepient's Email</Form.Label>
+              <Form.Label>
+                Recepient's Email<strong style={{ color: "red" }}>(*) </strong>
+              </Form.Label>
               <Form.Control
                 style={{ margin: "0 0 20px 0" }}
                 name="receiver_mail"
@@ -320,7 +323,10 @@ function ManageGiftCard() {
               {!validEmail && order.card_order_id === currentOrderId && (
                 <h5 style={{ color: "red" }}>Invalid email!</h5>
               )}
-              <Form.Label>Recepient's Phone Number</Form.Label>
+              <Form.Label>
+                Recepient's Phone Number
+                <strong style={{ color: "red" }}>(*) </strong>
+              </Form.Label>
               <Form.Control
                 style={{ margin: "0 0 20px 0" }}
                 name="receiver_phone"
@@ -334,7 +340,10 @@ function ManageGiftCard() {
                   Phone must 10 digits/ must be number
                 </span>
               )}
-              <Form.Label>Recepient's Address</Form.Label>
+              <Form.Label>
+                Recepient's Address
+                <strong style={{ color: "red" }}>(*) </strong>
+              </Form.Label>
               <Form.Control
                 style={{ margin: "0 0 20px 0" }}
                 type="text"
@@ -342,7 +351,9 @@ function ManageGiftCard() {
                 onChange={(e) => handleInputChange(e, order.card_order_id)}
                 value={order.receiver_address}
               />
-              <Form.Label>Amount</Form.Label>
+              <Form.Label>
+                Amount<strong style={{ color: "red" }}>(*) </strong>
+              </Form.Label>
               <Form.Select
                 aria-label="Default select example"
                 required
@@ -363,8 +374,7 @@ function ManageGiftCard() {
                     You need to complete all the field
                   </div>
                 )}
-              {console.log(currentOrderId)}
-              {ExistedAccount && order.card_order_id === currentOrderId && (
+              {!ExistedAccount && order.card_order_id === currentOrderId && (
                 <div style={{ color: "red", fontSize: "18px" }}>
                   This person you add do not have account yet
                 </div>

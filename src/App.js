@@ -32,7 +32,7 @@ function App() {
           <Route path="/reset-password" element={<ResetPwd />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="*" element={<NotFound />} />
-          <Route path="/admin" element={<PrivateRoute />}>
+          <Route path="/admin/:id" element={<PrivateRoute />}>
             <Route path="content" element={<ManageContent />} />
             <Route path="image" element={<ManageImage />} />
             <Route path="booking" element={<ManageBooking />} />

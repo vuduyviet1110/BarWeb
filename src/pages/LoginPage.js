@@ -1,43 +1,42 @@
 import { useEffect, useState } from "react";
 import ava from "../assets/images/Barava.jpg";
 import { useNavigate } from "react-router-dom";
+import { request } from "../utils/request";
+import beverage3 from "../assets/images/anhquaybar.jpg";
+
 export default function LoginPage() {
-  const [admin, setAdmin] = useState({ id: "", password: "" });
+  const [admin, setAdmin] = useState({ ad_name: "", ad_password: "" });
   const [isValid, setIsValid] = useState(true);
-  const [isEmptyId, setIsEmptyid] = useState(false);
-  const [isEmptyPwd, setIsEmptypwd] = useState(false);
+  const [isEmpty, setIsEmpty] = useState(false);
+  const navigate = useNavigate();
   const handleIdChange = (e) => {
     setAdmin((prevAdmin) => ({
       ...prevAdmin,
-      id: e.target.value,
+      ad_name: e.target.value,
     }));
   };
-  const navigate = useNavigate();
   const handlePasswordChange = (e) => {
     setAdmin((prevAdmin) => ({
       ...prevAdmin,
-      password: e.target.value,
+      ad_password: e.target.value,
     }));
   };
 
-  useEffect(() => {}, []);
-
-  const handleClick = () => {
-    if (admin.id === "admin" && admin.password === "1") {
-      localStorage.setItem("access_token", true);
-      return navigate("/admin/content");
+  const handleClick = async () => {
+    const isAnyFieldEmpty = Object.values(admin).some(
+      (value) => value === "" || value === null || value === undefined
+    );
+    if (!isAnyFieldEmpty) {
+      const res = await request.post("/admin/auth", admin);
+      console.log(res.data);
+      if (res.data === "Invalid") {
+        setIsValid(false);
+      } else if (res.data.admin) {
+        localStorage.setItem("access_token", true);
+        return navigate(`/admin/${res.data.admin.admin_id}/content`);
+      }
     } else {
-      setIsValid(false);
-      if (!admin.id) {
-        setIsEmptyid(true);
-      } else if (admin.id) {
-        setIsEmptyid(false);
-      }
-      if (!admin.password) {
-        setIsEmptypwd(true);
-      } else if (admin.password) {
-        setIsEmptypwd(false);
-      }
+      setIsEmpty(true);
     }
   };
   return (
@@ -52,6 +51,7 @@ export default function LoginPage() {
           padding: 3,
           color: "brown",
           minHeight: "100vh",
+          background: `url(${beverage3})`,
         }}
       >
         <img
@@ -63,6 +63,7 @@ export default function LoginPage() {
         <h3
           style={{
             margin: "16px",
+            color: "white",
           }}
         >
           Bar Management
@@ -84,16 +85,12 @@ export default function LoginPage() {
             <label htmlFor="adId">ID</label>
             <input
               type="text"
-              value={admin.id}
+              value={admin.ad_name}
               onChange={handleIdChange}
               placeholder="Enter Id"
               style={{ height: "35px", borderRadius: "8px" }}
               id="adId"
             />
-
-            {isEmptyId && (
-              <span style={{ color: "red" }}>Please fill out this field</span>
-            )}
           </div>
           <div
             style={{
@@ -105,17 +102,19 @@ export default function LoginPage() {
           >
             <label htmlFor="adPwd">Password</label>
             <input
-              value={admin.password}
+              value={admin.ad_password}
               type="password"
               style={{ height: "35px", borderRadius: "8px" }}
               onChange={handlePasswordChange}
               placeholder="Enter Password"
               id="adPwd"
             />
-            {isEmptyPwd && (
-              <span style={{ color: "red" }}>Please fill out this field</span>
-            )}
           </div>
+          {isEmpty && (
+            <span style={{ color: "red" }}>
+              Please fill out all the field!!!
+            </span>
+          )}
           {!isValid && (
             <span style={{ color: "red" }}>
               Please check your id and password !
