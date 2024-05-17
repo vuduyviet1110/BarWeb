@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import "../assets/css/HomePage.css";
 import { Breadcrumb, Button } from "react-bootstrap";
 import Carousel from "react-bootstrap/Carousel";
-import anhquaybar from "../assets/images/anhquaybar.jpg";
 import christmas from "../assets/images/christmas.jpg";
 import countDown from "../assets/images/countdown.jpg";
 import supriseMoment from "../assets/images/supriseMoment.jpg";
@@ -35,6 +34,7 @@ function HomePage() {
   const [titleContent, setTitleContent] = useState();
   const [ourStoryContent, setourStoryContent] = useState();
   const [gallery, setGallery] = useState();
+  const [events, setEvents] = useState();
   const ExchangeCurrenciesToVND = (amount) => {
     const vnd = amount * 24768;
     return vnd + " VND";
@@ -372,6 +372,17 @@ function HomePage() {
         const res = await request.get("/admin/gallery");
         setGallery(res.data);
         console.log(res.data);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    fetchApi();
+  }, []);
+  useEffect(() => {
+    const fetchApi = async () => {
+      try {
+        const res = await request.get("/admin/event");
+        setEvents(res.data);
       } catch (error) {
         console.error(error);
       }
@@ -751,46 +762,35 @@ function HomePage() {
             </div>
 
             <Carousel data-bs-theme="light">
-              <Carousel.Item>
-                <img
-                  className="d-block w-100"
-                  src={christmas}
-                  style={{
-                    width: "100%",
-                    height: "auto",
-                    borderRadius: "14px",
-                    objectFit: "cover",
-                  }}
-                  alt="First slide"
-                />
-                <Carousel.Caption
-                  style={{
-                    boxShadow: "2px 2px 5px 2px #333",
-                    borderRadius: "8px",
-                    backgroundColor: "rgba(0, 0, 0, 0.6)",
-                  }}
-                >
-                  <div>
-                    <div className="price">
-                      <h3>christmas Parties</h3>
-                      <p>
-                        <span>$189</span>
-                      </p>
+              {events?.map((event) => (
+                <Carousel.Item>
+                  <img
+                    className="d-block w-100"
+                    src={event.image}
+                    style={{
+                      borderRadius: "14px",
+                      objectFit: "cover",
+                    }}
+                    alt="First slide"
+                  />
+                  <Carousel.Caption
+                    style={{
+                      boxShadow: "2px 2px 5px 2px #333",
+                      borderRadius: "8px",
+                      backgroundColor: "rgba(0, 0, 0, 0.6)",
+                    }}
+                  >
+                    <div>
+                      <div className="price">
+                        <h3>{event.title}</h3>
+                      </div>
+                      <p className="fst-italic">{event.description}</p>
                     </div>
-                    <p className="fst-italic">
-                      Lorem ipsum dolor sit amet, consectetur adipiscing elit,
-                      sed do eiusmod tempor incididunt ut labore et dolore magna
-                      aliqua.
-                    </p>
-                    <p>
-                      Ullamco laboris nisi ut aliquip ex ea commodo consequat.
-                      Duis aute irure dolor in reprehenderit in voluptate velit
-                      esse cillum dolore eu fugiat nulla pariatur
-                    </p>
-                  </div>
-                </Carousel.Caption>
-              </Carousel.Item>
-              <Carousel.Item>
+                  </Carousel.Caption>
+                </Carousel.Item>
+              ))}
+
+              {/* <Carousel.Item>
                 <img
                   className="d-block w-100"
                   src={countDown}
@@ -867,7 +867,7 @@ function HomePage() {
                     </p>
                   </div>
                 </Carousel.Caption>
-              </Carousel.Item>
+              </Carousel.Item> */}
             </Carousel>
           </div>
         </section>

@@ -4,13 +4,11 @@ import { request } from "../utils/request";
 function ManageUser() {
   const [users, setUsers] = useState([
     {
-      user_id: 1,
       user_DOB: "2000-12-20T17:00:00.000Z",
       user_name: "user1",
       user_gmail: "binphamthanh@gmail.com",
       user_password: "123456",
       user_phone: "4564625",
-      user_address: "21 st, Hà nội",
     },
   ]);
   const [show, setShow] = useState(false);
@@ -82,9 +80,10 @@ function ManageUser() {
               <h4>All User Infor: {user.user_id}</h4>
               <Form.Label>Name</Form.Label>
               <Form.Control
-                style={{ margin: "8px 8px 0 0" }}
+                style={{ margin: "8px 8px 0 0" }} // Add user-select: none
                 type="text"
                 name="user_name"
+                readOnly
                 onChange={(e) => handleInputChange(e, user.user_id)}
                 value={user.user_name}
               />
@@ -94,6 +93,7 @@ function ManageUser() {
                 style={{ margin: "8px 8px 0 0" }}
                 name="user_phone"
                 type="text"
+                readOnly
                 onChange={(e) => handleInputChange(e, user.user_id)}
                 value={user.user_phone}
               />
@@ -105,12 +105,14 @@ function ManageUser() {
                 type="text"
                 onChange={(e) => handleInputChange(e, user.user_id)}
                 value={user.user_gmail}
+                readOnly
               />
 
               <Form.Label> DOB </Form.Label>
               <Form.Control
                 style={{ margin: "8px 8px 0 0" }}
                 type="text"
+                readOnly
                 name="user_DOB"
                 onChange={(e) => handleInputChange(e, user.user_id)}
                 value={user.user_DOB}

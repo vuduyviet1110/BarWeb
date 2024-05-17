@@ -20,13 +20,24 @@ const UserProfile = () => {
   const [updateSucess, setUpdateSucess] = useState(false);
   const [validEmail, setValidEmail] = useState(true);
   const [invalidAge, setinvalidAge] = useState();
+  const [validePhone, setValidPhone] = useState(true);
 
   const isValidEmail = (email) => {
     // Biểu thức chính quy để kiểm tra email
     const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailPattern.test(email);
   };
+  function validatePhoneField(phoneNumberField) {
+    // Get the phone number value
+    const { value } = phoneNumberField.target;
+    console.log(value);
 
+    // Check if the phone number matches the regular expression
+    if (value.length !== 10) {
+      console.log("invalid phone");
+      setValidPhone(false);
+    } else setValidPhone(true);
+  }
   // Xử lý khi rời khỏi trường nhập email
   const handleEmailBlur = (e) => {
     const { value } = e.target;
@@ -61,7 +72,8 @@ const UserProfile = () => {
       form.checkValidity() === false ||
       !validEmail ||
       invalidAge ||
-      !CurrentUser.user_DOB
+      !CurrentUser.user_DOB ||
+      !validePhone
     ) {
       setUpdateSucess(false);
     } else
@@ -69,6 +81,7 @@ const UserProfile = () => {
         const res = await request.put("/profile", CurrentUser);
         if (res.data) {
           setUpdateSucess(true);
+          setTimeout(() => setUpdateSucess(false), 3000);
         }
       } catch (error) {
         console.error("Error:", error);
@@ -77,7 +90,13 @@ const UserProfile = () => {
   };
 
   return (
-    <section className="vh-100" style={{ backgroundColor: "#f4f5f7" }}>
+    <section
+      className="vh-100"
+      style={{
+        background:
+          "url(https://res.cloudinary.com/dyapfszsy/image/upload/v1715616726/bar_website/ookxwarmikb9airaaufq.jpg) right/100%",
+      }}
+    >
       <Container className="py-5 h-100">
         <Row className="d-flex justify-content-center align-items-center h-100">
           <Col lg={6} mb={4} mb-lg={0}>
@@ -174,6 +193,8 @@ const UserProfile = () => {
                         <Col className="mb-3">
                           <h6>Phone</h6>
                           <input
+                            maxLength={10}
+                            minLength={10}
                             className="form-control"
                             value={CurrentUser.user_phone}
                             onChange={(e) => {
@@ -182,8 +203,12 @@ const UserProfile = () => {
                                 user_phone: e.target.value,
                               }));
                             }}
+                            onBlur={validatePhoneField}
                             required
                           />
+                          {!validePhone && (
+                            <span style={{ color: "red" }}>must 10 digits</span>
+                          )}
                         </Col>
                       </Row>
 

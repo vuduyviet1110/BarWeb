@@ -98,7 +98,7 @@ function GiftCard() {
   return (
     <div
       className="container-fluid"
-      style={{ backgroundImage: `url(${ava}) ` }}
+      style={{ background: `url(${ava} ) center/100%` }}
     >
       <div className="row justify-content-center">
         <div className="col-12 col-sm-10 col-md-12 col-lg-11 col-xl-10">

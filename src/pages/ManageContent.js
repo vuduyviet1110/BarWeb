@@ -44,6 +44,9 @@ function ManageContent() {
           setContents((prev) => ({ ...prev, image: res.data }));
         }
         setSucess(true);
+        setTimeout(() => {
+          setSucess(false);
+        }, 2000);
         setisEmpty(false);
       } else {
         setisEmpty(true);
@@ -56,8 +59,8 @@ function ManageContent() {
     // Handle saving the title here
     try {
       const formData = new FormData();
-      formData.append("title", ourStory.title);
       formData.append("content", ourStory.content);
+      formData.append("title", ourStory.title);
       formData.append("storyBgImage", ourStory.bgimage); // Thêm tệp tin vào FormData
       formData.append("storySlideImage", ourStory.slideimage); // Thêm tệp tin vào FormData
       const isAnyFieldEmpty = Object.values(ourStory).some(
@@ -78,6 +81,9 @@ function ManageContent() {
           // setContents((prev) => ({ ...prev, storyBgImage: res.data }));
         }
         setSucess(true);
+        setTimeout(() => {
+          setSucess(false);
+        }, 2000);
         setisEmpty(false);
       } else {
         setisEmpty(true);
@@ -99,6 +105,7 @@ function ManageContent() {
 
     fetchApi();
   }, []);
+  // console.log(contents.length);
   useEffect(() => {
     const fetchApi = async () => {
       try {
@@ -119,7 +126,7 @@ function ManageContent() {
       }}
     >
       <div style={{ display: "flex" }}>
-        {["Title", "Our Story", "Beverage"].map((tab, index) => (
+        {["HomePage", "Our Story", "Beverage"].map((tab, index) => (
           <h3
             key={index}
             onClick={() => {
@@ -139,7 +146,7 @@ function ManageContent() {
           </h3>
         ))}
       </div>
-      {type === "Title" && (
+      {type === "HomePage" && (
         <div style={{ margin: "16px", color: "#c59d5a" }}>
           <Form.Label>
             <h1

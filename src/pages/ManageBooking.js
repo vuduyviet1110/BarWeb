@@ -13,10 +13,14 @@ function ManageBooking() {
   const [validEmail, setValidEmail] = useState(true);
   const [validePhone, setValidPhone] = useState(true);
   const [validDate, setIsValidDate] = useState(true);
+  const [validTime, setIsValidTime] = useState(true);
   const [reservations, setReservations] = useState([
     {
       user_id: 0,
       user_name: "",
+      guest_name: "",
+      guest_gmail: "",
+      guest_phone: "",
       user_phone: "",
       user_gmail: "",
       table_time: "",
@@ -40,6 +44,15 @@ function ManageBooking() {
       date.getDate() === day
     );
   };
+  function validateTimeFormat(userInput) {
+    // Regular expression for matching the format "HH:MM:SS"
+    const timeFormatRegex = /^([0-1][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]$/;
+
+    // Check if the input matches the regular expression
+    const isValidFormat = timeFormatRegex.test(userInput);
+
+    return isValidFormat;
+  }
   const isValidEmail = (email) => {
     // Biểu thức chính quy để kiểm tra email
     const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -91,7 +104,13 @@ function ManageBooking() {
     const isAnyFieldEmpty = Object.values(MatchedReservation).some(
       (value) => value === "" || value === 0
     );
-    if (!isAnyFieldEmpty && validEmail && validePhone && validDate) {
+    if (
+      !isAnyFieldEmpty &&
+      validEmail &&
+      validePhone &&
+      validDate &&
+      validTime
+    ) {
       try {
         const res = await request.put("/admin/reservation", {
           MatchedReservation,
@@ -100,7 +119,7 @@ function ManageBooking() {
         setShow(true);
         setTimeout(() => {
           setShow(false);
-        }, 3000);
+        }, 2000);
       } catch (error) {
         console.error(error);
       }
@@ -250,9 +269,15 @@ function ManageBooking() {
               )}
               <h4>Reservation: {reservation.reservation_id}</h4>
               {reservation.user_id === 1 ? (
-                <div>Guest booking</div>
+                <div style={{ color: "green" }}>Guest booking 🙋‍♂️</div>
               ) : (
-                <div>Existed account booking</div>
+                <div style={{ color: "gold" }}>
+                  {reservation.user_id !== undefined ? (
+                    <span>Existed account booking👨 </span>
+                  ) : (
+                    <span></span>
+                  )}
+                </div>
               )}
               <Form.Group>
                 <Form.Label>
@@ -261,7 +286,7 @@ function ManageBooking() {
                 <Form.Control
                   style={{ margin: "0 0 8px 0" }}
                   type="text"
-                  name="user_name"
+                  name={reservation.user_id === 1 ? "guest_name" : "user_name"}
                   onChange={(event) =>
                     handleInputChange(event, reservation.reservation_id)
                   }
@@ -279,10 +304,13 @@ function ManageBooking() {
                 <Form.Control
                   style={{ margin: "0 0 8px 0" }}
                   type="text"
-                  name="user_phone"
-                  onChange={(event) =>
-                    handleInputChange(event, reservation.reservation_id)
+                  name={
+                    reservation.user_id === 1 ? "guest_phone" : "user_phone"
                   }
+                  onChange={(event) => {
+                    validatePhoneField(event);
+                    handleInputChange(event, reservation.reservation_id);
+                  }}
                   value={
                     reservation.user_id === 1
                       ? reservation.guest_phone
@@ -301,18 +329,18 @@ function ManageBooking() {
                   style={{ margin: "0 0 8px 0" }}
                   type="text"
                   name="table_date"
-                  onChange={(event) =>
-                    handleInputChange(event, reservation.reservation_id)
-                  }
+                  onChange={(event) => {
+                    handleInputChange(event, reservation.reservation_id);
+                    setIsValidDate(isValidDate(event.target.value));
+                  }}
                   onBlur={(e) => {
-                    const { value } = e.target;
-                    setIsValidDate(isValidDate(value));
+                    setIsValidDate(isValidDate(e.target.value));
                   }}
                   value={reservation.table_date}
                 />
                 {!validDate &&
                   reservation.reservation_id === currentReservationId && (
-                    <span style={{ color: "red" }}>invalid date format</span>
+                    <span style={{ color: "red" }}>Invalid date format</span>
                   )}
               </Form.Group>
               <Form.Group>
@@ -321,11 +349,18 @@ function ManageBooking() {
                   className="mt-3 mr-3"
                   type="text"
                   name="table_time"
-                  onChange={(event) =>
-                    handleInputChange(event, reservation.reservation_id)
-                  }
+                  placeholder="HH:MM:SS"
+                  onChange={(event) => {
+                    handleInputChange(event, reservation.reservation_id);
+                    setIsValidTime(validateTimeFormat(event.target.value));
+                  }}
                   value={reservation.table_time}
                 />
+                {console.log(validTime)}
+                {validTime === false &&
+                  reservation.reservation_id === currentReservationId && (
+                    <span style={{ color: "red" }}>Invalid time format</span>
+                  )}
               </Form.Group>
               <Form.Group>
                 <Form.Label>
@@ -335,10 +370,10 @@ function ManageBooking() {
                   style={{ margin: "0 0 8px 0" }}
                   type="text"
                   name="user_gmail"
-                  onChange={(event) =>
-                    handleInputChange(event, reservation.reservation_id)
-                  }
-                  onBlur={handleEmailBlur}
+                  onChange={(event) => {
+                    handleInputChange(event, reservation.reservation_id);
+                    handleEmailBlur(event);
+                  }}
                   value={
                     reservation.user_id === 1
                       ? reservation.guest_gmail
