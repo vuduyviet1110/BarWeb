@@ -2,9 +2,6 @@ import { useState, useEffect } from "react";
 import "../assets/css/HomePage.css";
 import { Breadcrumb, Button } from "react-bootstrap";
 import Carousel from "react-bootstrap/Carousel";
-import christmas from "../assets/images/christmas.jpg";
-import countDown from "../assets/images/countdown.jpg";
-import supriseMoment from "../assets/images/supriseMoment.jpg";
 import Isotope from "isotope-layout";
 import AOS from "aos";
 import { request } from "../utils/request";
@@ -35,9 +32,10 @@ function HomePage() {
   const [ourStoryContent, setourStoryContent] = useState();
   const [gallery, setGallery] = useState();
   const [events, setEvents] = useState();
+  const [beverage, setBeverage] = useState();
   const ExchangeCurrenciesToVND = (amount) => {
     const vnd = amount * 24768;
-    return vnd + " VND";
+    return vnd.toLocaleString("vi-VN") + " VND";
   };
   const [CurentUser, setCurrentUser] = useState({});
   const handleLogout = () => {
@@ -389,6 +387,17 @@ function HomePage() {
     };
     fetchApi();
   }, []);
+  useEffect(() => {
+    const fetchApi = async () => {
+      try {
+        const res = await request.get("/admin/beverage");
+        setBeverage(res.data);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    fetchApi();
+  }, []);
   return (
     <div className="main">
       <div id="topbar" className="d-flex align-items-center fixed-top">
@@ -583,8 +592,8 @@ function HomePage() {
                     All
                   </li>
                   <li data-filter=".filter-starters">Cooktail</li>
-                  <li data-filter=".filter-salads">Bear</li>
-                  <li data-filter=".filter-specialty">Soda and minerals</li>
+                  <li data-filter=".filter-specialty">Bear</li>
+                  <li data-filter=".filter-salads">Soda and minerals</li>
                 </ul>
               </div>
               <div
@@ -612,144 +621,54 @@ function HomePage() {
               data-aos="fade-up"
               data-aos-delay="200"
             >
-              <div className="col-lg-6 menu-item filter-starters">
-                <img src={beverage1} className="menu-img" alt="" />
-                <div className="menu-content">
-                  <a href="#">Beverage 1</a>
-                  {currency ? (
-                    <span>{ExchangeCurrenciesToVND(50)}</span>
-                  ) : (
-                    <span>$50</span>
+              {beverage?.map((b) => (
+                <div>
+                  {b.type === "Cocktails" && (
+                    <div className="col-lg-6 menu-item filter-starters">
+                      <img src={b.image} className="menu-img" alt="" />
+                      <div className="menu-content">
+                        <a href="#">{b.name}</a>
+                        {currency ? (
+                          <span>{ExchangeCurrenciesToVND(b.price)}</span>
+                        ) : (
+                          <span>{b.price} $</span>
+                        )}
+                      </div>
+                      <div className="menu-ingredients">{b.description}</div>
+                    </div>
                   )}
-                </div>
-                <div className="menu-ingredients">
-                  Lorem, deren, trataro, filede, nerada
-                </div>
-              </div>
 
-              <div className="col-lg-6 menu-item filter-specialty">
-                <img src={beverage2} className="menu-img" alt="" />
-                <div className="menu-content">
-                  <a href="#">Bread Barrel</a>
-                  {currency ? (
-                    <span>{ExchangeCurrenciesToVND(6.95)}</span>
-                  ) : (
-                    <span>$6.95</span>
+                  {b.type === "Beers" && (
+                    <div className="col-lg-6 menu-item filter-specialty">
+                      <img src={b.image} className="menu-img" alt="" />
+                      <div className="menu-content">
+                        <a href="#">{b.name}</a>
+                        {currency ? (
+                          <span>{ExchangeCurrenciesToVND(b.price)}</span>
+                        ) : (
+                          <span>{b.price} $</span>
+                        )}
+                      </div>
+                      <div className="menu-ingredients">{b.description}</div>
+                    </div>
                   )}
-                </div>
-                <div className="menu-ingredients">
-                  Lorem, deren, trataro, filede, nerada
-                </div>
-              </div>
 
-              <div className="col-lg-6 menu-item filter-starters">
-                <img src={beverage7} className="menu-img" alt="" />
-                <div className="menu-content">
-                  <a href="#">Crab Cake</a>
-                  {currency ? (
-                    <span>{ExchangeCurrenciesToVND(6.95)}</span>
-                  ) : (
-                    <span>$6.95</span>
+                  {(b.type === "Soda" || b.type === "Minerals") && (
+                    <div className="col-lg-6 menu-item filter-salads">
+                      <img src={b.image} className="menu-img" alt="" />
+                      <div className="menu-content">
+                        <a href="#">{b.name}</a>
+                        {currency ? (
+                          <span>{ExchangeCurrenciesToVND(b.price)}</span>
+                        ) : (
+                          <span>{b.price} $</span>
+                        )}
+                      </div>
+                      <div className="menu-ingredients">{b.description}</div>
+                    </div>
                   )}
                 </div>
-                <div className="menu-ingredients">
-                  A delicate crab cake served on a toasted roll with lettuce and
-                  tartar sauce
-                </div>
-              </div>
-
-              <div className="col-lg-6 menu-item filter-salads">
-                <img src={beverage4} className="menu-img" alt="" />
-                <div className="menu-content">
-                  <a href="#">Caesar Selections</a>
-                  {currency ? (
-                    <span>{ExchangeCurrenciesToVND(6.95)}</span>
-                  ) : (
-                    <span>$6.95</span>
-                  )}
-                </div>
-                <div className="menu-ingredients">
-                  Lorem, deren, trataro, filede, nerada
-                </div>
-              </div>
-
-              <div className="col-lg-6 menu-item filter-specialty">
-                <img src={beverage5} className="menu-img" alt="" />
-                <div className="menu-content">
-                  <a href="#">Tuscan Grilled</a>
-                  {currency ? (
-                    <span>{ExchangeCurrenciesToVND(6.95)}</span>
-                  ) : (
-                    <span>$6.95</span>
-                  )}
-                </div>
-                <div className="menu-ingredients">
-                  Grilled chicken with provolone, artichoke hearts, and roasted
-                  red pesto
-                </div>
-              </div>
-
-              <div className="col-lg-6 menu-item filter-starters">
-                <img src={beverage6} className="menu-img" alt="" />
-                <div className="menu-content">
-                  <a href="#">Mozzarella Stick</a>
-                  {currency ? (
-                    <span>{ExchangeCurrenciesToVND(6.95)}</span>
-                  ) : (
-                    <span>$6.95</span>
-                  )}
-                </div>
-                <div className="menu-ingredients">
-                  Lorem, deren, trataro, filede, nerada
-                </div>
-              </div>
-
-              <div className="col-lg-6 menu-item filter-salads">
-                <img src={beverage7} className="menu-img" alt="" />
-                <div className="menu-content">
-                  <a href="#">Greek Salad</a>
-                  {currency ? (
-                    <span>{ExchangeCurrenciesToVND(6.95)}</span>
-                  ) : (
-                    <span>$6.95</span>
-                  )}
-                </div>
-                <div className="menu-ingredients">
-                  Fresh spinach, crisp romaine, tomatoes, and Greek olives
-                </div>
-              </div>
-
-              <div className="col-lg-6 menu-item filter-salads">
-                <img src={beverage1} className="menu-img" alt="" />
-                <div className="menu-content">
-                  <a href="#">Spinach Salad</a>
-                  {currency ? (
-                    <span>{ExchangeCurrenciesToVND(6.95)}</span>
-                  ) : (
-                    <span>$6.95</span>
-                  )}
-                </div>
-                <div className="menu-ingredients">
-                  Fresh spinach with mushrooms, hard boiled egg, and warm bacon
-                  vinaigrette
-                </div>
-              </div>
-
-              <div className="col-lg-6 menu-item filter-specialty">
-                <img src={beverage2} className="menu-img" alt="" />
-                <div className="menu-content">
-                  <a href="#">Lobster Roll</a>
-                  {currency ? (
-                    <span>{ExchangeCurrenciesToVND(6.95)}</span>
-                  ) : (
-                    <span>$6.95</span>
-                  )}
-                </div>
-                <div className="menu-ingredients">
-                  Plump lobster meat, mayo and crisp lettuce on a toasted bulky
-                  roll
-                </div>
-              </div>
+              ))}
             </div>
           </div>
         </section>
@@ -789,85 +708,6 @@ function HomePage() {
                   </Carousel.Caption>
                 </Carousel.Item>
               ))}
-
-              {/* <Carousel.Item>
-                <img
-                  className="d-block w-100"
-                  src={countDown}
-                  style={{
-                    width: "100%",
-                    height: "auto",
-                    borderRadius: "14px",
-                    objectFit: "cover",
-                  }}
-                  alt="Second slide"
-                />
-                <Carousel.Caption
-                  style={{
-                    boxShadow: "2px 2px 5px 2px #333",
-                    borderRadius: "8px",
-                    backgroundColor: "rgba(0, 0, 0, 0.6)",
-                  }}
-                >
-                  <div>
-                    <div className="price">
-                      <h3>Count Down</h3>
-                      <p>
-                        <span>$189</span>
-                      </p>
-                    </div>
-                    <p className="fst-italic">
-                      Lorem ipsum dolor sit amet, consectetur adipiscing elit,
-                      sed do eiusmod tempor incididunt ut labore et dolore magna
-                      aliqua.
-                    </p>
-                    <p>
-                      Ullamco laboris nisi ut aliquip ex ea commodo consequat.
-                      Duis aute irure dolor in reprehenderit in voluptate velit
-                      esse cillum dolore eu fugiat nulla pariatur
-                    </p>
-                  </div>
-                </Carousel.Caption>
-              </Carousel.Item>
-              <Carousel.Item>
-                <img
-                  className="d-block w-100"
-                  src={supriseMoment}
-                  style={{
-                    width: "100%",
-                    height: "auto",
-                    borderRadius: "14px",
-                    objectFit: "cover",
-                  }}
-                  alt="Third slide"
-                />
-                <Carousel.Caption
-                  style={{
-                    boxShadow: "2px 2px 5px 2px #333",
-                    borderRadius: "8px",
-                    backgroundColor: "rgba(0, 0, 0, 0.6)",
-                  }}
-                >
-                  <div>
-                    <div className="price">
-                      <h3>Birthday Parties</h3>
-                      <p>
-                        <span>$189</span>
-                      </p>
-                    </div>
-                    <p className="fst-italic">
-                      Lorem ipsum dolor sit amet, consectetur adipiscing elit,
-                      sed do eiusmod tempor incididunt ut labore et dolore magna
-                      aliqua.
-                    </p>
-                    <p>
-                      Ullamco laboris nisi ut aliquip ex ea commodo consequat.
-                      Duis aute irure dolor in reprehenderit in voluptate velit
-                      esse cillum dolore eu fugiat nulla pariatur
-                    </p>
-                  </div>
-                </Carousel.Caption>
-              </Carousel.Item> */}
             </Carousel>
           </div>
         </section>

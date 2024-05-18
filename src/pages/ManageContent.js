@@ -15,6 +15,7 @@ function ManageContent() {
   const [type, setType] = useState("Title");
   const [isEmpty, setisEmpty] = useState();
   const [sucess, setSucess] = useState();
+  const [beverages, setbeverages] = useState();
   const [contents, setContents] = useState({});
   const [ourStory, setOurstory] = useState({ title: "", content: "" });
   const { id } = useParams();
@@ -112,6 +113,19 @@ function ManageContent() {
         const res = await request.get("/admin/content/ourstory");
         setOurstory(res.data[0]);
         console.log(res.data[0]);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    fetchApi();
+  }, []);
+  useEffect(() => {
+    const fetchApi = async () => {
+      try {
+        const res = await request.get("/admin/beverage");
+        setbeverages(res.data);
+        console.log(res.data);
       } catch (error) {
         console.error(error);
       }
@@ -326,9 +340,9 @@ function ManageContent() {
       )}
       {type === "Beverage" && (
         <div style={{ margin: "30px 16px", color: "#c59d5a" }}>
-          <Cocktails Contents={Contents} />
-          <Beers Contents={Contents} />
-          <SodaNMinerals Contents={Contents} />
+          <Cocktails beverages={beverages} />
+          <Beers beverages={beverages} />
+          <SodaNMinerals beverages={beverages} />
         </div>
       )}
     </div>
