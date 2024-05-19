@@ -7,10 +7,11 @@ function ManageGiftCard() {
   const [showRemove, setShowRemove] = useState(false);
   const [showAccStatus, setShowAccStatus] = useState(false);
   const [isFieldCompleted, setIsFieldCompleted] = useState(true);
-  const [validEmail, setValidEmail] = useState(true);
+  const [validSenderEmail, setSenderValidEmail] = useState(true);
+  const [validRecipientEmail, setRecipientValidEmail] = useState(true);
   const [validePhone, setValidPhone] = useState(true);
   const [currentOrderId, setcurrentOrderId] = useState(0);
-  const [ExistedAccount, setExistedAccount] = useState(true);
+  const [ExistedAccount, setExistedAccount] = useState();
   const [giftcards, setGiftCard] = useState([
     {
       card_order_id: "",
@@ -47,7 +48,12 @@ function ManageGiftCard() {
     const isAnyFieldEmpty = Object.values(MatchedGiftCard).some(
       (value) => value === "" || value === null || value === undefined
     );
-    if (!isAnyFieldEmpty && validEmail && validePhone) {
+    if (
+      !isAnyFieldEmpty &&
+      validSenderEmail &&
+      validRecipientEmail &&
+      validePhone
+    ) {
       try {
         const res = await request.put("/admin/gift-card", {
           MatchedGiftCard,
@@ -140,13 +146,20 @@ function ManageGiftCard() {
     }
   }
   // Xử lý khi rời khỏi trường nhập email
-  const handleEmailBlur = (e) => {
+  const handleSenderEmail = (e) => {
     const { value } = e.target;
     if (isValidEmail(value)) {
-      setValidEmail(true);
-      console.log(" valid email: ", validEmail);
+      setSenderValidEmail(true);
     } else {
-      setValidEmail(false);
+      setSenderValidEmail(false);
+    }
+  };
+  const handlevalidRecipientsEmail = (e) => {
+    const { value } = e.target;
+    if (isValidEmail(value)) {
+      setRecipientValidEmail(true);
+    } else {
+      setRecipientValidEmail(false);
     }
   };
   const handleAddNewReservationToDBS = async (giftcardId) => {
@@ -157,9 +170,12 @@ function ManageGiftCard() {
       (value) => value === "" || value === null || value === undefined
     );
 
-    console.log(!isAnyFieldEmpty, "vaf", validEmail, "vaf", validePhone);
-
-    if (!isAnyFieldEmpty && validEmail && validePhone) {
+    if (
+      !isAnyFieldEmpty &&
+      validSenderEmail &&
+      validRecipientEmail &&
+      validePhone
+    ) {
       try {
         const res = await request.post("/admin/gift-card", {
           newGiftCardOrder,
@@ -178,6 +194,7 @@ function ManageGiftCard() {
       } catch (error) {
         console.error(error);
       }
+      setcurrentOrderId(giftcardId); // Set currentReservationId to highlight the item with missing fields
     } else {
       setcurrentOrderId(giftcardId); // Set currentReservationId to highlight the item with missing fields
       if (isAnyFieldEmpty) {
@@ -236,18 +253,20 @@ function ManageGiftCard() {
                 value={order.user_name}
               />
               <Form.Label>
-                Sender Email{" "}
+                Sender Email
                 <strong style={{ color: "red" }}>(*) (Fixed)</strong>
               </Form.Label>
-              {!validEmail && <h5 style={{ color: "red" }}>Invalid email!</h5>}
               <Form.Control
                 style={{ margin: "0 0 20px 0" }}
                 name="user_gmail"
                 type="text"
+                onBlur={handleSenderEmail}
                 onChange={(e) => handleInputChange(e, order.card_order_id)}
                 value={order.user_gmail}
               />
-
+              {!validSenderEmail && order.card_order_id === currentOrderId && (
+                <h5 style={{ color: "red" }}>Invalid email!</h5>
+              )}
               <Form.Label>
                 Sender Phone <strong style={{ color: "red" }}>(Fixed)</strong>
               </Form.Label>
@@ -318,11 +337,12 @@ function ManageGiftCard() {
                 type="text"
                 onChange={(e) => handleInputChange(e, order.card_order_id)}
                 value={order.receiver_mail}
-                onBlur={handleEmailBlur}
+                onBlur={handlevalidRecipientsEmail}
               />
-              {!validEmail && order.card_order_id === currentOrderId && (
-                <h5 style={{ color: "red" }}>Invalid email!</h5>
-              )}
+              {!validRecipientEmail &&
+                order.card_order_id === currentOrderId && (
+                  <h5 style={{ color: "red" }}>Invalid email!</h5>
+                )}
               <Form.Label>
                 Recepient's Phone Number
                 <strong style={{ color: "red" }}>(*) </strong>
@@ -374,11 +394,17 @@ function ManageGiftCard() {
                     You need to complete all the field
                   </div>
                 )}
-              {!ExistedAccount && order.card_order_id === currentOrderId && (
-                <div style={{ color: "red", fontSize: "18px" }}>
-                  This person you add do not have account yet
-                </div>
+              {console.log(
+                ExistedAccount,
+                "và ",
+                order.card_order_id === currentOrderId
               )}
+              {ExistedAccount === false &&
+                order.card_order_id === currentOrderId && (
+                  <div style={{ color: "red", fontSize: "18px" }}>
+                    This person you add do not have account yet
+                  </div>
+                )}
               <div>
                 {order.account_status === undefined && (
                   <Button

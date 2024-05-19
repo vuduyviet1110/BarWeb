@@ -20,6 +20,7 @@ const UserProfile = () => {
   const [updateSucess, setUpdateSucess] = useState(false);
   const [validEmail, setValidEmail] = useState(true);
   const [invalidAge, setinvalidAge] = useState();
+  const [existedEmail, setExistedEmail] = useState();
   const [validePhone, setValidPhone] = useState(true);
 
   const isValidEmail = (email) => {
@@ -79,8 +80,11 @@ const UserProfile = () => {
     } else
       try {
         const res = await request.put("/profile", CurrentUser);
-        if (res.data) {
+        if (res.data === "existed email") {
+          setExistedEmail(true);
+        } else {
           setUpdateSucess(true);
+          setExistedEmail(false);
           setTimeout(() => setUpdateSucess(false), 3000);
         }
       } catch (error) {
@@ -168,7 +172,7 @@ const UserProfile = () => {
                           />
                           {invalidAge && (
                             <span style={{ color: "red" }}>
-                              You must be at least 18 years
+                              You must be at least 18 years old
                             </span>
                           )}
                         </Col>
@@ -188,7 +192,12 @@ const UserProfile = () => {
                             onBlur={handleEmailBlur}
                             required
                           />
-                          {!validEmail && <span>invalid email</span>}
+                          {!validEmail && (
+                            <span style={{ color: "red" }}>Invalid email</span>
+                          )}
+                          {existedEmail && (
+                            <span style={{ color: "red" }}>Existed Email</span>
+                          )}
                         </Col>
                         <Col className="mb-3">
                           <h6>Phone</h6>
@@ -207,7 +216,9 @@ const UserProfile = () => {
                             required
                           />
                           {!validePhone && (
-                            <span style={{ color: "red" }}>must 10 digits</span>
+                            <span style={{ color: "red" }}>
+                              Must be 10 digits
+                            </span>
                           )}
                         </Col>
                       </Row>

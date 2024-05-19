@@ -151,7 +151,6 @@ function SodaNMinerals({ beverages }) {
                     }
                   }}
                 />
-                <InputGroup.Text>.00</InputGroup.Text>
               </InputGroup>
               <div>
                 <Form.Control

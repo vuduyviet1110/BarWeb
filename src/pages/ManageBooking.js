@@ -221,7 +221,7 @@ function ManageBooking() {
         console.error(error);
       }
     } else {
-      setcurrReservationId(resID); // Set currentReservationId to highlight the item with missing fields
+      setcurrReservationId(resID);
       if (isAnyFieldEmpty) {
         setIsFieldCompleted(false);
       } else {

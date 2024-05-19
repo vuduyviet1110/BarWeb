@@ -4,7 +4,6 @@ import Col from "react-bootstrap/Col";
 import Row from "react-bootstrap/Row";
 import ReactDatePicker from "react-datepicker";
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { request } from "../utils/request";
 function BookingTable({ CurentUser }) {
   const [bookingInfo, setBookingInfo] = useState({
@@ -14,7 +13,8 @@ function BookingTable({ CurentUser }) {
     number_people: "",
     message: "",
   });
-
+  const [validEmail, setValidEmail] = useState(true);
+  const [validePhone, setValidPhone] = useState(true);
   useEffect(() => {
     // Kiểm tra xem CurentUser đã có giá trị chưa
     if (CurentUser && CurentUser.user_id > 0) {
@@ -32,9 +32,31 @@ function BookingTable({ CurentUser }) {
         user_id: 0,
       }));
     }
-  }, [CurentUser]); // Sẽ chạy lại khi CurentUser thay đổi
+  }, [CurentUser, CurentUser.user_id]); // Sẽ chạy lại khi CurentUser thay đổi
 
-  console.log(bookingInfo);
+  const isValidEmail = (email) => {
+    // Biểu thức chính quy để kiểm tra email
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailPattern.test(email);
+  };
+  function validatePhoneField(phoneNumberField) {
+    // Get the phone number value
+    const { value } = phoneNumberField.target;
+
+    // Check if the phone number matches the regular expression
+    if (value.length !== 10) {
+      console.log("invalid phone");
+      setValidPhone(false);
+    } else setValidPhone(true);
+  }
+  const handleEmailValidation = (e) => {
+    const { value } = e.target;
+    if (isValidEmail(value)) {
+      setValidEmail(true);
+    } else {
+      setValidEmail(false);
+    }
+  };
   const [bookingSucess, setBookingSucess] = useState();
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -82,17 +104,13 @@ function BookingTable({ CurentUser }) {
                     }
                   }}
                   placeholder="Your Name"
-                  minLength={4}
                 />
-                <Form.Control.Feedback type="invalid">
-                  Please enter at least 4 characters.
-                </Form.Control.Feedback>
               </Form.Group>
             </Col>
             <Col lg={4} md={6}>
               <Form.Group>
                 <Form.Control
-                  type="email"
+                  type="text"
                   value={
                     CurentUser && CurentUser.user_id > 0
                       ? CurentUser.user_gmail
@@ -109,17 +127,17 @@ function BookingTable({ CurentUser }) {
                       }));
                     }
                   }}
-                  placeholder="Your Email"
+                  onBlur={(e) => handleEmailValidation(e)}
+                  placeholder="Your Email (a@a.com)"
                 />
-                <Form.Control.Feedback type="invalid">
-                  Please enter a valid email.
-                </Form.Control.Feedback>
+                {!validEmail && (
+                  <h5 style={{ color: "red" }}>Invalid Email!</h5>
+                )}
               </Form.Group>
             </Col>
             <Col lg={4} md={6}>
               <Form.Group>
                 <Form.Control
-                  type="text"
                   value={
                     CurentUser.user_id > 0
                       ? CurentUser.user_phone
@@ -127,7 +145,9 @@ function BookingTable({ CurentUser }) {
                   }
                   id="phone"
                   required
+                  type="number"
                   placeholder="Your Phone"
+                  onBlur={(e) => validatePhoneField(e)}
                   onChange={(e) => {
                     if (CurentUser.user_id === undefined) {
                       setBookingInfo((prev) => ({
@@ -136,11 +156,10 @@ function BookingTable({ CurentUser }) {
                       }));
                     }
                   }}
-                  minLength={4}
                 />
-                <Form.Control.Feedback type="invalid">
-                  Please enter at least 4 characters.
-                </Form.Control.Feedback>
+                {!validePhone && (
+                  <span style={{ color: "red" }}>Must be 10 digits</span>
+                )}
               </Form.Group>
             </Col>
             <Col lg={4} md={6}>
@@ -249,7 +268,7 @@ function BookingTable({ CurentUser }) {
                   message: e.target.value,
                 }))
               }
-              placeholder="Message"
+              placeholder="Message (optional)"
             />
           </Form.Group>
           <div className="mb-3">

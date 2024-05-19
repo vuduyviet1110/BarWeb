@@ -7,12 +7,6 @@ import AOS from "aos";
 import { request } from "../utils/request";
 import GLightbox from "glightbox";
 import Swiper from "swiper";
-import beverage1 from "../assets/images/beverage1.jpg";
-import beverage2 from "../assets/images/beverage2.jpg";
-import beverage4 from "../assets/images/beverage4.jpg";
-import beverage5 from "../assets/images/beverage5.jpg";
-import beverage6 from "../assets/images/beverage6.jpg";
-import beverage7 from "../assets/images/beverage7.jpg";
 import "swiper/css";
 import { Link } from "react-router-dom";
 import {
@@ -43,11 +37,10 @@ function HomePage() {
       user_DOB: "",
       user_gmail: "",
       user_id: 0,
-      user_name: "", // Thay đổi từ "user_nam" thành "user_name"
+      user_name: "",
       user_password: "",
       user_phone: "",
     });
-    localStorage.removeItem("access_token");
     localStorage.removeItem("user_token");
     console.log("log out");
   };
@@ -623,7 +616,7 @@ function HomePage() {
             >
               {beverage?.map((b) => (
                 <div>
-                  {b.type === "Cocktails" && (
+                  {b?.type === "Cocktails" && (
                     <div className="col-lg-6 menu-item filter-starters">
                       <img src={b.image} className="menu-img" alt="" />
                       <div className="menu-content">
@@ -638,7 +631,7 @@ function HomePage() {
                     </div>
                   )}
 
-                  {b.type === "Beers" && (
+                  {b?.type === "Beers" && (
                     <div className="col-lg-6 menu-item filter-specialty">
                       <img src={b.image} className="menu-img" alt="" />
                       <div className="menu-content">
@@ -653,7 +646,7 @@ function HomePage() {
                     </div>
                   )}
 
-                  {(b.type === "Soda" || b.type === "Minerals") && (
+                  {(b?.type === "Soda" || b.type === "Minerals") && (
                     <div className="col-lg-6 menu-item filter-salads">
                       <img src={b.image} className="menu-img" alt="" />
                       <div className="menu-content">

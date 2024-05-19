@@ -264,7 +264,9 @@ function GiftCard() {
                           onBlur={validatePhoneField}
                         />
                         {!validePhone && (
-                          <span style={{ color: "red" }}>must 10 digits</span>
+                          <span style={{ color: "red" }}>
+                            Must be 10 digits
+                          </span>
                         )}
                       </div>
                     </div>

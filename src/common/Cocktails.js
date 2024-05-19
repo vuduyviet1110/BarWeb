@@ -142,7 +142,6 @@ function Cocktails({ beverages }) {
               </InputGroup>
               <h4>Price</h4>
               <InputGroup className="mb-3">
-                <InputGroup.Text>$</InputGroup.Text>
                 <Form.Control
                   value={cocktail.price}
                   aria-label="Amount (to the nearest dollar)"
@@ -152,7 +151,7 @@ function Cocktails({ beverages }) {
                     }
                   }}
                 />
-                <InputGroup.Text>.00</InputGroup.Text>
+                <InputGroup.Text>$</InputGroup.Text>
               </InputGroup>
               <div>
                 <Form.Control

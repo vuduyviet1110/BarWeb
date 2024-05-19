@@ -7,7 +7,7 @@ import InputGroup from "react-bootstrap/InputGroup";
 import Row from "react-bootstrap/Row";
 import DatePicker from "react-datepicker";
 import { request } from "../utils/request";
-
+import CustomInput from "../common/CustomInput";
 function SignUpPage() {
   const [validated, setValidated] = useState(false);
   const [rePwd, setrePwd] = useState("");
@@ -22,10 +22,38 @@ function SignUpPage() {
   const [invalidAge, setinvalidAge] = useState();
   const [phoneLength, setPhoneLength] = useState("");
   const [signInSuccess, setSignInSuccess] = useState();
+  const [validEmail, setValidEmail] = useState(true);
+  const [IsEmptyDOB, setEmptyDOB] = useState(false);
   const [existedEmail, setExistedEmail] = useState(false);
-  const currentDate = new Date();
-  const currentYear = currentDate.getFullYear();
+  const handleAgeValidition = (DOB) => {
+    const today = new Date();
+    const eighteenYearsAgo = new Date(
+      today.getFullYear() - 18,
+      today.getMonth(),
+      today.getDate()
+    );
+    if (DOB > eighteenYearsAgo) {
+      console.log("dưới 18 tủi");
+      setinvalidAge(true);
+    } else {
+      setinvalidAge(false);
+      console.log("đã trên 18 tủi");
+    }
+  };
 
+  const isValidEmail = (email) => {
+    // Biểu thức chính quy để kiểm tra email
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailPattern.test(email);
+  };
+  const handleEmailValidation = (e) => {
+    const { value } = e.target;
+    if (isValidEmail(value)) {
+      setValidEmail(true);
+    } else {
+      setValidEmail(false);
+    }
+  };
   const handleChangeInfo = (e) => {
     setFormData((prevInfo) => ({
       ...prevInfo,
@@ -58,9 +86,9 @@ function SignUpPage() {
         setinvalidLength(false);
       }
       if (!formData.DOB) {
-        setinvalidAge(true);
+        setEmptyDOB(true);
       } else {
-        setinvalidAge(false);
+        setEmptyDOB(false);
       }
       setValidated(true);
       return;
@@ -68,7 +96,7 @@ function SignUpPage() {
       try {
         const res = await request.post("/sign-up", formData);
 
-        if (res.data === "existed email") {
+        if (res.data === "Email exists") {
           setSignInSuccess(false);
           setExistedEmail(true);
         } else {
@@ -117,7 +145,6 @@ function SignUpPage() {
                 placeholder="Name"
                 name="name"
               />
-              <Form.Control.Feedback>Field is filled!</Form.Control.Feedback>
               <Form.Control.Feedback type="invalid">
                 Enter your Name
               </Form.Control.Feedback>
@@ -144,9 +171,8 @@ function SignUpPage() {
                 }}
                 placeholder="Phone Number"
               />
-              <Form.Control.Feedback>Field is filled!</Form.Control.Feedback>
               {phoneLength === false && (
-                <span style={{ color: "red" }}>
+                <span style={{ color: "#dc3545" }}>
                   Your phone number must be 10 digits
                 </span>
               )}
@@ -161,19 +187,28 @@ function SignUpPage() {
               <InputGroup hasValidation>
                 <div>
                   <Form.Control
-                    type="email"
                     placeholder="Email"
                     aria-describedby="inputGroupPrepend"
                     required
                     name="gmail"
-                    onChange={handleChangeInfo}
+                    onChange={(e) => {
+                      handleChangeInfo(e);
+                      handleEmailValidation(e);
+                    }}
                   />
                   <Form.Control.Feedback type="invalid">
-                    Invalid !!!
+                    Enter your Email
                   </Form.Control.Feedback>
                 </div>
                 {existedEmail && (
-                  <div style={{ color: "red" }}>Existed Email</div>
+                  <div style={{ color: "#dc3545", fontSize: "14px" }}>
+                    Existed Email
+                  </div>
+                )}
+                {!validEmail && (
+                  <div style={{ color: "#dc3545", fontSize: "14px" }}>
+                    Enter the right email format
+                  </div>
                 )}
               </InputGroup>
             </Form.Group>
@@ -189,27 +224,28 @@ function SignUpPage() {
               <Form.Label>Date Of Birth</Form.Label>
               <DatePicker
                 selected={formData.DOB}
-                onChange={handleDateChange}
-                dateFormat="dd/MM/yyyy"
-                onBlur={() => {
-                  if (
-                    formData.DOB &&
-                    formData.DOB.getFullYear() >= currentYear - 18
-                  ) {
-                    setinvalidAge(true);
-                  } else {
-                    setinvalidAge(false);
-                  }
+                onChange={(e) => {
+                  handleDateChange(e);
+                  handleAgeValidition(e);
                 }}
+                dateFormat="dd/MM/yyyy"
                 isClearable
                 showIcon
+                showYearDropdown
+                scrollableYearDropdown
+                yearDropdownItemNumber={50}
+                showMonthDropdown
                 required
+                customInput={<CustomInput />}
                 placeholderText="Date Of Birth"
               />
               {invalidAge && (
-                <span style={{ color: "red" }}>
-                  This field is required/ You must be at least 18 years
+                <span style={{ color: "#dc3545" }}>
+                  You must be at least 18 years
                 </span>
+              )}
+              {IsEmptyDOB && (
+                <span style={{ color: "#dc3545" }}>Enter your DOB</span>
               )}
             </Form.Group>
           </Row>
@@ -235,7 +271,7 @@ function SignUpPage() {
                 Please enter your password
               </Form.Control.Feedback>
               {invalidLength && (
-                <span style={{ color: "red" }}>
+                <span style={{ color: "#dc3545" }}>
                   Password must be at least 6 characters!!
                 </span>
               )}
