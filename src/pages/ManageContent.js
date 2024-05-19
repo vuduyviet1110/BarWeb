@@ -12,7 +12,7 @@ import { Contents } from "../Fakeapi";
 import { request } from "../utils/request";
 import { useParams } from "react-router-dom";
 function ManageContent() {
-  const [type, setType] = useState("Title");
+  const [type, setType] = useState("HomePage");
   const [isEmpty, setisEmpty] = useState();
   const [sucess, setSucess] = useState();
   const [beverages, setbeverages] = useState();

@@ -3,10 +3,11 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "../assets/css/giftCard.css";
 import Form from "react-bootstrap/Form";
 import crystalTexture3 from "../assets/images/crystalTexture3.jpg";
+import crystalTexture2 from "../assets/images/crystalTexture2.jpg";
 import ava from "../assets/images/Barava.jpg";
 import SwipLogo from "../assets/images/SwipLogo.png";
-import crystalTexture2 from "../assets/images/crystalTexture2.jpg";
 import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { Button } from "react-bootstrap";
 import { request } from "../utils/request";
 function GiftCard() {
@@ -14,6 +15,7 @@ function GiftCard() {
   const [CurrentUser, setCurrentUser] = useState({});
   const [validEmail, setValidEmail] = useState(true);
   const [validePhone, setValidPhone] = useState(true);
+  const navigate = useNavigate();
   const isValidEmail = (email) => {
     // Biểu thức chính quy để kiểm tra email
     const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -525,6 +527,17 @@ function GiftCard() {
                         <div>Recipent's Email: {orderInfo.receiver_mail}</div>
                         <div>Recipent's Phone: {orderInfo.receiver_phone}</div>
                       </div>
+                      <Button
+                        style={{
+                          margin: "16px 0 0 0",
+                          backgroundColor: "#4f3804",
+                          color: "white",
+                          width: "40%",
+                        }}
+                        onClick={(e) => navigate("orders")}
+                      >
+                        Review My orders
+                      </Button>
                     </div>
                   </div>
                 </div>

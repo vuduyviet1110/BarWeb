@@ -5,7 +5,6 @@ import Carousel from "react-bootstrap/Carousel";
 import Isotope from "isotope-layout";
 import AOS from "aos";
 import { request } from "../utils/request";
-import GLightbox from "glightbox";
 import Swiper from "swiper";
 import "swiper/css";
 import { Link } from "react-router-dom";
@@ -31,6 +30,7 @@ function HomePage() {
     const vnd = amount * 24768;
     return vnd.toLocaleString("vi-VN") + " VND";
   };
+
   const [CurentUser, setCurrentUser] = useState({});
   const handleLogout = () => {
     setCurrentUser({
@@ -452,6 +452,12 @@ function HomePage() {
                   Gallery
                 </a>
               </li>
+
+              <li>
+                <a className="nav-link scrollto" href="#contact">
+                  Contact
+                </a>
+              </li>
               <li>
                 {CurentUser.user_id > 0 ? (
                   <Link to={{ pathname: "/gift-card", state: { CurentUser } }}>
@@ -461,14 +467,27 @@ function HomePage() {
                   <Link to={{ pathname: "/sign-in" }}>Gift Card</Link>
                 )}
               </li>
-
               <li>
-                <a className="nav-link scrollto" href="#contact">
-                  Contact
-                </a>
+                <Link
+                  to="/gift-card/orders"
+                  style={{
+                    margin: "0 0 0 0",
+                    color: "white",
+                    width: "40%",
+                    cursor: "pointer",
+                    transition: "color 0.2s ease-in-out",
+                    textDecoration: "none",
+                    display: "inline-block",
+                  }}
+                  onMouseEnter={(e) =>
+                    (e.currentTarget.style.color = "#664d03")
+                  } // Hover effect
+                  onMouseLeave={(e) => (e.currentTarget.style.color = "white")}
+                >
+                  Orders
+                </Link>
               </li>
             </ul>
-            <i className="bi bi-list mobile-nav-toggle"></i>
           </nav>
           {CurentUser.user_id > 0 ? (
             <div

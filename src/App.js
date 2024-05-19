@@ -19,12 +19,14 @@ import "react-datepicker/dist/react-datepicker.css"; // Import CSS của react-d
 
 import ResetPwd from "./pages/ResetPwd";
 import ManageUser from "./pages/ManageUser";
+import OrdersGC from "./pages/OrdersGC";
 function App() {
   return (
     <Provider store={store}>
       <div>
         <Routes>
           <Route path="/:id" element={<HomePage />} />
+          <Route path="/gift-card/orders" element={<OrdersGC />} />
           <Route path="/gift-card" element={<Giftcard />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/sign-in" element={<SignInPage />} />
