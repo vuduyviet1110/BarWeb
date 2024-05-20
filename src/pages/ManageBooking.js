@@ -499,8 +499,7 @@ function ManageBooking() {
                     </Modal.Title>
                   </Modal.Header>
                   <Modal.Body>
-                    You have successfully Add new Reservation
-                    {reservation.reservation_id}
+                    You have successfully add new reservation
                   </Modal.Body>
                   <Modal.Footer>
                     <Button

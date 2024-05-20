@@ -5,6 +5,8 @@ import Row from "react-bootstrap/Row";
 import ReactDatePicker from "react-datepicker";
 import { useEffect, useState } from "react";
 import { request } from "../utils/request";
+import CustomInput from "../common/CustomInput";
+
 function BookingTable({ CurentUser }) {
   const [bookingInfo, setBookingInfo] = useState({
     user_id: 0,
@@ -174,6 +176,12 @@ function BookingTable({ CurentUser }) {
                     setBookingInfo((prev) => ({ ...prev, table_date: date }))
                   }
                   required
+                  customInput={<CustomInput />}
+                  showYearDropdown
+                  isClearable
+                  scrollableYearDropdown
+                  yearDropdownItemNumber={50}
+                  showMonthDropdown
                   dateFormat="MMMM d, yyyy "
                   placeholderText="Choose a date "
                 />

@@ -4,11 +4,10 @@ import { useEffect, useState } from "react";
 import { Facebook, Instagram, TwitterX } from "react-bootstrap-icons";
 import { request } from "../utils/request";
 import { Form } from "react-bootstrap";
+import CustomInput from "../common/CustomInput";
 
 const UserProfile = () => {
   const userId = parseInt(localStorage.getItem("user_token"));
-  const currentDate = new Date();
-  const currentYear = currentDate.getFullYear();
   const [CurrentUser, setCurrentUser] = useState({
     user_DOB: "",
     user_gmail: "",
@@ -17,6 +16,8 @@ const UserProfile = () => {
     user_phone: "",
     user_address: "",
   });
+  const [IsEmptyDOB, setEmptyDOB] = useState(false);
+
   const [updateSucess, setUpdateSucess] = useState(false);
   const [validEmail, setValidEmail] = useState(true);
   const [invalidAge, setinvalidAge] = useState();
@@ -27,6 +28,21 @@ const UserProfile = () => {
     // Biểu thức chính quy để kiểm tra email
     const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailPattern.test(email);
+  };
+  const handleAgeValidition = (DOB) => {
+    const today = new Date();
+    const eighteenYearsAgo = new Date(
+      today.getFullYear() - 18,
+      today.getMonth(),
+      today.getDate()
+    );
+    if (DOB > eighteenYearsAgo) {
+      console.log("dưới 18 tủi");
+      setinvalidAge(true);
+    } else {
+      setinvalidAge(false);
+      console.log("đã trên 18 tủi");
+    }
   };
   function validatePhoneField(phoneNumberField) {
     // Get the phone number value
@@ -47,6 +63,12 @@ const UserProfile = () => {
     } else {
       setValidEmail(false);
     }
+  };
+  const handleDateChange = (date) => {
+    setCurrentUser((prevInfo) => ({
+      ...prevInfo,
+      user_DOB: date ? date : false, // Set DOB field in formData to the selected date
+    }));
   };
   useEffect(() => {
     if (!userId) {
@@ -95,8 +117,8 @@ const UserProfile = () => {
 
   return (
     <section
-      className="vh-100"
       style={{
+        minHeight: "100vh",
         background:
           "url(https://res.cloudinary.com/dyapfszsy/image/upload/v1715616726/bar_website/ookxwarmikb9airaaufq.jpg) right/100%",
       }}
@@ -146,33 +168,37 @@ const UserProfile = () => {
                         <Col className="mb-3">
                           <h6>Date Of Birth</h6>
                           <DatePicker
-                            selected={CurrentUser.user_DOB} // Set selected date
-                            onChange={(date) => {
-                              setCurrentUser((prev) => ({
-                                ...prev,
-                                user_DOB: date, // Update user_DOB directly with the selected date
-                              }));
-                            }}
-                            onBlur={() => {
-                              if (
-                                CurrentUser.user_DOB &&
-                                CurrentUser.user_DOB.getFullYear() >=
-                                  currentYear - 18
-                              ) {
-                                setinvalidAge(true);
+                            selected={CurrentUser.user_DOB}
+                            onChange={(e) => {
+                              if (e === null) {
+                                setEmptyDOB(true);
+                                handleDateChange(e);
+                                handleAgeValidition(e);
                               } else {
-                                setinvalidAge(false);
+                                setEmptyDOB(false);
+                                handleDateChange(e);
+                                handleAgeValidition(e);
                               }
                             }}
+                            required
                             dateFormat="dd/MM/yyyy"
                             isClearable
+                            showIcon
+                            showYearDropdown
+                            scrollableYearDropdown
+                            yearDropdownItemNumber={50}
+                            showMonthDropdown
+                            customInput={<CustomInput />}
                             placeholderText="Date Of Birth"
-                            className="form-control"
-                            required
                           />
                           {invalidAge && (
                             <span style={{ color: "red" }}>
                               You must be at least 18 years old
+                            </span>
+                          )}
+                          {IsEmptyDOB && (
+                            <span style={{ color: "#dc3545" }}>
+                              Enter your DOB
                             </span>
                           )}
                         </Col>

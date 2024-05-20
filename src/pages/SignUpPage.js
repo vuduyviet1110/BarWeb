@@ -77,6 +77,7 @@ function SignUpPage() {
       invalidAge ||
       invalidLength ||
       !formData.DOB ||
+      IsEmptyDOB ||
       phoneLength === false
     ) {
       event.stopPropagation();
@@ -86,6 +87,7 @@ function SignUpPage() {
         setinvalidLength(false);
       }
       if (!formData.DOB) {
+        console.log(!formData.DOB);
         setEmptyDOB(true);
       } else {
         setEmptyDOB(false);
@@ -112,7 +114,7 @@ function SignUpPage() {
   return (
     <div
       style={{
-        height: "100vh",
+        minHeight: "100vh",
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
@@ -268,7 +270,7 @@ function SignUpPage() {
                 required
               />
               <Form.Control.Feedback type="invalid">
-                Please enter your password
+                Enter your password
               </Form.Control.Feedback>
               {invalidLength && (
                 <span style={{ color: "#dc3545" }}>
@@ -286,7 +288,7 @@ function SignUpPage() {
                 onChange={(e) => setrePwd(e.target.value)}
               />
               <Form.Control.Feedback type="invalid">
-                Please re-enter your password
+                Re-enter your password
               </Form.Control.Feedback>
               {formData.password !== rePwd && (
                 <span style={{ color: "red" }}> Password is not matched</span>

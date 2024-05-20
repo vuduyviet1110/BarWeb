@@ -6,9 +6,11 @@ function ManageGiftCard() {
   const [newGiftCardOrder, setNewGiftCardOrder] = useState();
   const [showRemove, setShowRemove] = useState(false);
   const [showAccStatus, setShowAccStatus] = useState(false);
+  const [showAdd, setShowAdd] = useState(false);
   const [isFieldCompleted, setIsFieldCompleted] = useState(true);
   const [validSenderEmail, setSenderValidEmail] = useState(true);
   const [validRecipientEmail, setRecipientValidEmail] = useState(true);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [validePhone, setValidPhone] = useState(true);
   const [currentOrderId, setcurrentOrderId] = useState(0);
   const [ExistedAccount, setExistedAccount] = useState();
@@ -30,6 +32,7 @@ function ManageGiftCard() {
       const res = await request.delete("/admin/gift-card", {
         data: { giftCardId },
       });
+      setShowDeleteConfirm(false);
       setShowRemove(true);
       setTimeout(() => {
         setShowRemove(false);
@@ -184,9 +187,9 @@ function ManageGiftCard() {
           setExistedAccount(false);
         } else {
           setExistedAccount(true);
-          setShow(true);
+          setShowAdd(true);
           setTimeout(() => {
-            setShow(false);
+            setShowAdd(false);
           }, 3000);
         }
         setIsFieldCompleted(true);
@@ -326,7 +329,48 @@ function ManageGiftCard() {
                   </Button>
                 </Modal.Footer>
               </Modal>
-
+              <Modal
+                show={showDeleteConfirm}
+                onHide={() => setShowDeleteConfirm(false)}
+              >
+                <Modal.Header closeButton>
+                  <Modal.Title style={{ color: "green" }}>
+                    Deletion confirmation
+                  </Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                  Are you sure you want to delete this booking?
+                </Modal.Body>
+                <Modal.Footer>
+                  <Button
+                    variant="secondary"
+                    onClick={() => handleRemoveReservation(order.card_order_id)}
+                  >
+                    Yes, Delete this booking
+                  </Button>
+                  <Button
+                    variant="secondary"
+                    onClick={() => setShowDeleteConfirm(false)}
+                  >
+                    No, Cancel Deletion
+                  </Button>
+                </Modal.Footer>
+              </Modal>
+              <Modal show={showAdd} onHide={() => setShowAdd(false)}>
+                <Modal.Header>
+                  <Modal.Title style={{ color: "green" }}>
+                    Successfully Added!!
+                  </Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                  You have successfully add new giftcard order!!!
+                </Modal.Body>
+                <Modal.Footer>
+                  <Button variant="secondary" onClick={() => setShowAdd(false)}>
+                    Close
+                  </Button>
+                </Modal.Footer>
+              </Modal>
               <Form.Label>
                 Recepient's Email<strong style={{ color: "red" }}>(*) </strong>
               </Form.Label>
@@ -424,7 +468,7 @@ function ManageGiftCard() {
                       backgroundColor: "rgba(0, 0, 0, 0.8)",
                       border: "none",
                     }}
-                    onClick={() => handleRemoveReservation(order.card_order_id)}
+                    onClick={() => setShowDeleteConfirm(true)}
                   >
                     Remove
                   </Button>
