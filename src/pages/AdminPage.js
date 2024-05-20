@@ -10,7 +10,7 @@ import {
 import { useNavigate } from "react-router-dom";
 
 import { NavLink, Outlet } from "react-router-dom";
-import beverage3 from "../assets/images/beverage5.jpg";
+import beverage3 from "../assets/images/loginAdmin.jpg";
 import { useEffect, useState } from "react";
 import { request } from "../utils/request";
 import { useParams } from "react-router-dom";
@@ -39,31 +39,37 @@ function AdminPage() {
     <div
       style={{
         color: "black",
-        height: "100%",
+        minHeight: "100vh",
+        background: `url(https://res.cloudinary.com/dyapfszsy/image/upload/v1715616726/bar_website/ookxwarmikb9airaaufq.jpg) top/100%`,
       }}
     >
       <div
         style={{
-          padding: "8px",
-          background: `url(${beverage3}) top/70%`,
-          // backgroundColor: "rgba(0,0,0,0.9)",
+          backdropFilter: " blur(2px)",
+          backgroundColor: "rgba(0,0,0,0.5)",
+          minHeight: "100vh",
         }}
       >
         <div className="Header">
           <h2
             style={{
-              color: "rgba(255, 255, 255, 0.8)",
-              backgroundColor: "rgba(0, 0, 0, 0.9)",
+              color: "rgba(255, 255, 255, 0.9)",
               padding: "8px",
               borderRadius: "8px",
             }}
           >
             SWI:P
           </h2>
-          <div style={{ display: "flex" }}>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
             <div
               style={{
-                color: "rgba(255, 255, 255, 0.8)",
+                color: "rgba(255, 255, 255, 0.9)",
                 padding: "8px",
                 borderRadius: "8px",
                 textAlign: "center",
@@ -75,17 +81,18 @@ function AdminPage() {
             </div>
             <h4
               style={{
-                color: "rgba(255, 255, 255, 0.8)",
-                backgroundColor: "rgba(0, 0, 0, 0.6)",
+                color: "rgba(255, 255, 255, 0.9)",
+                backgroundColor: "rgba(0, 0, 0, 0.4)",
                 padding: "8px",
-                lineHeight: "35.4px",
+                margin: "0 8px 0 0 ",
+                lineHeight: "36px",
                 borderRadius: "8px",
                 textAlign: "center",
                 cursor: "pointer",
               }}
               onClick={handleLogout}
             >
-              Log Out
+              Log out
             </h4>
           </div>
         </div>
@@ -132,7 +139,7 @@ function AdminPage() {
                   }}
                   onMouseEnter={(e) => {
                     e.target.style.borderRadius = "8px";
-                    e.target.style.backgroundColor = "rgba(255, 255, 255, 0.3)";
+                    e.target.style.backgroundColor = "rgba(255, 255, 255, 0.4)";
                   }}
                   onMouseLeave={(e) => {
                     e.target.style.borderRadius = "0";

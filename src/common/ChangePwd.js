@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import "../assets/css/HomePage.css";
 import { Image, Button, Modal, Form, Dropdown } from "react-bootstrap";
-import talkingincouter from "../assets/images/talkingincouter.jpg";
+import talkingincouter from "../assets/images/quayBarr.jpg";
 import { Link } from "react-router-dom";
 import { request } from "../utils/request";
 

@@ -467,26 +467,30 @@ function HomePage() {
                   <Link to={{ pathname: "/sign-in" }}>Gift Card</Link>
                 )}
               </li>
-              <li>
-                <Link
-                  to="/gift-card/orders"
-                  style={{
-                    margin: "0 0 0 0",
-                    color: "white",
-                    width: "40%",
-                    cursor: "pointer",
-                    transition: "color 0.2s ease-in-out",
-                    textDecoration: "none",
-                    display: "inline-block",
-                  }}
-                  onMouseEnter={(e) =>
-                    (e.currentTarget.style.color = "#664d03")
-                  } // Hover effect
-                  onMouseLeave={(e) => (e.currentTarget.style.color = "white")}
-                >
-                  Orders
-                </Link>
-              </li>
+              {CurentUser.user_id > 1 && (
+                <li>
+                  <Link
+                    to="/gift-card/orders"
+                    style={{
+                      margin: "0 0 0 0",
+                      color: "white",
+                      width: "40%",
+                      cursor: "pointer",
+                      transition: "color 0.2s ease-in-out",
+                      textDecoration: "none",
+                      display: "inline-block",
+                    }}
+                    onMouseEnter={(e) =>
+                      (e.currentTarget.style.color = "#664d03")
+                    } // Hover effect
+                    onMouseLeave={(e) =>
+                      (e.currentTarget.style.color = "white")
+                    }
+                  >
+                    Orders
+                  </Link>
+                </li>
+              )}
             </ul>
           </nav>
           {CurentUser.user_id > 0 ? (

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import ava from "../assets/images/Barava.jpg";
 import { useNavigate } from "react-router-dom";
 import { request } from "../utils/request";
-import beverage3 from "../assets/images/anhquaybar.jpg";
+import beverage3 from "../assets/images/loginAdmin.jpg";
 
 export default function LoginPage() {
   const [admin, setAdmin] = useState({ ad_name: "", ad_password: "" });
@@ -35,6 +35,7 @@ export default function LoginPage() {
         localStorage.setItem("access_token", true);
         return navigate(`/admin/${res.data.admin.admin_id}/content`);
       }
+      setIsEmpty(false);
     } else {
       setIsEmpty(true);
     }
@@ -56,7 +57,7 @@ export default function LoginPage() {
       >
         <img
           src={ava}
-          style={{ width: "100px", height: "100px", borderRadius: "50%" }}
+          style={{ width: "150px", height: "150px", borderRadius: "50%" }}
           alt="images"
         />
 
@@ -80,6 +81,7 @@ export default function LoginPage() {
               flexDirection: "column",
               height: "80px",
               width: "400px",
+              color: "white",
             }}
           >
             <label htmlFor="adId">ID</label>
@@ -88,7 +90,14 @@ export default function LoginPage() {
               value={admin.ad_name}
               onChange={handleIdChange}
               placeholder="Enter Id"
-              style={{ height: "35px", borderRadius: "8px" }}
+              style={{
+                height: "38px",
+                borderRadius: "8px",
+                padding: "8px",
+                backgroundColor: "rgba(255, 255, 255, 0.6)",
+                color: "brown",
+                border: "none",
+              }}
               id="adId"
             />
           </div>
@@ -98,13 +107,21 @@ export default function LoginPage() {
               flexDirection: "column",
               height: "80px",
               width: "400px",
+              color: "white",
             }}
           >
             <label htmlFor="adPwd">Password</label>
             <input
               value={admin.ad_password}
               type="password"
-              style={{ height: "35px", borderRadius: "8px" }}
+              style={{
+                height: "38px",
+                borderRadius: "8px",
+                padding: "8px",
+                backgroundColor: "rgba(255, 255, 255, 0.6)",
+                color: "brown",
+                border: "none",
+              }}
               onChange={handlePasswordChange}
               placeholder="Enter Password"
               id="adPwd"
@@ -121,9 +138,15 @@ export default function LoginPage() {
             </span>
           )}
         </div>
-        <div style={{ border: " 1px solid rgb(200,200,200)", margin: "16px" }}>
+        <div style={{ margin: "16px" }}>
           <button
-            style={{ width: "100px", height: "40px", color: "brown" }}
+            style={{
+              width: "100px",
+              height: "40px",
+              color: "brown",
+              border: "none",
+              borderRadius: "8px",
+            }}
             onClick={handleClick}
             type="submit"
           >

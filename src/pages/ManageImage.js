@@ -1,13 +1,11 @@
 import { Button, Image } from "react-bootstrap";
 import Form from "react-bootstrap/Form";
-import { Contents } from "../Fakeapi";
-
 import Row from "react-bootstrap/Row";
 import { Col } from "react-bootstrap";
 import { useEffect, useState } from "react";
 import { request } from "../utils/request";
 function ManageImage() {
-  const [galleryImgs, setGalleryImgs] = useState(Contents[3].Gallery);
+  const [galleryImgs, setGalleryImgs] = useState([{}]);
   const [success, setSuccess] = useState(false);
   const [noUpdate, setNoUpdate] = useState(false);
   useEffect(() => {

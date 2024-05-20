@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { request } from "../utils/request";
-import { ChevronDown } from "react-bootstrap-icons";
+import { ChevronDown, ChevronUp } from "react-bootstrap-icons";
 import { Button } from "react-bootstrap";
 import crystalTexture3 from "../assets/images/crystalTexture3.jpg";
 import crystalTexture2 from "../assets/images/crystalTexture2.jpg";
@@ -24,7 +24,7 @@ const OrderReceipt = () => {
   ]);
   const [currentIndex, setCurrentIndex] = useState();
   const [CurentUser, setCurrentUser] = useState({});
-  const [More, setMore] = useState(true);
+  const [More, setMore] = useState(false);
   const userId = parseInt(localStorage.getItem("user_token"));
   const totalAmount = giftcards.reduce(
     (acc, card) => acc + Number(card.user_amount),
@@ -62,8 +62,7 @@ const OrderReceipt = () => {
 
   return (
     <section
-      className="h-100"
-      style={{ background: `url(${ava} ) center/100%` }}
+      style={{ background: `url(${ava} ) center/100%`, minHeight: "100vh" }}
     >
       <div className="container py-5 h-100">
         <div className="row d-flex justify-content-center align-items-center h-100">
@@ -203,13 +202,23 @@ const OrderReceipt = () => {
                       <div className="row d-flex align-items-center">
                         <div className="col-md-2">
                           <p className="text-muted mb-0 small">Order Status</p>
-                          <ChevronDown
-                            onClick={(e) => {
-                              setCurrentIndex(b.card_order_id);
-                              setMore(!More);
-                            }}
-                            style={{ cursor: "pointer" }}
-                          />
+                          {More && currentIndex === b.card_order_id ? (
+                            <ChevronUp
+                              onClick={(e) => {
+                                setCurrentIndex(b.card_order_id);
+                                setMore(!More);
+                              }}
+                              style={{ cursor: "pointer" }}
+                            />
+                          ) : (
+                            <ChevronDown
+                              onClick={(e) => {
+                                setCurrentIndex(b.card_order_id);
+                                setMore(!More);
+                              }}
+                              style={{ cursor: "pointer" }}
+                            />
+                          )}
                         </div>
                         <div className="col-md-10">
                           <div
@@ -251,6 +260,8 @@ const OrderReceipt = () => {
                             padding: "10px",
                             borderRadius: "18px",
                             fontSize: "20px",
+                            transition: "height 4s ease-in-out",
+                            height: `${More ? "200px" : "50px"}`,
                           }}
                           className="row d-flex "
                         >

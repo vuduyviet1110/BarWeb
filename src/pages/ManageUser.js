@@ -65,7 +65,6 @@ function ManageUser() {
         color: "rgb(161, 158, 158)",
         paddingLeft: "10px",
         margin: "0 0 0 16px",
-        backgroundColor: "rgb(0, 0, 0,0.6)",
         display: "flex",
         flexDirection: "column",
       }}
