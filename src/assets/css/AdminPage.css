@@ -21,8 +21,8 @@
     padding: 16px; 
     overflow-y: auto; 
     & a.active{
-        background-color: rgb(0, 0, 0);
         color: rgb(78, 22, 22);
+        /* background-color: rgb(166, 4, 4); */
         font-size:24px;
      }
 

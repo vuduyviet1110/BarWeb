@@ -6,9 +6,8 @@ function ManageBooking() {
   const [showRemove, setShowRemove] = useState(false);
   const [showAdd, setShowAdd] = useState(false);
   const [show, setShow] = useState(false);
-  const [existedAcc, setExistedAcc] = useState(false);
   const [currentReservationId, setcurrReservationId] = useState(0);
-  const [showAccStatus, setShowAccStatus] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [isFieldCompleted, setIsFieldCompleted] = useState(true);
   const [validEmail, setValidEmail] = useState(true);
   const [validePhone, setValidPhone] = useState(true);
@@ -88,6 +87,7 @@ function ManageBooking() {
       const res = await request.delete("/admin/reservation", {
         data: { reservation_id },
       });
+      setShowDeleteConfirm(false);
       setShowRemove(true);
       setTimeout(() => {
         setShowRemove(false);
@@ -101,16 +101,20 @@ function ManageBooking() {
     const MatchedReservation = reservations.find(
       (reservation) => reservation.reservation_id === reservationId
     );
-    const isAnyFieldEmpty = Object.values(MatchedReservation).some(
-      (value) => value === "" || value === 0
-    );
-    if (
-      !isAnyFieldEmpty &&
-      validEmail &&
-      validePhone &&
-      validDate &&
-      validTime
-    ) {
+
+    // Improved isEmpty check function
+    const isAnyFieldEmptyExceptMessage = (obj) => {
+      return Object.entries(obj).some(([key, value]) => {
+        // Exclude message and consider null as empty
+        return (
+          (value === "" || value === 0 || value === null) && key !== "message"
+        );
+      });
+    };
+
+    // Check if any fields are empty (excluding message) and validate other fields
+    const isEmpty = isAnyFieldEmptyExceptMessage(MatchedReservation);
+    if (!isEmpty && validEmail && validePhone && validDate && validTime) {
       try {
         const res = await request.put("/admin/reservation", {
           MatchedReservation,
@@ -124,16 +128,14 @@ function ManageBooking() {
         console.error(error);
       }
     } else {
-      setcurrReservationId(reservationId); // Set currentReservationId to highlight the item with missing fields
-      if (isAnyFieldEmpty) {
-        setIsFieldCompleted(false);
-      } else {
-        setIsFieldCompleted(true);
-      }
+      setcurrReservationId(reservationId);
+
+      setIsFieldCompleted(!isEmpty);
     }
 
     console.log("matchedRes: ", MatchedReservation);
   };
+
   const handleInputChange = (event, reservationId) => {
     const { name, value } = event.target;
     // Update a copy of the reservations array
@@ -150,12 +152,8 @@ function ManageBooking() {
 
     setReservations(updatedReservations);
   };
-  const handleAddReservation = () => {
-    setShowAccStatus(true);
-  };
+
   const handleExistedAcc = () => {
-    setExistedAcc(true);
-    setShowAccStatus(false); // Ẩn modal sau khi chọn Existed Account
     const updatedBooking = [
       ...reservations,
       {
@@ -164,32 +162,14 @@ function ManageBooking() {
         user_gmail: "",
         table_time: "",
         table_date: "",
+        number_people: "",
         message: "",
         account_status: true, // Set account_status thành true
       },
     ];
     setReservations(updatedBooking);
   };
-  useEffect(() => {
-    console.log("existedAcc:", existedAcc);
-  }, [existedAcc]);
-  const handleGuestAcc = () => {
-    setExistedAcc(false);
-    setShowAccStatus(false); // Ẩn modal sau khi chọn Existed Account
-    const updatedBooking = [
-      ...reservations,
-      {
-        user_name: "",
-        user_phone: "",
-        user_gmail: "",
-        table_time: "",
-        table_date: "",
-        message: "",
-        account_status: false, // Set account_status thành true
-      },
-    ];
-    setReservations(updatedBooking);
-  };
+
   useEffect(() => {
     reservations.forEach((r) => {
       if (r.account_status === true || r.account_status === false) {
@@ -200,12 +180,21 @@ function ManageBooking() {
 
   const handleAddNewReservationToDBS = async (resID) => {
     const MatchedRes = reservations.find((res) => res.reservation_id === resID);
-    console.log(MatchedRes);
-    const isAnyFieldEmpty = Object.values(MatchedRes).some(
-      (value) => value === "" || value === null || value === undefined
-    );
-    console.log(!isAnyFieldEmpty, "vaf", validEmail, "vaf", validePhone);
-    if (!isAnyFieldEmpty && validEmail && validePhone) {
+
+    // Improved isEmpty check function
+    const isAnyFieldEmptyExceptMessage = (obj) => {
+      return Object.entries(obj).some(([key, value]) => {
+        // Exclude message and consider null as empty
+        console.log(key, value);
+        return (
+          (value === "" || value === 0 || value === null) && key !== "message"
+        );
+      });
+    };
+
+    // Check if any fields are empty (excluding message) and validate other fields
+    const isEmpty = isAnyFieldEmptyExceptMessage(MatchedRes);
+    if (!isEmpty && validEmail && validePhone) {
       try {
         const res = await request.post("/admin/reservation", {
           newReservation,
@@ -222,11 +211,11 @@ function ManageBooking() {
       }
     } else {
       setcurrReservationId(resID);
-      if (isAnyFieldEmpty) {
+      if (isEmpty) {
         setIsFieldCompleted(false);
       } else {
         setIsFieldCompleted(true);
-        console.log(isAnyFieldEmpty);
+        console.log(isEmpty);
       }
     }
   };
@@ -260,12 +249,6 @@ function ManageBooking() {
         <Row lg={4}>
           {reservations.map((reservation) => (
             <Col key={reservation.reservation_id}>
-              {console.log(
-                "currentId: ",
-                currentReservationId,
-                "reseId: ",
-                reservation.resservation_id
-              )}
               <h4>Reservation: {reservation.reservation_id}</h4>
               {reservation.user_id === 1 ? (
                 <div style={{ color: "green" }}>Guest booking 🙋‍♂️</div>
@@ -274,7 +257,7 @@ function ManageBooking() {
                   {reservation.user_id !== undefined ? (
                     <span>Existed account booking👨 </span>
                   ) : (
-                    <span></span>
+                    <span>???</span>
                   )}
                 </div>
               )}
@@ -283,8 +266,9 @@ function ManageBooking() {
                   Name <strong style={{ color: "red" }}>(Fixed)</strong>
                 </Form.Label>
                 <Form.Control
-                  style={{ margin: "0 0 8px 0" }}
+                  style={{ margin: "0 0 16px 0" }}
                   type="text"
+                  placeholder="John"
                   name={reservation.user_id === 1 ? "guest_name" : "user_name"}
                   onChange={(event) =>
                     handleInputChange(event, reservation.reservation_id)
@@ -301,8 +285,9 @@ function ManageBooking() {
                   Phone <strong style={{ color: "red" }}>(Fixed)</strong>
                 </Form.Label>
                 <Form.Control
-                  style={{ margin: "0 0 8px 0" }}
+                  style={{ margin: "0 0 16px 0" }}
                   type="text"
+                  placeholder="0123456789"
                   name={
                     reservation.user_id === 1 ? "guest_phone" : "user_phone"
                   }
@@ -323,10 +308,11 @@ function ManageBooking() {
                   )}
               </Form.Group>
               <Form.Group>
-                <Form.Label>Date (YYYY-MM-DD)</Form.Label>
+                <Form.Label>Date </Form.Label>
                 <Form.Control
-                  style={{ margin: "0 0 8px 0" }}
+                  style={{ margin: "0 0 16px 0" }}
                   type="text"
+                  placeholder="2022-03-02 (YYYY-MM-DD)"
                   name="table_date"
                   onChange={(event) => {
                     handleInputChange(event, reservation.reservation_id);
@@ -345,10 +331,10 @@ function ManageBooking() {
               <Form.Group>
                 <Form.Label>Time</Form.Label>
                 <Form.Control
-                  className="mt-3 mr-3"
+                  style={{ margin: "0 0 16px 0" }}
                   type="text"
                   name="table_time"
-                  placeholder="HH:MM:SS"
+                  placeholder="02:30:00 (HH:MM:SS)"
                   onChange={(event) => {
                     handleInputChange(event, reservation.reservation_id);
                     setIsValidTime(validateTimeFormat(event.target.value));
@@ -369,6 +355,7 @@ function ManageBooking() {
                   style={{ margin: "0 0 8px 0" }}
                   type="text"
                   name="user_gmail"
+                  placeholder="john@gmail.com"
                   onChange={(event) => {
                     handleInputChange(event, reservation.reservation_id);
                     handleEmailBlur(event);
@@ -387,9 +374,10 @@ function ManageBooking() {
               <Form.Group>
                 <Form.Label>N.o ppl</Form.Label>
                 <Form.Control
-                  className="mt-3 mr-3"
+                  style={{ margin: "0 0 16px 0" }}
                   type="text"
                   name="number_people"
+                  placeholder="10"
                   onChange={(e) => {
                     if (!isNaN(e.target.value)) {
                       handleInputChange(e, reservation.reservation_id);
@@ -399,17 +387,47 @@ function ManageBooking() {
                 />
               </Form.Group>
               <Form.Group>
-                <Form.Label>Message</Form.Label>
+                <Form.Label>Message (optional)</Form.Label>
                 <Form.Control
-                  className="mt-3 mr-3"
+                  style={{ margin: "0 0 16px 0" }}
                   type="text"
                   name="message"
+                  placeholder="Hello"
                   onChange={(event) =>
                     handleInputChange(event, reservation.reservation_id)
                   }
                   value={reservation.message}
                 />
               </Form.Group>
+              <Modal
+                show={showDeleteConfirm}
+                onHide={() => setShowDeleteConfirm(false)}
+              >
+                <Modal.Header closeButton>
+                  <Modal.Title style={{ color: "green" }}>
+                    Deletion confirmation
+                  </Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                  Are you sure you want to delete this booking?
+                </Modal.Body>
+                <Modal.Footer>
+                  <Button
+                    variant="secondary"
+                    onClick={() =>
+                      handleRemoveReservation(reservation.reservation_id)
+                    }
+                  >
+                    Yes, Delete this booking
+                  </Button>
+                  <Button
+                    variant="secondary"
+                    onClick={() => setShowDeleteConfirm(false)}
+                  >
+                    No, Cancel Deletion
+                  </Button>
+                </Modal.Footer>
+              </Modal>
               {reservation.reservation_id === currentReservationId &&
                 isFieldCompleted === false && (
                   <div style={{ color: "red", fontSize: "18px" }}>
@@ -437,9 +455,7 @@ function ManageBooking() {
                       backgroundColor: "rgba(0, 0, 0, 0.7)",
                       border: "none",
                     }}
-                    onClick={() =>
-                      handleRemoveReservation(reservation.reservation_id)
-                    }
+                    onClick={() => setShowDeleteConfirm(true)}
                   >
                     Remove
                   </Button>
@@ -451,7 +467,7 @@ function ManageBooking() {
                     style={{
                       backgroundColor: "rgba(0, 0, 0, 0.7)",
                       border: "none",
-                      margin: "0 0 0 8px",
+                      margin: "8px",
                     }}
                     onClick={() =>
                       handleAddNewReservationToDBS(reservation.reservation_id)
@@ -502,7 +518,7 @@ function ManageBooking() {
                     </Modal.Title>
                   </Modal.Header>
                   <Modal.Body>
-                    You have successfully updated Ca
+                    You have successfully updated
                     {reservation.reservation_id}
                   </Modal.Body>
                   <Modal.Footer>
@@ -542,27 +558,10 @@ function ManageBooking() {
           margin: "8px",
           width: "20%",
         }}
-        onClick={handleAddReservation}
+        onClick={handleExistedAcc}
       >
         + Add Reservation
       </Button>
-      <Modal show={showAccStatus} onHide={() => setShowAccStatus(false)}>
-        <Modal.Header closeButton>
-          <Modal.Title style={{ color: "green" }}>
-            Is this user you want to add an giftcard order already have an
-            account ?
-          </Modal.Title>
-        </Modal.Header>
-        <Modal.Body>Existed Account or Guest?</Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={handleExistedAcc}>
-            Existed Account
-          </Button>
-          <Button variant="secondary" onClick={handleGuestAcc}>
-            Guest
-          </Button>
-        </Modal.Footer>
-      </Modal>
     </Container>
   );
 }
