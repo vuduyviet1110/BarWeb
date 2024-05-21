@@ -435,9 +435,7 @@ function GiftCard() {
                               height="50%"
                               src={`https://img.vietqr.io/image/${
                                 MY_BANK.BANK_ID
-                              }-${
-                                MY_BANK.ACCOUNT_NO
-                              }-qr_only.png?orderInfo.user_amount=${
+                              }-${MY_BANK.ACCOUNT_NO}-qr_only.png?amount=${
                                 orderInfo.user_amount * 24768
                               }&addInfo=gift-card-${orderInfo.user_amount}`}
                               alt=""
