@@ -415,7 +415,7 @@ function ManageBooking() {
                   <Button
                     variant="secondary"
                     onClick={() =>
-                      handleRemoveReservation(reservation.reservation_id)
+                      handleRemoveReservation(currentReservationId)
                     }
                   >
                     Yes, Delete this booking
@@ -455,7 +455,10 @@ function ManageBooking() {
                       backgroundColor: "rgba(0, 0, 0, 0.7)",
                       border: "none",
                     }}
-                    onClick={() => setShowDeleteConfirm(true)}
+                    onClick={() => {
+                      setShowDeleteConfirm(true);
+                      setcurrReservationId(reservation.reservation_id);
+                    }}
                   >
                     Remove
                   </Button>
@@ -533,8 +536,9 @@ function ManageBooking() {
                     </Modal.Title>
                   </Modal.Header>
                   <Modal.Body>
-                    You have successfully Remove this booking. Please reload the
-                    page to see the change!!!
+                    You have successfully Remove this booking{" "}
+                    {currentReservationId}. Please reload the page to see the
+                    change!!!
                   </Modal.Body>
                   <Modal.Footer>
                     <Button

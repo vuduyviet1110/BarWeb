@@ -344,7 +344,7 @@ function ManageGiftCard() {
                 <Modal.Footer>
                   <Button
                     variant="secondary"
-                    onClick={() => handleRemoveReservation(order.card_order_id)}
+                    onClick={() => handleRemoveReservation(currentOrderId)}
                   >
                     Yes, Delete this booking
                   </Button>
@@ -468,7 +468,10 @@ function ManageGiftCard() {
                       backgroundColor: "rgba(0, 0, 0, 0.8)",
                       border: "none",
                     }}
-                    onClick={() => setShowDeleteConfirm(true)}
+                    onClick={() => {
+                      setcurrentOrderId(order.card_order_id);
+                      setShowDeleteConfirm(true);
+                    }}
                   >
                     Remove
                   </Button>
