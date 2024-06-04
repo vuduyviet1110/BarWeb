@@ -95,8 +95,9 @@ function SignInPage() {
           alignItems: "center",
           flexDirection: "column",
           minWidth: "500px",
+          borderRadius: "8px",
           minHeight: "400px",
-          backgroundColor: "rgba(255, 255, 255, 0.5)",
+          backgroundColor: "rgb(127 123 123 / 30%)",
         }}
       >
         <h2 style={{ color: "brown" }}> Sign In</h2>
@@ -115,7 +116,12 @@ function SignInPage() {
               </Form.Control.Feedback>
             </Form.Group>
 
-            <Form.Group as={Col} md="12" controlId="validationCustom02">
+            <Form.Group
+              style={{ marginTop: "18px" }}
+              as={Col}
+              md="12"
+              controlId="validationCustom02"
+            >
               <Form.Label type="password">Password</Form.Label>
               <Form.Control
                 required

@@ -1,35 +1,54 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import "../assets/css/HomePage.css";
-import { Breadcrumb, Button } from "react-bootstrap";
+import { Breadcrumb } from "react-bootstrap";
 import Carousel from "react-bootstrap/Carousel";
-import Isotope from "isotope-layout";
 import AOS from "aos";
 import { request } from "../utils/request";
 import Swiper from "swiper";
+import {
+  motion,
+  useAnimation,
+  useInView,
+  useScroll,
+  useTransform,
+} from "framer-motion";
 import "swiper/css";
 import { Link } from "react-router-dom";
 import {
   ArrowRightCircle,
   ArrowUpShort,
-  CurrencyExchange,
   Facebook,
   Instagram,
   TwitterX,
 } from "react-bootstrap-icons";
 import ChangePwd from "../common/ChangePwd";
 import BookingTable from "../common/booking";
+import Beverages from "./Beverages";
 function HomePage() {
   const userId = parseInt(localStorage.getItem("user_token"));
-  const [currency, setCurrency] = useState(false);
   const [titleContent, setTitleContent] = useState();
   const [ourStoryContent, setourStoryContent] = useState();
   const [gallery, setGallery] = useState();
   const [events, setEvents] = useState();
-  const [beverage, setBeverage] = useState();
-  const ExchangeCurrenciesToVND = (amount) => {
-    const vnd = amount * 24768;
-    return vnd.toLocaleString("vi-VN") + " VND";
-  };
+  const containerRef = useRef(null);
+  const isInView = useInView(containerRef, { once: true });
+  const mainControls = useAnimation();
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ["start end", "end end"],
+  });
+
+  const paragraphOneValue = useTransform(
+    scrollYProgress,
+    [0, 1],
+    ["-100", "0%"]
+  );
+
+  useEffect(() => {
+    if (isInView) {
+      mainControls.start("visible");
+    }
+  });
 
   const [CurentUser, setCurrentUser] = useState({});
   const handleLogout = () => {
@@ -43,6 +62,7 @@ function HomePage() {
     });
     localStorage.removeItem("user_token");
     console.log("log out");
+    window.location.reload();
   };
 
   useEffect(() => {
@@ -243,37 +263,6 @@ function HomePage() {
     /**
      * Menu isotope and filter
      */
-    window.addEventListener("load", () => {
-      let menuContainer = select(".menu-container");
-      if (menuContainer) {
-        let menuIsotope = new Isotope(menuContainer, {
-          itemSelector: ".menu-item",
-          layoutMode: "fitRows",
-        });
-
-        let menuFilters = select("#menu-flters li", true);
-
-        on(
-          "click",
-          "#menu-flters li",
-          function (e) {
-            e.preventDefault();
-            menuFilters.forEach(function (el) {
-              el.classList.remove("filter-active");
-            });
-            this.classList.add("filter-active");
-
-            menuIsotope.arrange({
-              filter: this.getAttribute("data-filter"),
-            });
-            menuIsotope.on("arrangeComplete", function () {
-              AOS.refresh();
-            });
-          },
-          true
-        );
-      }
-    });
 
     /**
      * Initiate glightbox
@@ -380,17 +369,7 @@ function HomePage() {
     };
     fetchApi();
   }, []);
-  useEffect(() => {
-    const fetchApi = async () => {
-      try {
-        const res = await request.get("/admin/beverage");
-        setBeverage(res.data);
-      } catch (error) {
-        console.error(error);
-      }
-    };
-    fetchApi();
-  }, []);
+
   return (
     <div className="main">
       <div id="topbar" className="d-flex align-items-center fixed-top">
@@ -578,6 +557,7 @@ function HomePage() {
                 </div>
               </div>
               <div
+                ref={containerRef}
                 className="col-lg-6 pt-4 pt-lg-0 order-2 order-lg-1 content"
                 data-aos-delay="100"
                 style={{
@@ -587,107 +567,29 @@ function HomePage() {
                   color: "#fff",
                 }}
               >
-                <h3>{ourStoryContent?.title}</h3>
-                <p className="fst-italic">{ourStoryContent?.content}</p>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <section id="menu" className="menu section-bg">
-          <div className="container" data-aos="fade-up">
-            <div className="section-title">
-              <h2>Beverage</h2>
-              <p>Check Our Beverage</p>
-            </div>
-
-            <div className="row" data-aos="fade-up" data-aos-delay="100">
-              <div className="col-lg-12 d-flex justify-content-center">
-                <ul id="menu-flters">
-                  <li data-filter="*" className="filter-active">
-                    All
-                  </li>
-                  <li data-filter=".filter-starters">Cooktail</li>
-                  <li data-filter=".filter-specialty">Bear</li>
-                  <li data-filter=".filter-salads">Soda and minerals</li>
-                </ul>
-              </div>
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
-                <Button
-                  style={{
-                    backgroundColor: "transparent",
-                    width: "5%",
-                    border: "1px solid white",
+                <motion.h2
+                  animate={mainControls}
+                  initial="hidden"
+                  variants={{
+                    hidden: { opacity: 0, y: 75 },
+                    visible: { opacity: 1, y: 0 },
                   }}
-                  onClick={() => setCurrency(!currency)}
+                  transition={{ delay: 0.3 }}
                 >
-                  <CurrencyExchange></CurrencyExchange>
-                </Button>
+                  {ourStoryContent?.title}
+                </motion.h2>
+                <motion.p
+                  style={{ translateX: paragraphOneValue }}
+                  className="fst-italic"
+                >
+                  {ourStoryContent?.content}
+                </motion.p>
               </div>
-            </div>
-
-            <div
-              className="row menu-container"
-              data-aos="fade-up"
-              data-aos-delay="200"
-            >
-              {beverage?.map((b) => (
-                <div>
-                  {b?.type === "Cocktails" && (
-                    <div className="col-lg-6 menu-item filter-starters">
-                      <img src={b.image} className="menu-img" alt="" />
-                      <div className="menu-content">
-                        <a href="#">{b.name}</a>
-                        {currency ? (
-                          <span>{ExchangeCurrenciesToVND(b.price)}</span>
-                        ) : (
-                          <span>{b.price} $</span>
-                        )}
-                      </div>
-                      <div className="menu-ingredients">{b.description}</div>
-                    </div>
-                  )}
-
-                  {b?.type === "Beers" && (
-                    <div className="col-lg-6 menu-item filter-specialty">
-                      <img src={b.image} className="menu-img" alt="" />
-                      <div className="menu-content">
-                        <a href="#">{b.name}</a>
-                        {currency ? (
-                          <span>{ExchangeCurrenciesToVND(b.price)}</span>
-                        ) : (
-                          <span>{b.price} $</span>
-                        )}
-                      </div>
-                      <div className="menu-ingredients">{b.description}</div>
-                    </div>
-                  )}
-
-                  {(b?.type === "Soda" || b.type === "Minerals") && (
-                    <div className="col-lg-6 menu-item filter-salads">
-                      <img src={b.image} className="menu-img" alt="" />
-                      <div className="menu-content">
-                        <a href="#">{b.name}</a>
-                        {currency ? (
-                          <span>{ExchangeCurrenciesToVND(b.price)}</span>
-                        ) : (
-                          <span>{b.price} $</span>
-                        )}
-                      </div>
-                      <div className="menu-ingredients">{b.description}</div>
-                    </div>
-                  )}
-                </div>
-              ))}
             </div>
           </div>
         </section>
+
+        <Beverages />
 
         <section id="events" className="events">
           <div className="container" data-aos="fade-up">

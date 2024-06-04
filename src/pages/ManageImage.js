@@ -87,8 +87,14 @@ function ManageImage() {
                     handleImageChange(photo.img_id, e.target.files[0]);
                   }}
                 />
-                <h5>Current Image: </h5>
-                <Image width="50%" height="50%" src={photo.img} thumbnail />
+                <h5 style={{ margin: "0 0 8px 0" }}>Current Image: </h5>
+                <Image
+                  style={{ margin: "10px 0 10px 0" }}
+                  width="50%"
+                  height="50%"
+                  src={photo.img}
+                  thumbnail
+                />
               </Col>
             ))}
           </Row>

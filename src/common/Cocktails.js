@@ -163,6 +163,7 @@ function Cocktails({ beverages }) {
                   thumbnail
                   width="50%"
                   height="50%"
+                  style={{ margin: "20px 0 10px 0" }}
                 />
               </div>
               {isEmpty && currentCocktailIndex === cocktail.bev_id && (

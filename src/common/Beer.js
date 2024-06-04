@@ -154,7 +154,13 @@ function Beers({ beverages }) {
                   type="file"
                   onChange={(e) => handleImgChange(e, beer.bev_id)}
                 />
-                <Image src={beer.image} thumbnail width="50%" height="50%" />
+                <Image
+                  style={{ margin: "20px 0 10px 0" }}
+                  src={beer.image}
+                  thumbnail
+                  width="50%"
+                  height="50%"
+                />
               </div>
               {isEmpty && currentBeerIndex === beer.bev_id && (
                 <div>Please complete all the fields</div>

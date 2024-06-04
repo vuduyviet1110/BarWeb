@@ -157,7 +157,13 @@ function SodaNMinerals({ beverages }) {
                   type="file"
                   onChange={(e) => handleImgChange(e, drink.bev_id)}
                 />
-                <Image src={drink.image} width="50%" height="50%" thumbnail />
+                <Image
+                  style={{ margin: "20px 0 10px 0" }}
+                  src={drink.image}
+                  width="50%"
+                  height="50%"
+                  thumbnail
+                />
               </div>
               {isEmpty && currentDrinkIndex === drink.bev_id && (
                 <div>Please complete all the fields</div>

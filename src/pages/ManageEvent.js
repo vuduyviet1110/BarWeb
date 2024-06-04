@@ -125,6 +125,7 @@ function ManageEvent() {
               <Form.Control
                 type="file"
                 onChange={(e) => HandleImgChange(e, event.event_id)}
+                style={{ margin: "0 0 10px 0" }}
               />
               <Image width="20%" height="20%" src={event.image} thumbnail />
             </div>

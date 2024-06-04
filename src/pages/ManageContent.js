@@ -217,6 +217,7 @@ function ManageContent() {
                   width="50%"
                   height="50%"
                   src={contents.image}
+                  style={{ margin: "16px 0 16px 0" }}
                   thumbnail
                 />
               </Col>
@@ -300,7 +301,7 @@ function ManageContent() {
               />
               <Image
                 src={ourStory.bgimage}
-                style={{ width: "50%", height: "50%" }}
+                style={{ width: "50%", height: "50%", margin: "16px 0 0 0" }}
                 thumbnail
               />
             </div>
@@ -317,7 +318,7 @@ function ManageContent() {
               />
               <Image
                 src={ourStory.slideimage}
-                style={{ width: "60%", height: "60%" }}
+                style={{ width: "50%", height: "50%", margin: "16px 0 0 0" }}
                 thumbnail
               />
             </div>
@@ -331,7 +332,7 @@ function ManageContent() {
           )}
           <Button
             onClick={handleSaveChangesOurStory}
-            style={{ backgroundColor: "#c59d5a", marginTop: "16px" }}
+            style={{ backgroundColor: "#c59d5a" }}
             id="button-addon2"
           >
             Update
