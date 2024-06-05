@@ -93,6 +93,7 @@ function Beverages() {
               <motion.button
                 whileTap={{ scale: 0.9 }}
                 whileHover={{ scale: 1.1 }}
+                whileFocus={{ backgroundColor: "brown" }}
                 style={{
                   margin: "0 8px 0 0",
                   borderRadius: "8px",
