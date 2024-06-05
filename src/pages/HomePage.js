@@ -385,6 +385,19 @@ function HomePage() {
 
           <div className="languages d-none d-md-flex align-items-center">
             <ul>
+              <Link to="/login">
+                <motion.button
+                  whileTap={{ scale: 0.8 }}
+                  whileHover={{ scale: 1.1 }}
+                  style={{ padding: "0 4px" }}
+                  whileFocus={{ backgroundColor: "brown" }}
+                >
+                  Management for Admin
+                </motion.button>
+              </Link>
+            </ul>
+
+            <ul style={{ marginLeft: "24px" }}>
               <li>En</li>
               <li>
                 <a href="#">VN</a>
