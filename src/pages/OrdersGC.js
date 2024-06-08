@@ -7,6 +7,7 @@ import crystalTexture2 from "../assets/images/crystalTexture2.jpg";
 import ava from "../assets/images/Barava.jpg";
 import { useNavigate } from "react-router-dom";
 import SwipLogo from "../assets/images/SwipLogo.png";
+import { useSelector } from "react-redux";
 
 const OrderReceipt = () => {
   const navigate = useNavigate();
@@ -25,19 +26,22 @@ const OrderReceipt = () => {
   const [currentIndex, setCurrentIndex] = useState();
   const [CurentUser, setCurrentUser] = useState({});
   const [More, setMore] = useState(false);
-  const userId = parseInt(localStorage.getItem("user_token"));
+  const user = useSelector(
+    (state) => state.auth.login.currentUser?.matched_user
+  );
+
   const totalAmount = giftcards.reduce(
     (acc, card) => acc + Number(card.user_amount),
     0
   );
 
   useEffect(() => {
-    if (!userId) {
+    if (!user.user_id) {
       return;
     }
     const fetchApi = async () => {
       try {
-        const res = await request.get(`/${userId}`);
+        const res = await request.get(`/${user.user_id}`);
         setCurrentUser(res.data);
         console.log(res.data); // Log dữ liệu từ API
       } catch (error) {
@@ -46,11 +50,11 @@ const OrderReceipt = () => {
     };
 
     fetchApi();
-  }, [userId]);
+  }, [user.user_id]);
   useEffect(() => {
     const fetchApi = async () => {
       try {
-        const res = await request.get(`/giftCard//${userId}`);
+        const res = await request.get(`/giftCard/${user.user_id}`);
         setGiftCard(res.data);
         console.log(res.data);
       } catch (error) {
@@ -94,6 +98,9 @@ const OrderReceipt = () => {
                 <div className="d-flex justify-content-between align-items-center mb-4">
                   <p className="lead fw-normal mb-0" style={{ color: "brown" }}>
                     All Your Orders:
+                    {giftcards.length === 0 && (
+                      <h3 style={{ alignItems: "center" }}>No order yet!</h3>
+                    )}
                   </p>
                 </div>
                 {giftcards.map((b, index) => (

@@ -10,22 +10,34 @@ import {
 import { useNavigate } from "react-router-dom";
 
 import { NavLink, Outlet } from "react-router-dom";
-import beverage3 from "../assets/images/loginAdmin.jpg";
 import { useEffect, useState } from "react";
 import { request } from "../utils/request";
-import { useParams } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
+import {
+  logoutFailed,
+  logoutStart,
+  logoutSuccess,
+} from "../redux/adminAuthSlice";
 function AdminPage() {
-  const { id } = useParams();
+  const currentAd = useSelector((state) => state.auth.login.currentUser);
+  const dispatch = useDispatch();
   const [ad, setAd] = useState();
   const handleLogout = (e) => {
-    localStorage.removeItem("access_token");
-    return navigate("/login");
+    try {
+      localStorage.removeItem("tcon");
+      dispatch(logoutStart());
+      dispatch(logoutSuccess());
+      return navigate("/login");
+    } catch (error) {
+      dispatch(logoutFailed());
+    }
   };
   const navigate = useNavigate();
   useEffect(() => {
     const fetchApi = async () => {
       try {
-        const res = await request.get(`/admin/auth/${id}`);
+        const res = await request.get(`/admin/auth/${currentAd.id}`);
         console.log(res.data);
         setAd(res.data);
       } catch (error) {
@@ -77,7 +89,7 @@ function AdminPage() {
                 margin: "0 16px 0 0",
               }}
             >
-              Hello👋, {ad?.name}
+              Hello👋, {currentAd?.name}
             </div>
             <h4
               style={{

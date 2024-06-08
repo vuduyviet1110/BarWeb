@@ -10,9 +10,12 @@ import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { Button } from "react-bootstrap";
 import { request } from "../utils/request";
+import { useSelector } from "react-redux";
 function GiftCard() {
-  const userId = parseInt(localStorage.getItem("user_token"));
-  const [CurrentUser, setCurrentUser] = useState({});
+  const user = useSelector(
+    (state) => state.auth.login.currentUser?.matched_user
+  );
+  // const [CurrentUser, setCurrentUser] = useState({});
   const [validEmail, setValidEmail] = useState(true);
   const [validePhone, setValidPhone] = useState(true);
   const navigate = useNavigate();
@@ -43,14 +46,13 @@ function GiftCard() {
   };
 
   useEffect(() => {
-    if (!userId) {
+    if (!user?.user_id) {
       return;
     }
 
     const fetchApi = async () => {
       try {
-        const res = await request.get(`/${userId}`);
-        setCurrentUser(res.data);
+        const res = await request.get(`/${user?.user_id}`);
         console.log(res.data);
       } catch (error) {
         console.error(error);
@@ -58,13 +60,13 @@ function GiftCard() {
     };
 
     fetchApi();
-  }, [userId]);
+  }, [user?.user_id]);
   const MY_BANK = {
     BANK_ID: "vietcombank",
     ACCOUNT_NO: "1015755738",
   };
   const [orderInfo, setOrderInfo] = useState({
-    user_id: userId,
+    user_id: user.user_id,
     receiver_name: "",
     user_amount: 0,
     receiver_mail: "",
@@ -175,7 +177,7 @@ function GiftCard() {
                               className="gift-input"
                               type="text"
                               required
-                              value={CurrentUser.user_name}
+                              value={user.user_name}
                             />
                           </div>
                         </div>
@@ -507,8 +509,7 @@ function GiftCard() {
                       >
                         <h3> Your order details</h3>
                         <span>
-                          From: {CurrentUser.user_name} - To:{" "}
-                          {orderInfo.receiver_name}
+                          From: {user.user_name} - To: {orderInfo.receiver_name}
                         </span>
                         <div>
                           user_amount (1) :
@@ -532,7 +533,7 @@ function GiftCard() {
                           color: "white",
                           width: "40%",
                         }}
-                        onClick={(e) => navigate("orders")}
+                        onClick={() => navigate("orders")}
                       >
                         Review My orders
                       </Button>

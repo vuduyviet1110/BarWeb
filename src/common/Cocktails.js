@@ -5,11 +5,12 @@ import InputGroup from "react-bootstrap/InputGroup";
 import Row from "react-bootstrap/Row";
 import { Col } from "react-bootstrap";
 import { Image } from "react-bootstrap";
-import { useParams } from "react-router-dom";
 import { request } from "../utils/request";
+import { useSelector } from "react-redux";
 
 function Cocktails({ beverages }) {
-  const { id } = useParams();
+  const currentAd = useSelector((state) => state.auth.login.currentUser);
+  console.log(currentAd);
   const [cocktails, setCocktails] = useState(
     beverages.filter((cocktail) => cocktail.type === "Cocktails")
   );
@@ -26,7 +27,7 @@ function Cocktails({ beverages }) {
     formData.append("description", currentBev.description);
     formData.append("price", currentBev.price);
     formData.append("image", currentBev.image); // Thêm tệp tin vào FormData
-    formData.append("admin_id", id); // Thêm tệp tin vào FormData
+    formData.append("admin_id", currentAd.id); // Thêm tệp tin vào FormData
     formData.append("type", currentBev.type); // Thêm tệp tin vào FormData
 
     const isAnyFieldEmpty = Object.values(currentBev).some(

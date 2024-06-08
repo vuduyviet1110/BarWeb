@@ -1,0 +1,8 @@
+@media (max-width: 768px) {
+    .tab-text {
+      display: none;
+    }
+    .tab-icon {
+      display: inline;
+    }
+  }

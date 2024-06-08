@@ -1,8 +1,15 @@
 import { useEffect, useState, useRef } from "react";
-import { CurrencyExchange } from "react-bootstrap-icons";
+import { CupStraw, CurrencyExchange } from "react-bootstrap-icons";
 import { request } from "../utils/request";
 import { motion, useAnimation } from "framer-motion";
-
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import "../assets/css/Beverage.css";
+import {
+  faBeerMugEmpty,
+  faBottleWater,
+  faMartiniGlassCitrus,
+  faWineBottle,
+} from "@fortawesome/free-solid-svg-icons";
 function Beverages() {
   const [beverages, setBeverages] = useState([]);
   const [filteredBeverages, setFilteredBeverages] = useState([]);
@@ -10,6 +17,22 @@ function Beverages() {
   const [collection, setCollection] = useState([]);
   const controls = useAnimation();
   const isMounted = useRef(false);
+
+  const bev_responsive = [
+    {
+      name: "Cocktails",
+      icon: <FontAwesomeIcon icon={faMartiniGlassCitrus} />,
+    },
+    {
+      name: "Beers",
+      icon: <FontAwesomeIcon icon={faBeerMugEmpty} />,
+    },
+    { name: "Soda", icon: <FontAwesomeIcon icon={faWineBottle} /> },
+    {
+      name: "Minerals",
+      icon: <FontAwesomeIcon icon={faBottleWater} />,
+    },
+  ];
 
   const ExchangeCurrenciesToVND = (amount) => {
     const vnd = amount * 24768;
@@ -21,14 +44,13 @@ function Beverages() {
       controls.start("show");
     }
   }, [filteredBeverages, controls]);
-
   useEffect(() => {
     const fetchApi = async () => {
       try {
         const res = await request.get("/admin/beverage");
         setBeverages(res.data);
         setFilteredBeverages(res.data);
-        setCollection([...new Set(res.data.map((bev) => bev.type))]);
+        setCollection(bev_responsive);
         if (!isMounted.current) {
           isMounted.current = true;
           controls.start("show");
@@ -101,7 +123,7 @@ function Beverages() {
                 }}
                 onClick={() => gallery_filter("all")}
               >
-                All
+                <span>All</span>
               </motion.button>
 
               {collection.map((item) => (
@@ -109,7 +131,7 @@ function Beverages() {
                   style={{
                     margin: "0 8px 0 8px",
                   }}
-                  key={item}
+                  key={item.name}
                 >
                   <motion.button
                     whileTap={{ scale: 0.9 }}
@@ -118,9 +140,17 @@ function Beverages() {
                       padding: "6px 14px 6px 14px",
                       borderRadius: "8px",
                     }}
-                    onClick={() => gallery_filter(item)}
+                    onClick={() => gallery_filter(item.name)}
                   >
-                    {item}
+                    <span className="tab-icon">{item.icon}</span>
+                    <span
+                      style={{
+                        margin: "0 4px 0 4px",
+                      }}
+                      className="tab-text"
+                    >
+                      {item.name}
+                    </span>
                   </motion.button>
                 </div>
               ))}
@@ -153,7 +183,7 @@ function Beverages() {
           initial="hidden"
           animate={controls}
           variants={gridContainterVariants}
-          style={{ display: "grid", gridTemplateColumns: "repeat(2,1fr)" }}
+          className="grid-container"
         >
           {filteredBeverages.map((b) => (
             <motion.div

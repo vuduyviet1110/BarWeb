@@ -8,7 +8,16 @@ import Row from "react-bootstrap/Row";
 import DatePicker from "react-datepicker";
 import { request } from "../utils/request";
 import CustomInput from "../common/CustomInput";
+import { useNavigate } from "react-router-dom";
+import {
+  RegisterFailed,
+  RegisterStart,
+  RegisterSuccess,
+} from "../redux/authSlice";
+import { useDispatch } from "react-redux";
 function SignUpPage() {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
   const [validated, setValidated] = useState(false);
   const [rePwd, setrePwd] = useState("");
   const [formData, setFormData] = useState({
@@ -95,17 +104,22 @@ function SignUpPage() {
       setValidated(true);
       return;
     } else {
+      dispatch(RegisterStart());
       try {
         const res = await request.post("/sign-up", formData);
-
         if (res.data === "Email exists") {
           setSignInSuccess(false);
           setExistedEmail(true);
         } else {
+          dispatch(RegisterSuccess());
           setSignInSuccess(true);
+          setTimeout(() => {
+            setSignInSuccess(false);
+          }, 3000);
           setExistedEmail(false);
         }
       } catch (error) {
+        dispatch(RegisterFailed());
         console.error("Error:", error);
       }
     }

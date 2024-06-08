@@ -6,16 +6,16 @@ import Row from "react-bootstrap/Row";
 import { Col } from "react-bootstrap";
 import { request } from "../utils/request";
 import { Image } from "react-bootstrap";
-import { useParams } from "react-router-dom";
+import { useSelector } from "react-redux";
 
 function Beers({ beverages }) {
-  const { id } = useParams();
   const [sucess, setSucess] = useState();
   const [isEmpty, setisEmpty] = useState();
   const [currentBeerIndex, setcurrentBeerIndex] = useState();
   const [beers, setBeers] = useState(
     beverages.filter((cocktail) => cocktail.type === "Beers")
   );
+  const currentAd = useSelector((state) => state.auth.login.currentUser);
 
   const handleUpdate = async (Bev_id) => {
     const currentBev = beers.find((b) => b.bev_id === Bev_id);
@@ -26,7 +26,7 @@ function Beers({ beverages }) {
     formData.append("description", currentBev.description);
     formData.append("price", currentBev.price);
     formData.append("image", currentBev.image); // Thêm tệp tin vào FormData
-    formData.append("admin_id", id); // Thêm tệp tin vào FormData
+    formData.append("admin_id", currentAd.id); // Thêm tệp tin vào FormData
     formData.append("type", currentBev.type); // Thêm tệp tin vào FormData
     const isAnyFieldEmpty = Object.values(currentBev).some(
       (value) => value === "" || value === 0 || value === "undefined"

@@ -24,8 +24,20 @@ import {
 import ChangePwd from "../common/ChangePwd";
 import BookingTable from "../common/booking";
 import Beverages from "./Beverages";
+import { useSelector } from "react-redux";
+import { createAxios } from "../utils/AxiosInstance";
+import { useDispatch } from "react-redux";
+import { logoutFailed, logoutStart, logoutSuccess } from "../redux/authSlice";
+import FallBackPage from "../common/FallBackPage";
 function HomePage() {
-  const userId = parseInt(localStorage.getItem("user_token"));
+  const dispatch = useDispatch();
+  const data = useSelector((state) => state.auth.login.currentUser);
+  const user = useSelector(
+    (state) => state.auth.login.currentUser?.matched_user
+  );
+  const token = useSelector(
+    (state) => state.auth.login.currentUser?.accessToken
+  );
   const [titleContent, setTitleContent] = useState();
   const [ourStoryContent, setourStoryContent] = useState();
   const [gallery, setGallery] = useState();
@@ -33,6 +45,7 @@ function HomePage() {
   const containerRef = useRef(null);
   const isInView = useInView(containerRef, { once: true });
   const mainControls = useAnimation();
+  let axiosJWT = createAxios(data, dispatch, logoutSuccess);
   const { scrollYProgress } = useScroll({
     target: containerRef,
     offset: ["start end", "end end"],
@@ -50,29 +63,26 @@ function HomePage() {
     }
   });
 
-  const [CurentUser, setCurrentUser] = useState({});
-  const handleLogout = () => {
-    setCurrentUser({
-      user_DOB: "",
-      user_gmail: "",
-      user_id: 0,
-      user_name: "",
-      user_password: "",
-      user_phone: "",
-    });
-    localStorage.removeItem("user_token");
-    console.log("log out");
-    window.location.reload();
+  const handleLogout = async () => {
+    dispatch(logoutStart());
+    try {
+      await request.post("/auth/log-out");
+      dispatch(logoutSuccess());
+      window.location.reload();
+    } catch (error) {
+      dispatch(logoutFailed());
+    }
   };
 
+  //gọi refresh token để tạo access_token và refresh_token mới
+
   useEffect(() => {
-    if (!userId) {
+    if (!user?.user_id || !user) {
       return;
     }
     const fetchApi = async () => {
       try {
-        const res = await request.get(`/${userId}`);
-        setCurrentUser(res.data);
+        const res = await request.get(`${user.user_id}`);
         console.log(res.data); // Log dữ liệu từ API
       } catch (error) {
         console.error(error);
@@ -80,7 +90,7 @@ function HomePage() {
     };
 
     fetchApi();
-  }, [userId]);
+  }, [user?.user_id]);
 
   useEffect(() => {
     /**
@@ -410,7 +420,7 @@ function HomePage() {
       <header id="header" className="fixed-top d-flex align-items-cente">
         <div className="container-fluid container-xl d-flex align-items-center justify-content-lg-between">
           <h1 className="logo me-auto me-lg-0">
-            <a href="index.html" style={{ fontWeight: "800" }}>
+            <a href="/" style={{ fontWeight: "800" }}>
               SWI:P
             </a>
           </h1>
@@ -451,15 +461,15 @@ function HomePage() {
                 </a>
               </li>
               <li>
-                {CurentUser.user_id > 0 ? (
-                  <Link to={{ pathname: "/gift-card", state: { CurentUser } }}>
+                {user?.user_id > 0 ? (
+                  <Link to={{ pathname: "/gift-card", state: { user } }}>
                     Gift Card
                   </Link>
                 ) : (
                   <Link to={{ pathname: "/sign-in" }}>Gift Card</Link>
                 )}
               </li>
-              {CurentUser.user_id > 1 && (
+              {user?.user_id > 1 && (
                 <li>
                   <Link
                     to="/gift-card/orders"
@@ -485,7 +495,7 @@ function HomePage() {
               )}
             </ul>
           </nav>
-          {CurentUser.user_id > 0 ? (
+          {user?.user_id > 0 ? (
             <div
               style={{
                 display: "flex",
@@ -493,10 +503,8 @@ function HomePage() {
                 justifyContent: "center",
               }}
             >
-              <span style={{ color: "#fff" }}>
-                Welcome, {CurentUser.user_name}
-              </span>
-              <ChangePwd CurentUser={CurentUser} handleLogout={handleLogout} />
+              <span style={{ color: "#fff" }}>Welcome, {user?.user_name}</span>
+              <ChangePwd CurentUser={user} handleLogout={handleLogout} />
             </div>
           ) : (
             <div>
@@ -509,191 +517,203 @@ function HomePage() {
         </div>
       </header>
 
-      <section
-        id="hero"
-        style={{
-          background: `url(${titleContent?.image}) top/99%`,
-        }}
-        className="d-flex align-items-center"
-      >
-        <div
-          className="container position-relative text-center text-lg-start"
-          data-aos="zoom-in"
-          data-aos-delay="100"
-        >
-          <div className="row">
-            <div className="col-lg-8">
-              <h1>
-                Welcome to
-                <span> {titleContent?.title || "Swip"}</span>
-              </h1>
-
-              <h2 style={{ maxWidth: "60%", margin: "16px 0 0 0 " }}>
-                {titleContent?.content}
-              </h2>
-
-              <div className="btns">
-                <a
-                  href="#book-a-table"
-                  className="btn-book animated fadeInUp scrollto"
-                >
-                  Book a Table now !
-                </a>
-              </div>
-            </div>
-            <div
-              className="col-lg-4 d-flex align-items-center justify-content-center position-relative"
-              data-aos="zoom-in"
-              data-aos-delay="200"
-            ></div>
-          </div>
-        </div>
-      </section>
-
-      <main id="main">
-        <section
-          id="about"
-          style={{
-            background: `url(${ourStoryContent?.bgimage}) center/99%`,
-          }}
-          className="about"
-        >
-          <div className="container" data-aos="fade-up">
-            <div className="row">
-              <div
-                className="col-lg-6 order-1 order-lg-2"
-                data-aos="zoom-in"
-                data-aos-delay="100"
-              >
-                <div className="about-img">
-                  <img src={ourStoryContent?.slideimage} alt="" />
-                </div>
-              </div>
-              <div
-                ref={containerRef}
-                className="col-lg-6 pt-4 pt-lg-0 order-2 order-lg-1 content"
-                data-aos-delay="100"
-                style={{
-                  backgroundColor: "rgba(0,0,0, 0.3)",
-                  fontSize: "18px",
-                  borderRadius: "8px",
-                  color: "#fff",
-                }}
-              >
-                <motion.h2
-                  animate={mainControls}
-                  initial="hidden"
-                  variants={{
-                    hidden: { opacity: 0, y: 75 },
-                    visible: { opacity: 1, y: 0 },
-                  }}
-                  transition={{ delay: 0.3 }}
-                >
-                  {ourStoryContent?.title}
-                </motion.h2>
-                <motion.p
-                  style={{ translateX: paragraphOneValue }}
-                  className="fst-italic"
-                >
-                  {ourStoryContent?.content}
-                </motion.p>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <Beverages />
-
-        <section id="events" className="events">
-          <div className="container" data-aos="fade-up">
-            <div className="section-title">
-              <h2>Events</h2>
-              <p>Organize Your Events in our Bar</p>
-            </div>
-
-            <Carousel data-bs-theme="light">
-              {events?.map((event) => (
-                <Carousel.Item>
-                  <img
-                    className="d-block w-100"
-                    src={event.image}
-                    style={{
-                      borderRadius: "14px",
-                      objectFit: "cover",
-                    }}
-                    alt="First slide"
-                  />
-                  <Carousel.Caption
-                    style={{
-                      boxShadow: "2px 2px 5px 2px #333",
-                      borderRadius: "8px",
-                      backgroundColor: "rgba(0, 0, 0, 0.6)",
-                    }}
-                  >
-                    <div>
-                      <div className="price">
-                        <h3>{event.title}</h3>
-                      </div>
-                      <p className="fst-italic">{event.description}</p>
-                    </div>
-                  </Carousel.Caption>
-                </Carousel.Item>
-              ))}
-            </Carousel>
-          </div>
-        </section>
-
-        <BookingTable CurentUser={CurentUser} />
-
-        <section id="gallery" className="gallery">
-          <div className="container" data-aos="fade-up">
-            <div className="section-title">
-              <h2>Gallery</h2>
-              <p>Some photos from Our Bar</p>
-            </div>
-          </div>
-
-          <div
-            className="container-fluid"
-            data-aos="fade-up"
-            data-aos-delay="100"
+      {titleContent || ourStoryContent || gallery || events ? (
+        <div>
+          <section
+            id="hero"
+            style={{
+              background: `url(${titleContent?.image}) top/99% `,
+            }}
+            className="d-flex align-items-center custom-background"
           >
-            <div className="row g-0">
-              {gallery?.map((img) => (
-                <div key={img.img_id} className="col-lg-3 col-md-4">
-                  <div className="gallery-item">
-                    <div className="gallery-lightbox" data-gall="gallery-item">
-                      <img
-                        src={img.img}
-                        alt={img.img_alt || "Image"}
-                        className="img-fluid"
-                      />
-                    </div>
+            <div
+              className="container position-relative text-center text-lg-start"
+              data-aos="zoom-in"
+              data-aos-delay="100"
+            >
+              <div className="row">
+                <div className="col-lg-8">
+                  <h1 className="d-none d-lg-block">
+                    Welcome to
+                    <span> {titleContent?.title || "Swip"}</span>
+                  </h1>
+
+                  <h2
+                    className="d-none d-lg-block"
+                    style={{ maxWidth: "60%", margin: "16px 0 0 0 " }}
+                  >
+                    {titleContent?.content}
+                  </h2>
+
+                  <div className="btns">
+                    <a
+                      href="#book-a-table"
+                      className="btn-book animated fadeInUp scrollto"
+                    >
+                      Book a Table now !
+                    </a>
                   </div>
                 </div>
-              ))}
+                <div
+                  className="col-lg-4 d-flex align-items-center justify-content-center position-relative"
+                  data-aos="zoom-in"
+                  data-aos-delay="200"
+                ></div>
+              </div>
             </div>
-          </div>
-        </section>
+          </section>
 
-        <section id="contact" className="contact">
-          <div className="container" data-aos="fade-up">
-            <div className="section-title">
-              <h2>Contact</h2>
-              <p>Contact Us</p>
-            </div>
-          </div>
+          <main id="main">
+            <section
+              id="about"
+              style={{
+                background: `url(${ourStoryContent?.bgimage}) center/99%`,
+              }}
+              className="about"
+            >
+              <div className="container" data-aos="fade-up">
+                <div className="row">
+                  <div
+                    className="col-lg-6 order-1 order-lg-2"
+                    data-aos="zoom-in"
+                    data-aos-delay="100"
+                  >
+                    <div className="about-img">
+                      <img src={ourStoryContent?.slideimage} alt="" />
+                    </div>
+                  </div>
+                  <div
+                    ref={containerRef}
+                    className="col-lg-6 pt-4 pt-lg-0 order-2 order-lg-1 content"
+                    data-aos-delay="100"
+                    style={{
+                      backgroundColor: "rgba(0,0,0, 0.3)",
+                      fontSize: "18px",
+                      borderRadius: "8px",
+                      color: "#fff",
+                    }}
+                  >
+                    <motion.h2
+                      animate="visible"
+                      initial="hidden"
+                      variants={{
+                        hidden: { opacity: 0, y: 75 },
+                        visible: { opacity: 1, y: 0 },
+                      }}
+                      transition={{ duration: 0.5, delay: 0.3 }}
+                    >
+                      {ourStoryContent?.title}
+                    </motion.h2>
+                    <motion.p
+                      // style={{ translateX: paragraphOneValue }}
+                      className="fst-italic"
+                    >
+                      {ourStoryContent?.content}
+                    </motion.p>
+                  </div>
+                </div>
+              </div>
+            </section>
 
-          <div data-aos="fade-up">
-            <iframe
-              style={{ border: "0 ", width: "100%", height: "350px" }}
-              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3724.0029641234432!2d105.848146!3d21.032567399999998!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3135ab5af3fc6599%3A0x71b6c0b7fd60df54!2sSWI%3AP%20Speakeasy%20bar!5e0!3m2!1sen!2s!4v1710955715155!5m2!1sen!2s"
-              frameborder="0"
-              allowFullScreen
-            ></iframe>
-          </div>
-        </section>
-      </main>
+            <Beverages />
+
+            <section id="events" className="events">
+              <div className="container" data-aos="fade-up">
+                <div className="section-title">
+                  <h2>Events</h2>
+                  <p>Organize Your Events in our Bar</p>
+                </div>
+
+                <Carousel data-bs-theme="light">
+                  {events?.map((event) => (
+                    <Carousel.Item>
+                      <img
+                        className="d-block w-100"
+                        src={event.image}
+                        style={{
+                          borderRadius: "14px",
+                          objectFit: "cover",
+                        }}
+                        alt="First slide"
+                      />
+                      <Carousel.Caption
+                        style={{
+                          boxShadow: "2px 2px 5px 2px #333",
+                          borderRadius: "8px",
+                          backgroundColor: "rgba(0, 0, 0, 0.6)",
+                        }}
+                      >
+                        <div>
+                          <div className="price">
+                            <h3>{event.title}</h3>
+                          </div>
+                          <p className="fst-italic">{event.description}</p>
+                        </div>
+                      </Carousel.Caption>
+                    </Carousel.Item>
+                  ))}
+                </Carousel>
+              </div>
+            </section>
+
+            <BookingTable />
+
+            <section id="gallery" className="gallery">
+              <div className="container" data-aos="fade-up">
+                <div className="section-title">
+                  <h2>Gallery</h2>
+                  <p>Some photos from Our Bar</p>
+                </div>
+              </div>
+
+              <div
+                className="container-fluid"
+                data-aos="fade-up"
+                data-aos-delay="100"
+              >
+                <div className="row g-0">
+                  {gallery?.map((img) => (
+                    <div key={img.img_id} className="col-lg-3 col-md-4">
+                      <div className="gallery-item">
+                        <div
+                          className="gallery-lightbox"
+                          data-gall="gallery-item"
+                        >
+                          <img
+                            src={img.img}
+                            alt={img.img_alt || "Image"}
+                            className="img-fluid"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </section>
+
+            <section id="contact" className="contact">
+              <div className="container" data-aos="fade-up">
+                <div className="section-title">
+                  <h2>Contact</h2>
+                  <p>Contact Us</p>
+                </div>
+              </div>
+
+              <div data-aos="fade-up">
+                <iframe
+                  style={{ border: "0 ", width: "100%", height: "350px" }}
+                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3724.0029641234432!2d105.848146!3d21.032567399999998!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3135ab5af3fc6599%3A0x71b6c0b7fd60df54!2sSWI%3AP%20Speakeasy%20bar!5e0!3m2!1sen!2s!4v1710955715155!5m2!1sen!2s"
+                  frameborder="0"
+                  allowFullScreen
+                ></iframe>
+              </div>
+            </section>
+          </main>
+        </div>
+      ) : (
+        <FallBackPage />
+      )}
 
       <footer id="footer">
         <div className="footer-top">

@@ -49,7 +49,6 @@ function ManageUser() {
     const fetchApi = async () => {
       try {
         const res = await request.get("/admin/user");
-        console.log(res.data);
         setUsers(res.data);
       } catch (error) {
         console.error(error);
@@ -57,7 +56,6 @@ function ManageUser() {
     };
     fetchApi();
   }, []);
-  console.log(users);
   return (
     <Container
       style={{

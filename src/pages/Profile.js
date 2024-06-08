@@ -5,9 +5,12 @@ import { Facebook, Instagram, TwitterX } from "react-bootstrap-icons";
 import { request } from "../utils/request";
 import { Form } from "react-bootstrap";
 import CustomInput from "../common/CustomInput";
+import { useSelector } from "react-redux";
 
 const UserProfile = () => {
-  const userId = parseInt(localStorage.getItem("user_token"));
+  const user = useSelector(
+    (state) => state.auth.login.currentUser?.matched_user
+  );
   const [CurrentUser, setCurrentUser] = useState({
     user_DOB: "",
     user_gmail: "",
@@ -71,13 +74,13 @@ const UserProfile = () => {
     }));
   };
   useEffect(() => {
-    if (!userId) {
+    if (!user.user_id) {
       return;
     }
 
     const fetchApi = async () => {
       try {
-        const res = await request.get(`/${userId}`);
+        const res = await request.get(`/${user.user_id}`);
         setCurrentUser(res.data);
         console.log(res.data);
       } catch (error) {
@@ -86,7 +89,7 @@ const UserProfile = () => {
     };
 
     fetchApi();
-  }, [userId]);
+  }, [user.user_id]);
 
   const handleUpdate = async (e) => {
     e.preventDefault();

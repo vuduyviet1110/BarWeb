@@ -9,7 +9,7 @@ import { Col } from "react-bootstrap";
 import SodaNMinerals from "../common/SodaNMinerals";
 import Beers from "../common/Beer";
 import { request } from "../utils/request";
-import { useParams } from "react-router-dom";
+import { useSelector } from "react-redux";
 function ManageContent() {
   const [type, setType] = useState("HomePage");
   const [isEmpty, setisEmpty] = useState();
@@ -17,14 +17,14 @@ function ManageContent() {
   const [beverages, setbeverages] = useState();
   const [contents, setContents] = useState({});
   const [ourStory, setOurstory] = useState({ title: "", content: "" });
-  const { id } = useParams();
+  const currentAd = useSelector((state) => state.auth.login.currentUser);
   const handleSaveChangesTitle = async () => {
     // Handle saving the title here
     try {
       const formData = new FormData();
       formData.append("title", contents.title);
       formData.append("content", contents.content);
-      formData.append("ad_id", id);
+      formData.append("ad_id", currentAd.id);
       formData.append("image", contents.image);
       const isAnyFieldEmpty = Object.values(contents).some(
         (value) => value === "" || value === 0 || value === "undefined"
@@ -63,7 +63,7 @@ function ManageContent() {
       formData.append("title", ourStory.title);
       formData.append("storyBgImage", ourStory.bgimage); // Thêm tệp tin vào FormData
       formData.append("storySlideImage", ourStory.slideimage);
-      formData.append("ad_id", id);
+      formData.append("ad_id", currentAd.id);
       const isAnyFieldEmpty = Object.values(ourStory).some(
         (value) => value === "" || value === 0 || value === "undefined"
       );

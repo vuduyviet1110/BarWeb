@@ -5,10 +5,11 @@ import { useEffect, useState } from "react";
 import Col from "react-bootstrap/Col";
 import Row from "react-bootstrap/Row";
 import { useNavigate } from "react-router-dom";
+import Cookies from "js-cookie";
 import { useDispatch } from "react-redux";
-import { login } from "../redux/userSlice";
 import { request } from "../utils/request";
-
+import { loginFailed, loginStart, loginSuccess } from "../redux/authSlice";
+import axios from "axios";
 function SignInPage() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -28,35 +29,6 @@ function SignInPage() {
     setCurrentUser((prev) => ({ ...prev, user_password: e.target.value }));
   };
 
-  useEffect(() => {
-    if (CurrentUser.user_id !== 0) {
-      setIsAuth(true);
-      localStorage.setItem("user_token", CurrentUser.user_id);
-      dispatch(login(CurrentUser));
-      navigate(`/`);
-    }
-  }, [CurrentUser]);
-  function setCookie(cname, cvalue, exdays) {
-    const d = new Date();
-    d.setTime(d.getTime() + exdays * 24 * 60 * 60 * 1000);
-    let expires = "expires=" + d.toUTCString();
-    document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
-  }
-  function getCookie(cname) {
-    let name = cname + "=";
-    let decodedCookie = decodeURIComponent(document.cookie);
-    let ca = decodedCookie.split(";");
-    for (let i = 0; i < ca.length; i++) {
-      let c = ca[i];
-      while (c.charAt(0) === " ") {
-        c = c.substring(1);
-      }
-      if (c.indexOf(name) === 0) {
-        return c.substring(name.length, c.length);
-      }
-    }
-    return "";
-  }
   const handleSubmit = async (event) => {
     event.preventDefault();
     event.stopPropagation();
@@ -65,14 +37,27 @@ function SignInPage() {
     if (form.checkValidity() === false) {
       setValidated(true);
     } else {
-      const res = await request.post("/sign-in", CurrentUser);
-      if (res.data === "Incorrect Username and/or Password!") {
-        setIsAuth(false);
-      } else {
-        const id = res.data.data.user_id;
-        console.log(res.data.data.user_id);
-        setCookie("token", res.data.token, 1);
-        setCurrentUser((prev) => ({ ...prev, user_id: id }));
+      dispatch(loginStart());
+      try {
+        const res = await axios.post(
+          "http://localhost:8000/auth/sign-in",
+          CurrentUser
+        );
+        if (
+          res.data === "Incorrect Username and/or Password!" ||
+          res.data === "wrong pwd"
+        ) {
+          setIsAuth(false);
+          setTimeout(() => {
+            setIsAuth(true);
+          }, 3000);
+          console.log(res.data);
+        } else {
+          dispatch(loginSuccess(res.data));
+          navigate("/");
+        }
+      } catch (error) {
+        dispatch(loginFailed());
       }
     }
   };

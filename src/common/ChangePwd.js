@@ -7,13 +7,16 @@ import { request } from "../utils/request";
 
 function ChangePwd({ CurentUser, handleLogout }) {
   const [showModalChangePwd, setModalChangePwd] = useState(false);
-  const [newPassword, setNewPassword] = useState("");
   const [invalidLength, setinvalidLength] = useState(false);
   const [validated, setValidated] = useState(false);
   const [matchPwd, setMatchPwd] = useState("");
   const [passChanged, setPassChanged] = useState(false);
   const [invalidOldPwd, setInvalidOldPwd] = useState(false);
-
+  const [data, setData] = useState({
+    oldpwd: "",
+    newpwd: "",
+    user_id: CurentUser.user_id,
+  });
   const handleClose = () => {
     setModalChangePwd(false);
   };
@@ -28,30 +31,30 @@ function ChangePwd({ CurentUser, handleLogout }) {
 
     if (
       form.checkValidity() === false ||
-      invalidOldPwd ||
-      !matchPwd || // Kiểm tra matchPwd có tồn tại không
-      invalidOldPwd
+      !matchPwd ||
+      data.newpwd.length < 6 // Kiểm tra matchPwd có tồn tại không
     ) {
       console.log("failed");
       setPassChanged(false);
-      setinvalidLength(false);
+      setinvalidLength(true);
     } else {
       try {
-        setValidated(true);
+        setinvalidLength(false);
         setModalChangePwd(true);
-        const updatedUser = JSON.parse(JSON.stringify(CurentUser));
-        // Cập nhật password mới trong bản sao
-        updatedUser.user_password = newPassword;
-        const res = await request.put("change-password", updatedUser);
-        if (res) {
+        console.log(data);
+        const res = await request.put("change-password", data);
+        if (res.data === "success") {
+          setInvalidOldPwd(false);
           setPassChanged(true);
+          setTimeout(() => {
+            setModalChangePwd(false);
+            setPassChanged(false);
+            setValidated(false);
+          }, 4000);
+        } else if (res.data === "wrong old pwd") {
+          setInvalidOldPwd(true);
+        } else {
         }
-        setPassChanged(true);
-        setTimeout(() => {
-          setModalChangePwd(false);
-          setPassChanged(false);
-          setValidated(false);
-        }, 4000);
       } catch (error) {
         console.error("Error saving changes:", error);
         // Xử lý lỗi ở đây nếu cần
@@ -61,12 +64,16 @@ function ChangePwd({ CurentUser, handleLogout }) {
   const handleShow = () => setModalChangePwd(true);
 
   const handleOldPwd = (e) => {
-    // fetch data từ database để xem người dùng có nhập đúng mật khẩu không
-    if (CurentUser.user_password !== e.target.value) {
-      setInvalidOldPwd(true);
-    } else {
-      setInvalidOldPwd(false);
-    }
+    setData((prevInfo) => ({
+      ...prevInfo,
+      oldpwd: e.target.value,
+    }));
+  };
+  const handleNewPwd = (e) => {
+    setData((prevInfo) => ({
+      ...prevInfo,
+      newpwd: e.target.value,
+    }));
   };
 
   return (
@@ -149,16 +156,7 @@ function ChangePwd({ CurentUser, handleLogout }) {
               <Form.Control
                 id="NewPwd"
                 required
-                onBlur={() => {
-                  if (newPassword.length < 6) {
-                    setinvalidLength(true);
-                    console.log("length>6");
-                    console.log(CurentUser.user_password);
-                  } else {
-                    setinvalidLength(false);
-                  }
-                }}
-                onChange={(e) => setNewPassword(e.target.value)}
+                onChange={handleNewPwd}
                 placeholder="New Password"
                 type="password"
               />
@@ -170,7 +168,7 @@ function ChangePwd({ CurentUser, handleLogout }) {
               <Form.Label htmlFor="ReNewPwd">Re-enter Your Password</Form.Label>
               <Form.Control
                 onChange={(e) =>
-                  newPassword === e.target.value
+                  data.newpwd === e.target.value
                     ? setMatchPwd(true)
                     : setMatchPwd(false)
                 }

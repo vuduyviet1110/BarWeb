@@ -5,9 +5,11 @@ import InputGroup from "react-bootstrap/InputGroup";
 import { Col, Image, Row } from "react-bootstrap";
 import { request } from "../utils/request";
 import { useParams } from "react-router-dom";
+import { useSelector } from "react-redux";
 
 function ManageEvent() {
-  const { id } = useParams();
+  const currentAd = useSelector((state) => state.auth.login.currentUser);
+
   const [sucess, setSucess] = useState();
   const [isEmpty, setisEmpty] = useState();
   const [currentEventIndex, setcurrentEventIndex] = useState();
@@ -30,7 +32,7 @@ function ManageEvent() {
     formData.append("title", updatingEvent.title);
     formData.append("event_id", updatingEvent.event_id);
     formData.append("image", updatingEvent.image); // Thêm tệp tin vào FormData
-    formData.append("admin_id", id); // Thêm tệp tin vào FormData
+    formData.append("admin_id", currentAd.id); // Thêm tệp tin vào FormData
     const isAnyFieldEmpty = Object.values(updatingEvent).some(
       (value) => value === "" || value === 0 || value === "undefined"
     );

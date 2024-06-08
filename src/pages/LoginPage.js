@@ -3,12 +3,15 @@ import ava from "../assets/images/Barava.jpg";
 import { useNavigate } from "react-router-dom";
 import { request } from "../utils/request";
 import beverage3 from "../assets/images/loginAdmin.jpg";
+import { loginStart, loginSuccess } from "../redux/adminAuthSlice";
+import { useDispatch } from "react-redux";
 
 export default function LoginPage() {
   const [admin, setAdmin] = useState({ ad_name: "", ad_password: "" });
   const [isValid, setIsValid] = useState(true);
   const [isEmpty, setIsEmpty] = useState(false);
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const handleIdChange = (e) => {
     setAdmin((prevAdmin) => ({
       ...prevAdmin,
@@ -29,11 +32,14 @@ export default function LoginPage() {
     if (!isAnyFieldEmpty) {
       const res = await request.post("/admin/auth", admin);
       console.log(res.data);
+      dispatch(loginStart());
       if (res.data === "Invalid") {
         setIsValid(false);
-      } else if (res.data.admin) {
-        localStorage.setItem("access_token", true);
-        return navigate(`/admin/${res.data.admin.admin_id}/content`);
+      } else if (res.data) {
+        setAdmin(res.data.admin);
+        localStorage.setItem("tcon", true);
+        dispatch(loginSuccess(res.data.admin));
+        return navigate(`/admin/content`);
       }
       setIsEmpty(false);
     } else {

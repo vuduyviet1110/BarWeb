@@ -6,8 +6,12 @@ import ReactDatePicker from "react-datepicker";
 import { useEffect, useState } from "react";
 import { request } from "../utils/request";
 import CustomInput from "../common/CustomInput";
+import { useSelector } from "react-redux";
 
-function BookingTable({ CurentUser }) {
+function BookingTable() {
+  const CurentUser = useSelector(
+    (state) => state.auth.login.currentUser?.matched_user
+  );
   const [bookingInfo, setBookingInfo] = useState({
     user_id: 0,
     table_date: "",
@@ -23,10 +27,10 @@ function BookingTable({ CurentUser }) {
       // Cập nhật bookingInfo với user_id từ CurentUser
       setBookingInfo((prev) => ({
         ...prev,
-        user_id: CurentUser.user_id,
-        user_gmail: CurentUser.user_gmail,
-        user_phone: CurentUser.user_phone,
-        user_name: CurentUser.user_name,
+        user_id: CurentUser?.user_id,
+        user_gmail: CurentUser?.user_gmail,
+        user_phone: CurentUser?.user_phone,
+        user_name: CurentUser?.user_name,
       }));
     } else {
       setBookingInfo((prev) => ({
@@ -34,7 +38,7 @@ function BookingTable({ CurentUser }) {
         user_id: 0,
       }));
     }
-  }, [CurentUser, CurentUser.user_id]); // Sẽ chạy lại khi CurentUser thay đổi
+  }, [CurentUser, CurentUser?.user_id]); // Sẽ chạy lại khi CurentUser thay đổi
 
   const isValidEmail = (email) => {
     // Biểu thức chính quy để kiểm tra email
@@ -92,8 +96,8 @@ function BookingTable({ CurentUser }) {
                 <Form.Control
                   type="text"
                   value={
-                    CurentUser.user_id > 0
-                      ? CurentUser.user_name
+                    CurentUser?.user_id > 0
+                      ? CurentUser?.user_name
                       : bookingInfo.user_name
                   }
                   required
@@ -114,7 +118,7 @@ function BookingTable({ CurentUser }) {
                 <Form.Control
                   type="text"
                   value={
-                    CurentUser && CurentUser.user_id > 0
+                    CurentUser && CurentUser?.user_id > 0
                       ? CurentUser.user_gmail
                       : bookingInfo.user_gmail
                   }
@@ -122,7 +126,7 @@ function BookingTable({ CurentUser }) {
                   id="email"
                   onChange={(e) => {
                     // Nếu user_id là 0 và CurentUser tồn tại
-                    if (CurentUser && CurentUser.user_id === undefined) {
+                    if (CurentUser && CurentUser?.user_id === undefined) {
                       setBookingInfo((prev) => ({
                         ...prev,
                         user_gmail: e.target.value,
@@ -141,8 +145,8 @@ function BookingTable({ CurentUser }) {
               <Form.Group>
                 <Form.Control
                   value={
-                    CurentUser.user_id > 0
-                      ? CurentUser.user_phone
+                    CurentUser?.user_id > 0
+                      ? CurentUser?.user_phone
                       : bookingInfo.user_phone
                   }
                   id="phone"
@@ -151,7 +155,7 @@ function BookingTable({ CurentUser }) {
                   placeholder="Your Phone"
                   onBlur={(e) => validatePhoneField(e)}
                   onChange={(e) => {
-                    if (CurentUser.user_id === undefined) {
+                    if (CurentUser?.user_id === undefined) {
                       setBookingInfo((prev) => ({
                         ...prev,
                         user_phone: e.target.value,

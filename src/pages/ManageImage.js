@@ -4,13 +4,13 @@ import Row from "react-bootstrap/Row";
 import { Col } from "react-bootstrap";
 import { useEffect, useState } from "react";
 import { request } from "../utils/request";
-import { useParams } from "react-router-dom";
+import { useSelector } from "react-redux";
 
 function ManageImage() {
   const [galleryImgs, setGalleryImgs] = useState([{}]);
   const [success, setSuccess] = useState(false);
   const [noUpdate, setNoUpdate] = useState(false);
-  const { id } = useParams();
+  const currentAd = useSelector((state) => state.auth.login.currentUser);
 
   useEffect(() => {
     const fetchApi = async () => {
@@ -37,7 +37,7 @@ function ManageImage() {
     galleryImgs.forEach((img) => {
       formData.append(`images${img.img_id}`, img.img); // Assuming 'images[]' is the field name on the server
     });
-    formData.append("ad_id", id);
+    formData.append("ad_id", currentAd.id);
 
     const res = await request.put("/admin/gallery", formData, {
       headers: {
