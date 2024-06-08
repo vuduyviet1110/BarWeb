@@ -39,10 +39,7 @@ function SignInPage() {
     } else {
       dispatch(loginStart());
       try {
-        const res = await axios.post(
-          "http://localhost:8000/auth/sign-in",
-          CurrentUser
-        );
+        const res = await request.post("/auth/sign-in", CurrentUser);
         if (
           res.data === "Incorrect Username and/or Password!" ||
           res.data === "wrong pwd"

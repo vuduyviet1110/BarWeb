@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 
 function FallBackPage() {
-  const [count, setCount] = useState(15);
+  const [count, setCount] = useState(50);
 
   useEffect(() => {
     if (count <= 0) return;
@@ -40,7 +40,7 @@ function FallBackPage() {
       <h1>Please wait...</h1>
       <h4>
         Due to deploying the back-end on the free version of Renderer, there may
-        be longer load times. hehe🥲
+        be longer load times than expected 🥲
       </h4>
       <div>{count}s</div>
       {count === 0 && (
