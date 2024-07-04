@@ -87,11 +87,14 @@ function ManageBooking() {
       const res = await request.delete("/admin/reservation", {
         data: { reservation_id },
       });
-      setShowDeleteConfirm(false);
-      setShowRemove(true);
-      setTimeout(() => {
-        setShowRemove(false);
-      }, 3000);
+      if (res.data) {
+        setShowDeleteConfirm(false);
+        setShowRemove(true);
+        setTimeout(() => {
+          setShowRemove(false);
+        }, 3000);
+        window.location.reload();
+      }
     } catch (error) {
       console.error(error);
     }
@@ -199,13 +202,14 @@ function ManageBooking() {
         const res = await request.post("/admin/reservation", {
           newReservation,
         });
-        console.log("all reservations:", reservations);
-        console.log("New reservation:", newReservation);
-        setIsFieldCompleted(true);
-        setShowAdd(true);
-        setTimeout(() => {
-          setShowAdd(false);
-        }, 3000);
+        if (res.data) {
+          setIsFieldCompleted(true);
+          setShowAdd(true);
+          setTimeout(() => {
+            setShowAdd(false);
+          }, 3000);
+          window.location.reload();
+        }
       } catch (error) {
         console.error(error);
       }

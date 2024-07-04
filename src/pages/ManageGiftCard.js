@@ -37,8 +37,7 @@ function ManageGiftCard() {
       setTimeout(() => {
         setShowRemove(false);
       }, 3000);
-      if (res.data === `Deleted: ${giftCardId} `) {
-      }
+      window.location.reload();
     } catch (error) {
       console.error(error);
     }
@@ -185,15 +184,16 @@ function ManageGiftCard() {
         });
         if (res.data === "not existed") {
           setExistedAccount(false);
+          return;
         } else {
           setExistedAccount(true);
           setShowAdd(true);
           setTimeout(() => {
             setShowAdd(false);
           }, 3000);
+          window.location.reload();
         }
         setIsFieldCompleted(true);
-        console.log("New giftcard - order:", newGiftCardOrder);
       } catch (error) {
         console.error(error);
       }
