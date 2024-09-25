@@ -89,17 +89,22 @@ function SodaNMinerals({ beverages }) {
   const handleImgChange = (e, BevId) => {
     const file = e.target.files[0];
     if (file) {
-      setDrinks((prevDrinks) => {
-        const newDrink = [...prevDrinks];
-        const DrinkIndex = newDrink.findIndex((c) => c.bev_id === BevId);
-        if (DrinkIndex !== -1) {
-          newDrink[DrinkIndex] = {
-            ...newDrink[DrinkIndex],
-            image: file,
-          };
-        }
-        return newDrink;
-      });
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        setDrinks((prevDrinks) => {
+          const newDrink = [...prevDrinks];
+          const DrinkIndex = newDrink.findIndex((c) => c.bev_id === BevId);
+          if (DrinkIndex !== -1) {
+            newDrink[DrinkIndex] = {
+              ...newDrink[DrinkIndex],
+              image: file,
+              imagePreview: event.target.result,
+            };
+          }
+          return newDrink;
+        });
+      };
+      reader.readAsDataURL(file);
     }
   };
 
@@ -158,13 +163,40 @@ function SodaNMinerals({ beverages }) {
                   type="file"
                   onChange={(e) => handleImgChange(e, drink.bev_id)}
                 />
-                <Image
-                  style={{ margin: "20px 0 10px 0" }}
-                  src={drink.image}
-                  width="50%"
-                  height="50%"
-                  thumbnail
-                />
+                <div
+                  style={{
+                    display: "flex",
+                    margin: "20px 0 10px 0",
+                    gap: "20px",
+                    justifyContent: "space-between",
+                  }}
+                >
+                  <div style={{ minWidth: "50%" }}>
+                    <h4>Current Image</h4>
+                    <Image
+                      src={drink.image}
+                      thumbnail
+                      width="40%"
+                      height="40%"
+                    />
+                  </div>
+                  <div>
+                    <h4>Preview</h4>
+                    {drink.imagePreview && (
+                      <Image
+                        src={drink.imagePreview}
+                        alt={`Preview of ${drink.name}`}
+                        width="65%"
+                        style={{
+                          borderRadius: "8px",
+                          borderWidth: "4px",
+                          borderStyle: "solid",
+                          borderColor: "white",
+                        }}
+                      />
+                    )}
+                  </div>
+                </div>
               </div>
               {isEmpty && currentDrinkIndex === drink.bev_id && (
                 <div>Please complete all the fields</div>

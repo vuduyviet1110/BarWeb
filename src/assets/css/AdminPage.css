@@ -1,32 +1,31 @@
-.Header{
-    padding:8px 16px ;
-    justify-content: space-between;
-    display:flex;
-    background-color: rgba(224, 128, 26, 0.1);
+.Header {
+  padding: 8px 16px;
+  justify-content: space-between;
+  align-items: center;
+  display: flex;
+  background-color: rgba(74, 69, 64, 0.5);
 }
-.SideBar{
-    min-width:18% ;
-    display:flex;
-    flex-direction:column;
-    background-color:rgba(255, 255, 255, 0.3);
-    border-radius:8px;
-    height:100%;
-    position: sticky; 
-    top: 0; 
-    left: 0; 
-    height: 100%; 
-    width: 200px; 
-    background-color: rgba(0, 0, 0, 0.8);
-    color: white; 
-    padding: 16px; 
-    overflow-y: auto; 
-    & a.active{
-        color: rgb(78, 22, 22);
-        /* background-color: rgb(166, 4, 4); */
-        font-size:24px;
-     }
-
+.SideBar {
+  min-width: 18%;
+  display: flex;
+  flex-direction: column;
+  background-color: rgba(255, 255, 255, 0.3);
+  border-radius: 8px;
+  height: 100%;
+  position: sticky;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 200px;
+  background-color: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 16px;
+  overflow-y: auto;
+  & a.active {
+    color: rgb(78, 22, 22);
+    /* background-color: rgb(166, 4, 4); */
+    font-size: 24px;
+  }
 }
-.Content{
-
+.Content {
 }

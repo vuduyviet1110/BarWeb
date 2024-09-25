@@ -1,127 +1,118 @@
-import { Button } from "react-bootstrap";
-import Form from "react-bootstrap/Form";
-import signIn from "../assets/images/Barava.jpg";
-import { useState } from "react";
-import Col from "react-bootstrap/Col";
-import InputGroup from "react-bootstrap/InputGroup";
-import Row from "react-bootstrap/Row";
-import DatePicker from "react-datepicker";
-import { request } from "../utils/request";
-import CustomInput from "../common/CustomInput";
+import React, { useState } from "react";
+import { Button, Form, Col, InputGroup, Row } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import DatePicker from "react-datepicker";
 import {
-  RegisterFailed,
   RegisterStart,
   RegisterSuccess,
+  RegisterFailed,
 } from "../redux/authSlice";
-import { useDispatch } from "react-redux";
-function SignUpPage() {
+import { request } from "../utils/request";
+import CustomInput from "../common/CustomInput";
+import signIn from "../assets/images/Barava.jpg";
+import { isValidEmail } from "../common/validattion";
+
+const SignUpPage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [validated, setValidated] = useState(false);
-  const [rePwd, setrePwd] = useState("");
+  const [isLoading, setLoading] = useState(false);
+  const [signInSuccess, setSignInSuccess] = useState(false);
+  const [formErrors, setFormErrors] = useState({});
   const [formData, setFormData] = useState({
     name: "",
     phone: "",
     gmail: "",
     password: "",
-    DOB: "",
+    rePassword: "",
+    DOB: null,
   });
-  const [invalidLength, setinvalidLength] = useState(false);
-  const [invalidAge, setinvalidAge] = useState();
-  const [phoneLength, setPhoneLength] = useState("");
-  const [signInSuccess, setSignInSuccess] = useState();
-  const [validEmail, setValidEmail] = useState(true);
-  const [IsEmptyDOB, setEmptyDOB] = useState(false);
-  const [existedEmail, setExistedEmail] = useState(false);
-  const handleAgeValidition = (DOB) => {
+
+  const validateForm = () => {
+    const errors = {};
+    if (formData.password.length < 6)
+      errors.password = "Password must be at least 6 characters";
+    if (formData.password !== formData.rePassword)
+      errors.rePassword = "Passwords do not match";
+    if (!formData.DOB) errors.DOB = "Please enter your date of birth";
+    if (formData.phone.length !== 10)
+      errors.phone = "Phone number must be 10 digits";
+    if (!isValidEmail(formData.gmail)) errors.gmail = "Invalid email format";
+
     const today = new Date();
     const eighteenYearsAgo = new Date(
       today.getFullYear() - 18,
       today.getMonth(),
       today.getDate()
     );
-    if (DOB > eighteenYearsAgo) {
-      console.log("dưới 18 tủi");
-      setinvalidAge(true);
-    } else {
-      setinvalidAge(false);
-      console.log("đã trên 18 tủi");
-    }
+    if (formData.DOB > eighteenYearsAgo)
+      errors.age = "You must be at least 18 years old";
+
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
   };
 
-  const isValidEmail = (email) => {
-    // Biểu thức chính quy để kiểm tra email
-    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailPattern.test(email);
-  };
-  const handleEmailValidation = (e) => {
-    const { value } = e.target;
-    if (isValidEmail(value)) {
-      setValidEmail(true);
-    } else {
-      setValidEmail(false);
-    }
-  };
-  const handleChangeInfo = (e) => {
-    setFormData((prevInfo) => ({
-      ...prevInfo,
-      [e.target.name]: e.target.value,
-    }));
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+    // Clear the error for this field when the user starts typing
+    setFormErrors((prev) => ({ ...prev, [name]: "" }));
   };
 
   const handleDateChange = (date) => {
-    setFormData((prevInfo) => ({
-      ...prevInfo,
-      DOB: date ? date : false, // Set DOB field in formData to the selected date
-    }));
+    setFormData((prev) => ({ ...prev, DOB: date }));
+    setFormErrors((prev) => ({ ...prev, DOB: "", age: "" }));
   };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    const form = event.currentTarget;
-    if (
-      form.checkValidity() === false ||
-      formData.password.length < 6 ||
-      invalidAge ||
-      invalidLength ||
-      !formData.DOB ||
-      IsEmptyDOB ||
-      phoneLength === false
-    ) {
-      event.stopPropagation();
-      if (formData.password.length < 6 || rePwd !== formData.password) {
-        setinvalidLength(true);
-      } else {
-        setinvalidLength(false);
-      }
-      if (!formData.DOB) {
-        console.log(!formData.DOB);
-        setEmptyDOB(true);
-      } else {
-        setEmptyDOB(false);
-      }
-      setValidated(true);
+    setValidated(true);
+
+    if (!validateForm()) {
       return;
-    } else {
-      dispatch(RegisterStart());
-      try {
-        const res = await request.post("/sign-up", formData);
-        if (res.data === "Email exists") {
-          setSignInSuccess(false);
-          setExistedEmail(true);
+    }
+
+    dispatch(RegisterStart());
+    setLoading(true);
+
+    try {
+      const response = await request.post("/sign-up", formData);
+      dispatch(RegisterSuccess());
+      setSignInSuccess(true);
+      setTimeout(() => {
+        setSignInSuccess(false);
+        navigate("/sign-in");
+      }, 3000);
+    } catch (error) {
+      dispatch(RegisterFailed());
+      console.error("Error:", error);
+
+      if (error.response) {
+        if (
+          error.response.status === 400 &&
+          error.response.data === "Email already exists"
+        ) {
+          setFormErrors((prev) => ({ ...prev, gmail: "Email already exists" }));
         } else {
-          dispatch(RegisterSuccess());
-          setSignInSuccess(true);
-          setTimeout(() => {
-            setSignInSuccess(false);
-          }, 3000);
-          setExistedEmail(false);
+          setFormErrors((prev) => ({
+            ...prev,
+            submit: "An error occurred. Please try again.",
+          }));
         }
-      } catch (error) {
-        dispatch(RegisterFailed());
-        console.error("Error:", error);
+      } else if (error.request) {
+        setFormErrors((prev) => ({
+          ...prev,
+          submit: "No response from server. Please try again.",
+        }));
+      } else {
+        setFormErrors((prev) => ({
+          ...prev,
+          submit: "An error occurred. Please try again.",
+        }));
       }
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -132,7 +123,6 @@ function SignUpPage() {
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
-        flexDirection: "column",
         backgroundImage: `url(${signIn})`,
         backgroundPosition: "top center",
       }}
@@ -140,128 +130,89 @@ function SignUpPage() {
       <div
         style={{
           display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
           flexDirection: "column",
           minWidth: "600px",
-          minHeight: "500px",
           backgroundColor: "rgba(255, 255, 255, 0.5)",
           padding: "16px",
         }}
       >
-        <h2 style={{ color: "brown" }}> Sign Up</h2>
+        <h2 style={{ color: "brown", textAlign: "center" }}>Sign Up</h2>
         <Form noValidate validated={validated} onSubmit={handleSubmit}>
           <Row className="mb-4">
-            <Form.Group as={Col} md="6" controlId="validationCustom01">
-              <Form.Label> Name</Form.Label>
+            <Form.Group as={Col} md="6">
+              <Form.Label>Name</Form.Label>
               <Form.Control
-                onChange={handleChangeInfo}
                 required
                 type="text"
-                placeholder="Name"
                 name="name"
+                value={formData.name}
+                onChange={handleChange}
+                placeholder="Name"
+                isInvalid={!!formErrors.name}
               />
               <Form.Control.Feedback type="invalid">
-                Enter your Name
+                {formErrors.name || "Enter your Name"}
               </Form.Control.Feedback>
             </Form.Group>
-            <Form.Group as={Col} md="6" controlId="validationCustom02">
+            <Form.Group as={Col} md="6">
               <Form.Label>Phone Number</Form.Label>
               <Form.Control
                 required
+                type="tel"
+                name="phone"
                 value={formData.phone}
-                onChange={(e) => {
-                  if (!isNaN(e.target.value)) {
-                    setFormData((prevInfo) => ({
-                      ...prevInfo,
-                      phone: e.target.value,
-                    }));
-                  }
-                }}
-                onBlur={() => {
-                  if (formData.phone.length === 10) {
-                    setPhoneLength(true);
-                  } else {
-                    setPhoneLength(false);
-                  }
-                }}
+                onChange={handleChange}
                 placeholder="Phone Number"
+                isInvalid={!!formErrors.phone}
               />
-              {phoneLength === false && (
-                <span style={{ color: "#dc3545" }}>
-                  Your phone number must be 10 digits
-                </span>
-              )}
               <Form.Control.Feedback type="invalid">
-                Enter your Phone Number
+                {formErrors.phone || "Enter your Phone Number"}
               </Form.Control.Feedback>
             </Form.Group>
           </Row>
           <Row className="mb-3">
-            <Form.Group as={Col} md="6" controlId="validationCustomUsername">
+            <Form.Group as={Col} md="6">
               <Form.Label>Email</Form.Label>
               <InputGroup hasValidation>
-                <div>
-                  <Form.Control
-                    placeholder="Email"
-                    aria-describedby="inputGroupPrepend"
-                    required
-                    name="gmail"
-                    onChange={(e) => {
-                      handleChangeInfo(e);
-                      handleEmailValidation(e);
-                    }}
-                  />
-                  <Form.Control.Feedback type="invalid">
-                    Enter your Email
-                  </Form.Control.Feedback>
-                </div>
-                {existedEmail && (
-                  <div style={{ color: "#dc3545", fontSize: "14px" }}>
-                    Existed Email
-                  </div>
-                )}
-                {!validEmail && (
-                  <div style={{ color: "#dc3545", fontSize: "14px" }}>
-                    Enter the right email format
-                  </div>
-                )}
+                <Form.Control
+                  required
+                  type="email"
+                  name="gmail"
+                  value={formData.gmail}
+                  onChange={handleChange}
+                  placeholder="Email"
+                  isInvalid={!!formErrors.gmail}
+                />
+                <Form.Control.Feedback type="invalid">
+                  {formErrors.gmail || "Enter your Email"}
+                </Form.Control.Feedback>
               </InputGroup>
             </Form.Group>
-            <Form.Group
-              as={Col}
-              md="6"
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "flex-start",
-              }}
-            >
-              <Form.Label>Date Of Birth</Form.Label>
+            <Form.Group as={Col} md="6">
+              <Form.Label style={{ display: "block" }}>
+                Date of Birth
+              </Form.Label>
               <DatePicker
                 selected={formData.DOB}
-                onChange={(e) => {
-                  handleDateChange(e);
-                  handleAgeValidition(e);
-                }}
+                onChange={handleDateChange}
                 dateFormat="dd/MM/yyyy"
                 isClearable
-                showIcon
                 showYearDropdown
                 scrollableYearDropdown
                 yearDropdownItemNumber={50}
                 showMonthDropdown
-                required
-                customInput={<CustomInput />}
-                placeholderText="Date Of Birth"
+                customInput={
+                  <CustomInput
+                    isInvalid={!!formErrors.DOB || !!formErrors.age}
+                  />
+                }
+                placeholderText="Date of Birth"
               />
-              {invalidAge && (
-                <span style={{ color: "#dc3545" }}>
-                  You must be at least 18 years
-                </span>
+              {formErrors.DOB && (
+                <div className="text-danger">{formErrors.DOB}</div>
               )}
-              {IsEmptyDOB && (
-                <span style={{ color: "#dc3545" }}>Enter your DOB</span>
+              {formErrors.age && (
+                <div className="text-danger">{formErrors.age}</div>
               )}
             </Form.Group>
           </Row>
@@ -269,82 +220,61 @@ function SignUpPage() {
             <Form.Group as={Col} md="6">
               <Form.Label>Password</Form.Label>
               <Form.Control
-                type="text"
-                placeholder="Password"
-                value={formData.password}
-                name="password"
-                onChange={handleChangeInfo}
-                onBlur={() => {
-                  if (formData.password.length >= 6) {
-                    setinvalidLength(false);
-                  } else {
-                    setinvalidLength(true);
-                  }
-                }}
                 required
+                type="password"
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                placeholder="Password"
+                isInvalid={!!formErrors.password}
               />
               <Form.Control.Feedback type="invalid">
-                Enter your password
+                {formErrors.password || "Enter your password"}
               </Form.Control.Feedback>
-              {invalidLength && (
-                <span style={{ color: "#dc3545" }}>
-                  Password must be at least 6 characters!!
-                </span>
-              )}
             </Form.Group>
-            <Form.Group as={Col} md="6" controlId="validationCustom04">
+            <Form.Group as={Col} md="6">
               <Form.Label>Re-enter your password</Form.Label>
               <Form.Control
-                type="password"
-                placeholder="Password Again"
                 required
-                value={rePwd}
-                onChange={(e) => setrePwd(e.target.value)}
+                type="password"
+                name="rePassword"
+                value={formData.rePassword}
+                onChange={handleChange}
+                placeholder="Re-enter Password"
+                isInvalid={!!formErrors.rePassword}
               />
               <Form.Control.Feedback type="invalid">
-                Re-enter your password
+                {formErrors.rePassword || "Re-enter your password"}
               </Form.Control.Feedback>
-              {formData.password !== rePwd && (
-                <span style={{ color: "red" }}> Password is not matched</span>
-              )}
             </Form.Group>
           </Row>
           {signInSuccess && (
-            <div style={{ color: "green", fontSize: "20px" }}>
-              You have successfully signed up!!!
+            <div className="text-success fs-5 mb-3">
+              You have successfully signed up!
             </div>
           )}
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "center ",
-              alignItems: "center",
-              margin: "40px 0 0",
-            }}
-          >
+          {formErrors.submit && (
+            <div className="text-danger fs-5 mb-3">{formErrors.submit}</div>
+          )}
+          <div className="d-flex justify-content-between align-items-center mt-4">
             <Button
               href="/"
-              style={{
-                backgroundColor: "brown",
-                width: "100px",
-              }}
+              style={{ backgroundColor: "brown", width: "100px" }}
             >
               Back
             </Button>
             <Button
               type="submit"
-              style={{
-                width: "100px",
-                backgroundColor: "#918717",
-              }}
+              style={{ width: "100px", backgroundColor: "#918717" }}
+              disabled={isLoading}
             >
-              Confirm
+              {isLoading ? "Processing..." : "Confirm"}
             </Button>
           </div>
         </Form>
       </div>
     </div>
   );
-}
+};
 
 export default SignUpPage;

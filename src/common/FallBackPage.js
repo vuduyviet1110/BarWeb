@@ -38,10 +38,7 @@ function FallBackPage() {
         className="loader"
       ></div>
       <h1>Please wait...</h1>
-      <h4>
-        Due to deploying the back-end on the free version of Renderer, there may
-        be longer load times than expected 🥲
-      </h4>
+
       <div>{count}s</div>
       {count === 0 && (
         <button onClick={() => window.location.reload()}> Reload</button>

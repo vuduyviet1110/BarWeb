@@ -1,7 +1,4 @@
-// store.js
-
 import { combineReducers, configureStore } from "@reduxjs/toolkit";
-import authSlice from "./authSlice";
 import {
   persistStore,
   persistReducer,
@@ -13,14 +10,23 @@ import {
   REGISTER,
 } from "redux-persist";
 import storage from "redux-persist/lib/storage";
+import authSlice from "./authSlice";
+import pageReducer from "./pageSlice";
 
 const persistConfig = {
   key: "root",
   version: 1,
   storage,
+  whitelist: ["auth"], // Only persist auth
 };
-const rootReducer = combineReducers({ auth: authSlice });
+
+const rootReducer = combineReducers({
+  auth: authSlice,
+  page: pageReducer,
+});
+
 const persistedReducer = persistReducer(persistConfig, rootReducer);
+
 export const store = configureStore({
   reducer: persistedReducer,
   middleware: (getDefaultMiddleware) =>
@@ -31,4 +37,4 @@ export const store = configureStore({
     }),
 });
 
-export let persistor = persistStore(store);
+export const persistor = persistStore(store);

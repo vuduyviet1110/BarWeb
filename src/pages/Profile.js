@@ -6,6 +6,7 @@ import { request } from "../utils/request";
 import { Form } from "react-bootstrap";
 import CustomInput from "../common/CustomInput";
 import { useSelector } from "react-redux";
+import { isValidEmail, isValidPhoneNumber } from "../common/validattion";
 
 const UserProfile = () => {
   const user = useSelector(
@@ -27,11 +28,6 @@ const UserProfile = () => {
   const [existedEmail, setExistedEmail] = useState();
   const [validePhone, setValidPhone] = useState(true);
 
-  const isValidEmail = (email) => {
-    // Biểu thức chính quy để kiểm tra email
-    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailPattern.test(email);
-  };
   const handleAgeValidition = (DOB) => {
     const today = new Date();
     const eighteenYearsAgo = new Date(
@@ -47,17 +43,6 @@ const UserProfile = () => {
       console.log("đã trên 18 tủi");
     }
   };
-  function validatePhoneField(phoneNumberField) {
-    // Get the phone number value
-    const { value } = phoneNumberField.target;
-    console.log(value);
-
-    // Check if the phone number matches the regular expression
-    if (value.length !== 10) {
-      console.log("invalid phone");
-      setValidPhone(false);
-    } else setValidPhone(true);
-  }
   // Xử lý khi rời khỏi trường nhập email
   const handleEmailBlur = (e) => {
     const { value } = e.target;
@@ -241,7 +226,7 @@ const UserProfile = () => {
                                 user_phone: e.target.value,
                               }));
                             }}
-                            onBlur={validatePhoneField}
+                            onBlur={isValidPhoneNumber}
                             required
                           />
                           {!validePhone && (

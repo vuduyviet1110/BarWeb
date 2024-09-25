@@ -10,6 +10,7 @@ import Giftcard from "./pages/GiftCard";
 import ManageContent from "./pages/ManageContent";
 import ManageGiftCard from "./pages/ManageGiftCard";
 import ManageEvent from "./pages/ManageEvent";
+import DetailAdminPage from "./pages/adminDetailPage";
 import ManageBooking from "./pages/ManageBooking";
 import ManageImage from "./pages/ManageImage";
 import { Provider } from "react-redux";
@@ -21,13 +22,17 @@ import ResetPwd from "./pages/ResetPwd";
 import ManageUser from "./pages/ManageUser";
 import OrdersGC from "./pages/OrdersGC";
 import { PersistGate } from "redux-persist/integration/react";
+import AdminSearch from "./pages/AdminSearch";
+import Analytics from "./pages/Analytics";
 function App() {
   return (
     <Provider store={store}>
       <PersistGate loading={null} persistor={persistor}>
         <div>
           <Routes>
+            {/* Public Routes */}
             <Route path="/" element={<HomePage />} />
+            <Route path="/not-found" element={<NotFound />} />
             <Route path="/gift-card/orders" element={<OrdersGC />} />
             <Route path="/gift-card" element={<Giftcard />} />
             <Route path="/login" element={<LoginPage />} />
@@ -35,16 +40,22 @@ function App() {
             <Route path="/sign-up" element={<SignUpPage />} />
             <Route path="/reset-password" element={<ResetPwd />} />
             <Route path="/profile" element={<Profile />} />
-            <Route path="*" element={<NotFound />} />
+
+            {/* Admin Routes (Protected) */}
             <Route path="/admin" element={<PrivateRoute />}>
+              <Route path=":field/:id" element={<DetailAdminPage />} />
+              <Route path="booking" element={<ManageBooking />} />
+              <Route path="sales" element={<Analytics />} />
+              <Route path="gift-card" element={<ManageGiftCard />} />
+              <Route path="user" element={<ManageUser />} />
+              <Route path="search" element={<AdminSearch />} />
               <Route path="content" element={<ManageContent />} />
               <Route path="image" element={<ManageImage />} />
-              <Route path="booking" element={<ManageBooking />} />
-              <Route path="gift-card" element={<ManageGiftCard />} />
               <Route path="event" element={<ManageEvent />} />
-              <Route path="user" element={<ManageUser />} />
             </Route>
-            <Route path="/" element={<HomePage />} />
+
+            {/* Not Found Route */}
+            <Route path="*" element={<NotFound />} />
           </Routes>
         </div>
       </PersistGate>

@@ -8,7 +8,11 @@ const CustomInput = forwardRef(({ value, onClick, placeholder }, ref) => (
     placeholder={placeholder}
     readOnly
     ref={ref}
-    style={{ cursor: "pointer" }} // Optionally, change the cursor to indicate clickability
+    style={{
+      cursor: "pointer",
+      border: "4px solid #ffff",
+      borderRadius: "5px",
+    }}
   />
 ));
 

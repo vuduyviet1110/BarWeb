@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import "../assets/css/HomePage.css";
 import { Breadcrumb } from "react-bootstrap";
-import Carousel from "react-bootstrap/Carousel";
 import AOS from "aos";
 import { request } from "../utils/request";
 import Swiper from "swiper";
@@ -22,22 +21,25 @@ import {
   TwitterX,
 } from "react-bootstrap-icons";
 import ChangePwd from "../common/ChangePwd";
-import BookingTable from "../common/booking";
+import BookingTable from "../common/components/booking";
 import Beverages from "./Beverages";
 import { useSelector } from "react-redux";
 import { createAxios } from "../utils/AxiosInstance";
 import { useDispatch } from "react-redux";
 import { logoutFailed, logoutStart, logoutSuccess } from "../redux/authSlice";
 import FallBackPage from "../common/FallBackPage";
+import Gallery from "../common/components/gallery";
+import Event from "../common/components/events";
+import Contact from "../common/components/contact";
 function HomePage() {
   const dispatch = useDispatch();
-  const data = useSelector((state) => state.auth.login.currentUser);
+  // const data = useSelector((state) => state.auth.login.currentUser);
   const user = useSelector(
-    (state) => state.auth.login.currentUser?.matched_user
+    (state) => state.auth.login?.currentUser?.matched_user
   );
-  const token = useSelector(
-    (state) => state.auth.login.currentUser?.accessToken
-  );
+  // const token = useSelector(
+  //   (state) => state.auth.login.currentUser?.accessToken
+  // );
   const [titleContent, setTitleContent] = useState();
   const [ourStoryContent, setourStoryContent] = useState();
   const [gallery, setGallery] = useState();
@@ -45,7 +47,7 @@ function HomePage() {
   const containerRef = useRef(null);
   const isInView = useInView(containerRef, { once: true });
   const mainControls = useAnimation();
-  let axiosJWT = createAxios(data, dispatch, logoutSuccess);
+  // let axiosJWT = createAxios(data, dispatch, logoutSuccess);
   const { scrollYProgress } = useScroll({
     target: containerRef,
     offset: ["start end", "end end"],
@@ -67,8 +69,8 @@ function HomePage() {
     dispatch(logoutStart());
     try {
       await request.post("/auth/log-out");
-      dispatch(logoutSuccess());
       window.location.reload();
+      dispatch(logoutSuccess());
     } catch (error) {
       dispatch(logoutFailed());
     }
@@ -90,7 +92,7 @@ function HomePage() {
     };
 
     fetchApi();
-  }, [user?.user_id]);
+  }, [user?.user_id, user]);
 
   useEffect(() => {
     /**
@@ -410,7 +412,7 @@ function HomePage() {
             <ul style={{ marginLeft: "24px" }}>
               <li>En</li>
               <li>
-                <a href="#">VN</a>
+                <a href="#section-id">VN</a>
               </li>
             </ul>
           </div>
@@ -567,7 +569,7 @@ function HomePage() {
             <section
               id="about"
               style={{
-                background: `url(${ourStoryContent?.bgimage}) center/99%`,
+                background: `url(${ourStoryContent?.bgimage}) center/100%`,
               }}
               className="about"
             >
@@ -616,99 +618,18 @@ function HomePage() {
             </section>
 
             <Beverages />
-
-            <section id="events" className="events">
-              <div className="container" data-aos="fade-up">
-                <div className="section-title">
-                  <h2>Events</h2>
-                  <p>Organize Your Events in our Bar</p>
-                </div>
-
-                <Carousel data-bs-theme="light">
-                  {events?.map((event) => (
-                    <Carousel.Item>
-                      <img
-                        className="d-block w-100"
-                        src={event.image}
-                        style={{
-                          borderRadius: "14px",
-                          objectFit: "cover",
-                        }}
-                        alt="First slide"
-                      />
-                      <Carousel.Caption
-                        style={{
-                          boxShadow: "2px 2px 5px 2px #333",
-                          borderRadius: "8px",
-                          backgroundColor: "rgba(0, 0, 0, 0.6)",
-                        }}
-                      >
-                        <div>
-                          <div className="price">
-                            <h3>{event.title}</h3>
-                          </div>
-                          <p className="fst-italic">{event.description}</p>
-                        </div>
-                      </Carousel.Caption>
-                    </Carousel.Item>
-                  ))}
-                </Carousel>
-              </div>
-            </section>
-
-            <BookingTable />
-
-            <section id="gallery" className="gallery">
-              <div className="container" data-aos="fade-up">
-                <div className="section-title">
-                  <h2>Gallery</h2>
-                  <p>Some photos from Our Bar</p>
-                </div>
-              </div>
-
-              <div
-                className="container-fluid"
-                data-aos="fade-up"
-                data-aos-delay="100"
-              >
-                <div className="row g-0">
-                  {gallery?.map((img) => (
-                    <div key={img.img_id} className="col-lg-3 col-md-4">
-                      <div className="gallery-item">
-                        <div
-                          className="gallery-lightbox"
-                          data-gall="gallery-item"
-                        >
-                          <img
-                            src={img.img}
-                            alt={img.img_alt || "Image"}
-                            className="img-fluid"
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </section>
-
-            <section id="contact" className="contact">
-              <div className="container" data-aos="fade-up">
-                <div className="section-title">
-                  <h2>Contact</h2>
-                  <p>Contact Us</p>
-                </div>
-              </div>
-
-              <div data-aos="fade-up">
-                <iframe
-                  style={{ border: "0 ", width: "100%", height: "350px" }}
-                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3724.0029641234432!2d105.848146!3d21.032567399999998!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3135ab5af3fc6599%3A0x71b6c0b7fd60df54!2sSWI%3AP%20Speakeasy%20bar!5e0!3m2!1sen!2s!4v1710955715155!5m2!1sen!2s"
-                  frameborder="0"
-                  allowFullScreen
-                ></iframe>
-              </div>
-            </section>
+            <div style={{ padding: "40px 0 0 0" }}>
+              <Event events={events} />
+            </div>
+            <div style={{ padding: "40px 0 0 0" }}>
+              <BookingTable />
+            </div>
+            <div style={{ padding: "40px 0 0 0" }}>
+              <Gallery gallery={gallery} />
+            </div>
+            <div style={{ padding: "40px 0 0 0" }}>
+              <Contact />
+            </div>
           </main>
         </div>
       ) : (

@@ -4,9 +4,14 @@ import Col from "react-bootstrap/Col";
 import Row from "react-bootstrap/Row";
 import ReactDatePicker from "react-datepicker";
 import { useEffect, useState } from "react";
-import { request } from "../utils/request";
-import CustomInput from "../common/CustomInput";
+import { request } from "../../utils/request";
+import CustomInput from "../CustomInput";
 import { useSelector } from "react-redux";
+import {
+  isValidEmail,
+  isValidPhoneNumber,
+  validatePhoneField,
+} from "../validattion";
 
 function BookingTable() {
   const CurentUser = useSelector(
@@ -22,39 +27,25 @@ function BookingTable() {
   const [validEmail, setValidEmail] = useState(true);
   const [validePhone, setValidPhone] = useState(true);
   useEffect(() => {
-    // Kiểm tra xem CurentUser đã có giá trị chưa
     if (CurentUser && CurentUser.user_id > 0) {
-      // Cập nhật bookingInfo với user_id từ CurentUser
       setBookingInfo((prev) => ({
         ...prev,
-        user_id: CurentUser?.user_id,
-        user_gmail: CurentUser?.user_gmail,
-        user_phone: CurentUser?.user_phone,
-        user_name: CurentUser?.user_name,
+        user_id: CurentUser.user_id,
+        user_gmail: CurentUser.user_gmail,
+        user_phone: CurentUser.user_phone,
+        user_name: CurentUser.user_name,
       }));
     } else {
       setBookingInfo((prev) => ({
         ...prev,
         user_id: 0,
+        user_gmail: "",
+        user_phone: "",
+        user_name: "",
       }));
     }
-  }, [CurentUser, CurentUser?.user_id]); // Sẽ chạy lại khi CurentUser thay đổi
+  }, [CurentUser]);
 
-  const isValidEmail = (email) => {
-    // Biểu thức chính quy để kiểm tra email
-    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailPattern.test(email);
-  };
-  function validatePhoneField(phoneNumberField) {
-    // Get the phone number value
-    const { value } = phoneNumberField.target;
-
-    // Check if the phone number matches the regular expression
-    if (value.length !== 10) {
-      console.log("invalid phone");
-      setValidPhone(false);
-    } else setValidPhone(true);
-  }
   const handleEmailValidation = (e) => {
     const { value } = e.target;
     if (isValidEmail(value)) {
@@ -73,7 +64,12 @@ function BookingTable() {
       setBookingInfo((prev) => ({ ...prev, table_time: 0 }));
     } else {
       const res = await request.post("/booking", bookingInfo);
-      setBookingSucess(true);
+      if (res.data) {
+        setBookingSucess(true);
+        setTimeout(() => {
+          setBookingSucess(false);
+        }, 3000);
+      }
     }
   };
   return (
@@ -102,7 +98,7 @@ function BookingTable() {
                   }
                   required
                   onChange={(e) => {
-                    if (CurentUser.user_id === undefined) {
+                    if (CurentUser?.user_id === undefined) {
                       setBookingInfo((prev) => ({
                         ...prev,
                         user_name: e.target.value,
@@ -118,15 +114,15 @@ function BookingTable() {
                 <Form.Control
                   type="text"
                   value={
-                    CurentUser && CurentUser?.user_id > 0
-                      ? CurentUser.user_gmail
+                    CurentUser?.user_id > 0
+                      ? CurentUser?.user_gmail
                       : bookingInfo.user_gmail
                   }
                   required
                   id="email"
                   onChange={(e) => {
                     // Nếu user_id là 0 và CurentUser tồn tại
-                    if (CurentUser && CurentUser?.user_id === undefined) {
+                    if (CurentUser?.user_id === undefined) {
                       setBookingInfo((prev) => ({
                         ...prev,
                         user_gmail: e.target.value,
@@ -153,7 +149,11 @@ function BookingTable() {
                   required
                   type="number"
                   placeholder="Your Phone"
-                  onBlur={(e) => validatePhoneField(e)}
+                  onBlur={(e) => {
+                    isValidPhoneNumber(e)
+                      ? setValidPhone(true)
+                      : setValidPhone(false);
+                  }}
                   onChange={(e) => {
                     if (CurentUser?.user_id === undefined) {
                       setBookingInfo((prev) => ({

@@ -91,7 +91,7 @@ function Beverages() {
   return (
     <section id="menu" className="menu section-bg">
       <div className="container" data-aos="fade-up">
-        <div className="section-title">
+        <div className="section-title" style={{ padding: "40px 0 0 0" }}>
           <h2>Beverage</h2>
           <p>Check Our Beverage</p>
         </div>

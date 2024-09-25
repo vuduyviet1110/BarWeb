@@ -1,16 +1,34 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { request } from "../utils/request";
-import { ChevronDown, ChevronUp } from "react-bootstrap-icons";
-import { Button } from "react-bootstrap";
+import {
+  Binoculars,
+  ChevronDown,
+  ChevronUp,
+  MicFill,
+  Soundwave,
+  X,
+  XCircleFill,
+} from "react-bootstrap-icons";
+import { Button, Dropdown, Form, InputGroup } from "react-bootstrap";
 import crystalTexture3 from "../assets/images/crystalTexture3.jpg";
 import crystalTexture2 from "../assets/images/crystalTexture2.jpg";
 import ava from "../assets/images/Barava.jpg";
-import { useNavigate } from "react-router-dom";
+import "../assets/css/AdminPage.css";
+import CustomeModal from "../common/modal";
+import { Link, useNavigate } from "react-router-dom";
 import SwipLogo from "../assets/images/SwipLogo.png";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { convertToNormalDateTime } from "../common/validattion";
+import useSpeechToText from "../hooks/useSpeechToText";
+import Pagination from "../common/pagination";
+import { setTotalOrderGcPage, setupdateOrderGcPage } from "../redux/pageSlice";
+import NotFound from "./NotFound";
 
 const OrderReceipt = () => {
   const navigate = useNavigate();
+  const { currentOrderGcPage, totalOrderGcPages } = useSelector(
+    (state) => state.page
+  );
   const [giftcards, setGiftCard] = useState([
     {
       card_order_id: "",
@@ -23,51 +41,207 @@ const OrderReceipt = () => {
       user_id: "",
     },
   ]);
+  const dispatch = useDispatch();
+
   const [currentIndex, setCurrentIndex] = useState();
-  const [CurentUser, setCurrentUser] = useState({});
+  const [searching, setSearching] = useState("");
   const [More, setMore] = useState(false);
+  const [show, setShow] = useState(false);
   const user = useSelector(
     (state) => state.auth.login.currentUser?.matched_user
   );
+  const { isListening, transcript, startListening, stopListening } =
+    useSpeechToText({ continuous: true });
 
+  const startStopListening = () => {
+    isListening ? handleStopAndFetch() : startListening();
+  };
   const totalAmount = giftcards.reduce(
     (acc, card) => acc + Number(card.user_amount),
     0
   );
 
-  useEffect(() => {
-    if (!user.user_id) {
-      return;
-    }
-    const fetchApi = async () => {
-      try {
-        const res = await request.get(`/${user.user_id}`);
-        setCurrentUser(res.data);
-        console.log(res.data); // Log dữ liệu từ API
-      } catch (error) {
-        console.error(error);
-      }
-    };
+  const stopVoiceInput = () => {
+    return new Promise((resolve) => {
+      const newTranscript = transcript.replace(/\./g, "");
+      const newSearching =
+        searching +
+        (newTranscript.length
+          ? (searching.length ? " " : "") + newTranscript
+          : "");
+      setSearching(newSearching);
+      stopListening();
+      resolve(newSearching);
+    });
+  };
 
-    fetchApi();
-  }, [user.user_id]);
-  useEffect(() => {
-    const fetchApi = async () => {
+  const handleStopAndFetch = async () => {
+    const newSearchingValue = await stopVoiceInput();
+    await fetchApi(newSearchingValue);
+  };
+
+  const handlePageChange = async (page) => {
+    dispatch(setupdateOrderGcPage(page));
+  };
+
+  const fetchApi = useCallback(
+    async (searchValue) => {
       try {
-        const res = await request.get(`/giftCard/${user.user_id}`);
-        setGiftCard(res.data);
-        console.log(res.data);
+        const searchTerm = searchValue !== undefined ? searchValue : searching;
+        const res = await request.get(
+          `/giftCard/${user?.user_id}?page=${currentOrderGcPage}&keyword=${searchTerm}`
+        );
+        console.log(res.data.pagination.totalPages);
+        dispatch(setTotalOrderGcPage(res.data.pagination.totalPages));
+        setGiftCard(res.data.data);
+        if (res.data.message) {
+          setShow(true);
+        }
       } catch (error) {
-        console.error(error);
+        throw new Error(error);
       }
-    };
+    },
+    [currentOrderGcPage, dispatch, searching, user?.user_id]
+  );
+
+  useEffect(() => {
     fetchApi();
-  }, []);
+  }, [currentOrderGcPage, user?.user_id, user]);
+
+  const handleSearchSubmit = (e) => {
+    console.log(e);
+    e.preventDefault();
+    fetchApi();
+  };
 
   return (
     <section
       style={{ background: `url(${ava} ) center/100%`, minHeight: "100vh" }}
     >
+      <div
+        className="Header "
+        style={{
+          color: "white",
+          backgroundColor: "rgba(50, 50, 33,0.6)",
+          lineHeight: "38px",
+          height: "100%",
+          position: "sticky",
+          top: 0,
+          left: 0,
+          zIndex: 1,
+        }}
+      >
+        <Link
+          to={"/"}
+          style={{
+            color: "rgba(255, 255, 255, 0.9)",
+            padding: "8px",
+            borderRadius: "8px",
+            fontSize: "20px",
+          }}
+        >
+          SWI:P
+        </Link>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            // width: "26%",
+          }}
+        >
+          <Form
+            onSubmit={handleSearchSubmit}
+            style={{ width: "100%", display: "flex" }}
+          >
+            <InputGroup>
+              <Form.Control
+                type="text"
+                disabled={isListening}
+                style={{ backgroundColor: "white", border: "none" }}
+                onFocus={(e) => (e.target.style.border = "none")}
+                onBlur={(e) => (e.target.style.border = "none")}
+                value={
+                  isListening
+                    ? searching +
+                      (transcript.length
+                        ? (searching.length ? " " : "") + transcript
+                        : "")
+                    : searching
+                }
+                placeholder="Search by reciever name or card order id"
+                onChange={(e) => setSearching(e.target.value)}
+              />
+              <Button
+                style={{
+                  color: "rgba(205, 205, 205, 0.8)",
+                  backgroundColor: "white",
+                  borderColor: "white",
+                }}
+                onClick={() => setSearching("")}
+              >
+                {searching.length ? (
+                  <XCircleFill
+                    style={{
+                      height: "15px",
+                      width: "15px",
+                    }}
+                  />
+                ) : (
+                  <div
+                    style={{
+                      height: "15px",
+                      width: "15px",
+                    }}
+                  />
+                )}
+              </Button>
+            </InputGroup>
+            <Button
+              style={{
+                backgroundColor: isListening ? "#d62d20" : "brown",
+                borderColor: "lightgray",
+              }}
+              onClick={() => startStopListening()}
+            >
+              {isListening ? (
+                <Soundwave
+                  style={{
+                    animationName: "pulse",
+                    animationDuration: "0.5s",
+                    animationTimingFunction: "ease-in-out",
+                    animationIterationCount: "infinite",
+                    animationDirection: "alternate",
+                  }}
+                />
+              ) : (
+                <MicFill />
+              )}
+            </Button>
+            <Button
+              style={{ backgroundColor: "brown", borderColor: "lightgray" }}
+              type="submit"
+            >
+              <Binoculars />
+            </Button>
+          </Form>
+        </div>
+
+        <div
+          variant="secondary"
+          id="dropdownMenuButton1"
+          style={{
+            color: "rgba(255, 255, 255, 0.9)",
+            padding: "8px",
+            borderRadius: "8px",
+            textAlign: "center",
+            fontSize: "15px",
+            margin: "0 16px 0 0",
+          }}
+        >
+          Hi, {user?.user_name}
+        </div>
+      </div>
       <div className="container py-5 h-100">
         <div className="row d-flex justify-content-center align-items-center h-100">
           <div className="col-lg-10 col-xl-8">
@@ -87,24 +261,23 @@ const OrderReceipt = () => {
               <div className="card-header px-4 py-5">
                 <h5 className="text-muted mb-0">
                   Thanks for your Order,
-                  <span style={{ color: "brown" }}>
-                    {" "}
-                    {CurentUser.user_name}
-                  </span>
-                  !
+                  <span style={{ color: "brown" }}> {user.user_name}</span>!
                 </h5>
               </div>
               <div className="card-body p-4">
                 <div className="d-flex justify-content-between align-items-center mb-4">
-                  <p className="lead fw-normal mb-0" style={{ color: "brown" }}>
+                  <div
+                    className="lead fw-normal mb-0"
+                    style={{ color: "brown" }}
+                  >
                     All Your Orders:
                     {giftcards.length === 0 && (
                       <h3 style={{ alignItems: "center" }}>No order yet!</h3>
                     )}
-                  </p>
+                  </div>
                 </div>
                 {giftcards.map((b, index) => (
-                  <div className="card shadow-0 border mb-4">
+                  <div key={index} className="card shadow-0 border mb-4">
                     <div className="card-body">
                       <div className="row">
                         <div
@@ -118,6 +291,12 @@ const OrderReceipt = () => {
                             Order:{" "}
                             <span style={{ color: "brown" }}> {index + 1}</span>
                           </h5>
+                          <div>
+                            Created at:
+                            <span style={{ color: "brown", marginLeft: "8px" }}>
+                              {convertToNormalDateTime(b.createdAt)}
+                            </span>
+                          </div>
                           <p className="small text-muted mb-0">
                             Card ID :{" "}
                             <span style={{ color: "brown" }}>
@@ -154,7 +333,7 @@ const OrderReceipt = () => {
                               alignItems: "flex-end",
                               backgroundColor:
                                 b.user_amount === "100"
-                                  ? "rgb(255 255 255 / 40%)"
+                                  ? "rgb(255 255 255 / 20%)"
                                   : "rgb(0 0 0 / 5%)",
                               backgroundImage: `url(${SwipLogo})`,
                               backgroundSize: "100% 100%",
@@ -197,9 +376,9 @@ const OrderReceipt = () => {
                           </p>
                         </div>
                         <div className="col-md-3 text-center d-flex justify-content-center align-items-center">
-                          <p className="text-muted mb-0 small">
+                          <span className="text-muted mb-0 small">
                             Quantity: <span style={{ color: "brown" }}>1</span>
-                          </p>
+                          </span>
                         </div>
                       </div>
                       <hr
@@ -236,7 +415,7 @@ const OrderReceipt = () => {
                               className="progress-bar"
                               role="progressbar"
                               style={{
-                                width: "4%",
+                                width: b.card_status_id === 1 ? "10%" : "50%",
                                 borderRadius: "16px",
                                 backgroundColor: "brown",
                               }}
@@ -246,16 +425,21 @@ const OrderReceipt = () => {
                             ></div>
                           </div>
                           <div className="d-flex justify-content-around mb-1">
-                            <p className="text-muted mt-1 mb-0 small ms-xl-5">
-                              Status:{" "}
+                            <span className="text-muted mt-1 mb-0 small ms-xl-5">
+                              Payment:{" "}
                               <span style={{ color: "brown" }}>
                                 {b.card_status_id === 1
                                   ? "Pending..."
                                   : "Success!!!"}
                               </span>
-                            </p>
+                            </span>
                             <p className="text-muted mt-1 mb-0 small ms-xl-5">
-                              Delivered
+                              Delivery:{" "}
+                              <span style={{ color: "brown" }}>
+                                {b.card_status_id === 1
+                                  ? "Pending..."
+                                  : "On the way!!!"}
+                              </span>
                             </p>
                           </div>
                         </div>
@@ -282,7 +466,7 @@ const OrderReceipt = () => {
                             <span>
                               From:{" "}
                               <span style={{ color: "brown" }}>
-                                {CurentUser.user_name}
+                                {user.user_name}
                               </span>
                               - To:{" "}
                               <span style={{ color: "brown" }}>
@@ -352,7 +536,7 @@ const OrderReceipt = () => {
 
                 <div className="d-flex justify-content-between pt-2">
                   <p className="fw-bold mb-0">
-                    Total orders: {giftcards.length}
+                    Total orders: {giftcards.length * totalOrderGcPages}
                   </p>
                   <p className="text-muted mb-0">
                     <span className="fw-bold me-4">Total Spend</span>
@@ -363,7 +547,30 @@ const OrderReceipt = () => {
             </div>
           </div>
         </div>
+        <Pagination
+          currentPage={currentOrderGcPage}
+          totalPages={totalOrderGcPages}
+          handlePageChange={handlePageChange}
+        />
+        <CustomeModal
+          show={show}
+          Titlestyle={{ color: "brown" }}
+          onHide={() => setShow(false)}
+          subTitle={searching}
+          title={"Not found order for: "}
+          body={`Try to search by receiver name or card order id on each order( if you remember)`}
+        />
       </div>
+      <style>{`
+      @keyframes pulse {
+        0%,60% {
+          transform: scale(1);
+        }
+        10%,100% {
+          transform: scale(1.5);
+        }
+      }
+    `}</style>
     </section>
   );
 };

@@ -11,14 +11,16 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "react-bootstrap";
 import { request } from "../utils/request";
 import { useSelector } from "react-redux";
+import NotFound from "./NotFound";
 function GiftCard() {
+  const navigate = useNavigate();
   const user = useSelector(
     (state) => state.auth.login.currentUser?.matched_user
   );
+
   // const [CurrentUser, setCurrentUser] = useState({});
   const [validEmail, setValidEmail] = useState(true);
   const [validePhone, setValidPhone] = useState(true);
-  const navigate = useNavigate();
   const isValidEmail = (email) => {
     // Biểu thức chính quy để kiểm tra email
     const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -46,10 +48,6 @@ function GiftCard() {
   };
 
   useEffect(() => {
-    if (!user?.user_id) {
-      return;
-    }
-
     const fetchApi = async () => {
       try {
         const res = await request.get(`/${user?.user_id}`);
@@ -66,7 +64,7 @@ function GiftCard() {
     ACCOUNT_NO: "1015755738",
   };
   const [orderInfo, setOrderInfo] = useState({
-    user_id: user.user_id,
+    user_id: user?.user_id,
     receiver_name: "",
     user_amount: 0,
     receiver_mail: "",
@@ -99,6 +97,9 @@ function GiftCard() {
       SetDoneBtn(false);
     }
   };
+  if (!user?.user_id || !user) {
+    return <NotFound />;
+  }
   return (
     <div
       className="container-fluid"
@@ -177,7 +178,7 @@ function GiftCard() {
                               className="gift-input"
                               type="text"
                               required
-                              value={user.user_name}
+                              value={user?.user_name}
                             />
                           </div>
                         </div>
@@ -312,10 +313,10 @@ function GiftCard() {
                         <div
                           style={{
                             width:
-                              orderInfo.user_amount === "100" ? "67%" : "73%",
+                              orderInfo.user_amount === "100" ? "64%" : "70%",
                             color: "white",
                             borderRadius: "16px",
-                            height: "230px",
+                            height: "224px",
                             display: "flex",
                             justifyContent: "center",
                             flexDirection: "column",
@@ -363,6 +364,7 @@ function GiftCard() {
                         style={{
                           backgroundColor: "#4f3804",
                           color: "white",
+                          margin: "16px 0 0 0",
                           fontSize: "30px",
                           width: "40%",
                         }}

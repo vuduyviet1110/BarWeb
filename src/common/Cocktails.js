@@ -10,7 +10,6 @@ import { useSelector } from "react-redux";
 
 function Cocktails({ beverages }) {
   const currentAd = useSelector((state) => state.auth.login.currentUser);
-  console.log(currentAd);
   const [cocktails, setCocktails] = useState(
     beverages.filter((cocktail) => cocktail.type === "Cocktails")
   );
@@ -26,9 +25,9 @@ function Cocktails({ beverages }) {
     formData.append("name", currentBev.name);
     formData.append("description", currentBev.description);
     formData.append("price", currentBev.price);
-    formData.append("image", currentBev.image); // Thêm tệp tin vào FormData
-    formData.append("admin_id", currentAd.id); // Thêm tệp tin vào FormData
-    formData.append("type", currentBev.type); // Thêm tệp tin vào FormData
+    formData.append("image", currentBev.image);
+    formData.append("admin_id", currentAd.id);
+    formData.append("type", currentBev.type);
 
     const isAnyFieldEmpty = Object.values(currentBev).some(
       (value) => value === "" || value === 0 || value === "undefined"
@@ -37,7 +36,7 @@ function Cocktails({ beverages }) {
     if (!isAnyFieldEmpty) {
       const res = await request.put("/admin/beverage", formData, {
         headers: {
-          "Content-Type": "multipart/form-data", // Important for FormData
+          "Content-Type": "multipart/form-data",
         },
       });
       if (res.data === "success") {
@@ -90,17 +89,24 @@ function Cocktails({ beverages }) {
   const handleImgChange = (e, BevId) => {
     const file = e.target.files[0];
     if (file) {
-      setCocktails((prevCocktails) => {
-        const newCocktails = [...prevCocktails];
-        const cocktailIndex = newCocktails.findIndex((c) => c.bev_id === BevId);
-        if (cocktailIndex !== -1) {
-          newCocktails[cocktailIndex] = {
-            ...newCocktails[cocktailIndex],
-            image: file,
-          };
-        }
-        return newCocktails;
-      });
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        setCocktails((prevCocktails) => {
+          const newCocktails = [...prevCocktails];
+          const cocktailIndex = newCocktails.findIndex(
+            (c) => c.bev_id === BevId
+          );
+          if (cocktailIndex !== -1) {
+            newCocktails[cocktailIndex] = {
+              ...newCocktails[cocktailIndex],
+              image: file,
+              imagePreview: event.target.result,
+            };
+          }
+          return newCocktails;
+        });
+      };
+      reader.readAsDataURL(file);
     }
   };
 
@@ -159,13 +165,33 @@ function Cocktails({ beverages }) {
                   type="file"
                   onChange={(e) => handleImgChange(e, cocktail.bev_id)}
                 />
-                <Image
-                  src={cocktail.image}
-                  thumbnail
-                  width="50%"
-                  height="50%"
-                  style={{ margin: "20px 0 10px 0" }}
-                />
+                <div style={{ display: "flex", margin: "20px 0 10px 0" }}>
+                  <div>
+                    <h4>Current Image</h4>
+                    <Image
+                      src={cocktail.image}
+                      thumbnail
+                      width="40%"
+                      height="40%"
+                    />
+                  </div>
+                  <div>
+                    <h4>Preview</h4>
+                    {cocktail.imagePreview && (
+                      <Image
+                        src={cocktail.imagePreview}
+                        alt={`Preview of ${cocktail.name}`}
+                        width="65%"
+                        style={{
+                          borderRadius: "8px",
+                          borderWidth: "4px",
+                          borderStyle: "solid",
+                          borderColor: "white",
+                        }}
+                      />
+                    )}
+                  </div>
+                </div>
               </div>
               {isEmpty && currentCocktailIndex === cocktail.bev_id && (
                 <div>Please complete all the fields</div>

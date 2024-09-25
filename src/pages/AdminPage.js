@@ -1,13 +1,19 @@
 import "../assets/css/AdminPage.css";
 import {
+  BarChartFill,
+  Binoculars,
+  Calendar2CheckFill,
   Gear,
   Gift,
+  GiftFill,
   ImageAlt,
   Newspaper,
+  PeopleFill,
   Ticket,
+  TicketPerforatedFill,
   UsbDrive,
 } from "react-bootstrap-icons";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 import { NavLink, Outlet } from "react-router-dom";
 import { useEffect, useState } from "react";
@@ -19,10 +25,16 @@ import {
   logoutStart,
   logoutSuccess,
 } from "../redux/adminAuthSlice";
+import { Button, Dropdown, Form, InputGroup } from "react-bootstrap";
 function AdminPage() {
+  const navigate = useNavigate();
   const currentAd = useSelector((state) => state.auth.login.currentUser);
+
   const dispatch = useDispatch();
-  const [ad, setAd] = useState();
+  const [searching, setSearching] = useState({
+    field: "",
+    keyword: "",
+  });
   const handleLogout = (e) => {
     try {
       localStorage.removeItem("tcon");
@@ -33,20 +45,28 @@ function AdminPage() {
       dispatch(logoutFailed());
     }
   };
-  const navigate = useNavigate();
+  const handleSearchSubmit = (e) => {
+    e.preventDefault();
+    console.log(searching);
+    navigate(
+      `/admin/search?field=${searching.field}&keyword=${searching.keyword}`
+    );
+  };
   useEffect(() => {
     const fetchApi = async () => {
       try {
         const res = await request.get(`/admin/auth/${currentAd.id}`);
         console.log(res.data);
-        setAd(res.data);
       } catch (error) {
         console.error(error);
       }
     };
 
     fetchApi();
-  }, []);
+  }, [currentAd?.id]);
+  if (!currentAd?.id || !currentAd) {
+    navigate("/admin/content/notfound/404/");
+  }
   return (
     <div
       style={{
@@ -63,15 +83,17 @@ function AdminPage() {
         }}
       >
         <div className="Header">
-          <h2
+          <Link
+            to={"/admin/content"}
             style={{
               color: "rgba(255, 255, 255, 0.9)",
               padding: "8px",
               borderRadius: "8px",
+              fontSize: "20px",
             }}
           >
             SWI:P
-          </h2>
+          </Link>
           <div
             style={{
               display: "flex",
@@ -79,34 +101,63 @@ function AdminPage() {
               alignItems: "center",
             }}
           >
-            <div
+            <Form onSubmit={handleSearchSubmit}>
+              <InputGroup>
+                <Form.Select
+                  onChange={(e) =>
+                    setSearching({ ...searching, field: e.target.value })
+                  }
+                  aria-label="Search by field"
+                >
+                  <option value="">Search by field</option>
+                  <option value="reservation">Reservation</option>
+                  <option value="giftcard">Gift Card</option>
+                  <option value="user">User</option>
+                </Form.Select>
+
+                <Form.Control
+                  placeholder="Search by username"
+                  onChange={(e) =>
+                    setSearching({ ...searching, keyword: e.target.value })
+                  }
+                />
+
+                <Button variant="outline-secondary" type="submit">
+                  <Binoculars />
+                </Button>
+              </InputGroup>
+            </Form>
+          </div>
+
+          <Dropdown>
+            <Dropdown.Toggle
+              variant="secondary"
+              id="dropdownMenuButton1"
               style={{
                 color: "rgba(255, 255, 255, 0.9)",
                 padding: "8px",
                 borderRadius: "8px",
                 textAlign: "center",
-                fontSize: "20px",
+                fontSize: "15px",
                 margin: "0 16px 0 0",
               }}
             >
-              Hello👋, {currentAd?.name}
-            </div>
-            <h4
-              style={{
-                color: "rgba(255, 255, 255, 0.9)",
-                backgroundColor: "rgba(0, 0, 0, 0.4)",
-                padding: "8px",
-                margin: "0 8px 0 0 ",
-                lineHeight: "36px",
-                borderRadius: "8px",
-                textAlign: "center",
-                cursor: "pointer",
-              }}
-              onClick={handleLogout}
-            >
-              Log out
-            </h4>
-          </div>
+              Hi, {currentAd?.name}
+            </Dropdown.Toggle>
+            <Dropdown.Menu aria-labelledby="dropdownMenuButton1">
+              <Dropdown.Item
+                style={{
+                  color: "rgba(0, 0, 0, 0.8)",
+                  borderRadius: "8px",
+                  textAlign: "center",
+                  height: "100%",
+                }}
+                onClick={handleLogout}
+              >
+                Log out
+              </Dropdown.Item>
+            </Dropdown.Menu>
+          </Dropdown>
         </div>
 
         <div style={{ display: "flex", height: "100%" }}>
@@ -115,25 +166,30 @@ function AdminPage() {
               { icon: <Gear />, title: "Manage Content", route: "content" },
               { icon: <ImageAlt />, title: "Manage Image", route: "image" },
               {
-                icon: <Ticket />,
+                icon: <TicketPerforatedFill />,
                 title: "Manage Booking",
                 route: "booking",
               },
               {
-                icon: <Gift />,
+                icon: <GiftFill />,
                 title: "Manage GiftCard",
                 route: "gift-card",
               },
 
               {
-                icon: <Newspaper />,
+                icon: <Calendar2CheckFill />,
                 title: "Manage Event",
                 route: "event",
               },
               {
-                icon: <UsbDrive />,
+                icon: <PeopleFill />,
                 title: "Manage User",
                 route: "user",
+              },
+              {
+                icon: <BarChartFill />,
+                title: "Analytics",
+                route: "sales",
               },
             ].map((tab, index) => (
               <h5 key={index}>
@@ -166,7 +222,6 @@ function AdminPage() {
             ))}
           </div>
           <div style={{ width: "80%" }}>
-            {/* <h1>Bar Management</h1> */}
             <Outlet />
           </div>
         </div>

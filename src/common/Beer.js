@@ -86,17 +86,22 @@ function Beers({ beverages }) {
   const handleImgChange = (e, BevId) => {
     const file = e.target.files[0];
     if (file) {
-      setBeers((prevBeers) => {
-        const newBeers = [...prevBeers];
-        const BeerIndex = newBeers.findIndex((c) => c.bev_id === BevId);
-        if (BeerIndex !== -1) {
-          newBeers[BeerIndex] = {
-            ...newBeers[BeerIndex],
-            image: file,
-          };
-        }
-        return newBeers;
-      });
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        setBeers((prevBeers) => {
+          const newBeers = [...prevBeers];
+          const BeerIndex = newBeers.findIndex((c) => c.bev_id === BevId);
+          if (BeerIndex !== -1) {
+            newBeers[BeerIndex] = {
+              ...newBeers[BeerIndex],
+              image: file,
+              imagePreview: event.target.result,
+            };
+          }
+          return newBeers;
+        });
+      };
+      reader.readAsDataURL(file);
     }
   };
   return (
@@ -154,13 +159,40 @@ function Beers({ beverages }) {
                   type="file"
                   onChange={(e) => handleImgChange(e, beer.bev_id)}
                 />
-                <Image
-                  style={{ margin: "20px 0 10px 0" }}
-                  src={beer.image}
-                  thumbnail
-                  width="50%"
-                  height="50%"
-                />
+                <div
+                  style={{
+                    display: "flex",
+                    margin: "20px 0 10px 0",
+                    gap: "20px",
+                    justifyContent: "space-between",
+                  }}
+                >
+                  <div style={{ minWidth: "50%" }}>
+                    <h4>Current Image</h4>
+                    <Image
+                      src={beer.image}
+                      thumbnail
+                      width="40%"
+                      height="40%"
+                    />
+                  </div>
+                  <div>
+                    <h4>Preview</h4>
+                    {beer.imagePreview && (
+                      <Image
+                        src={beer.imagePreview}
+                        alt={`Preview of ${beer.name}`}
+                        width="65%"
+                        style={{
+                          borderRadius: "8px",
+                          borderWidth: "4px",
+                          borderStyle: "solid",
+                          borderColor: "white",
+                        }}
+                      />
+                    )}
+                  </div>
+                </div>
               </div>
               {isEmpty && currentBeerIndex === beer.bev_id && (
                 <div>Please complete all the fields</div>

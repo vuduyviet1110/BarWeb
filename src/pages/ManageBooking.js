@@ -1,18 +1,32 @@
-import React, { useEffect, useState } from "react";
-import { Button, Col, Container, Form, Row, Modal } from "react-bootstrap";
+import React, { useCallback, useEffect, useState } from "react";
+import { Button, Col, Container, Form, Row } from "react-bootstrap";
 import { request } from "../utils/request";
+import Pagination from "../common/pagination";
+import {
+  isAllFieldFilled,
+  isValidDate,
+  isValidEmail,
+  isValidPhoneNumber,
+  isvalidTime,
+} from "../common/validattion";
+import { setupdateBookingPage, setTotalBookingPage } from "../redux/pageSlice";
+import { useDispatch, useSelector } from "react-redux";
+import CustomeModal from "../common/modal";
 function ManageBooking() {
   const [newReservation, setNewReservation] = useState();
-  const [showRemove, setShowRemove] = useState(false);
-  const [showAdd, setShowAdd] = useState(false);
-  const [show, setShow] = useState(false);
+  const [modalState, setModalState] = useState({
+    showAdd: false,
+    showDelete: false,
+    showUpdate: false,
+    showconfirmDelete: false,
+    body: "",
+    title: "",
+  });
+  const [validationErrors, setValidationErrors] = useState({});
   const [currentReservationId, setcurrReservationId] = useState(0);
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  const [isFieldCompleted, setIsFieldCompleted] = useState(true);
-  const [validEmail, setValidEmail] = useState(true);
-  const [validePhone, setValidPhone] = useState(true);
-  const [validDate, setIsValidDate] = useState(true);
-  const [validTime, setIsValidTime] = useState(true);
+
+  const dispatch = useDispatch();
+
   const [reservations, setReservations] = useState([
     {
       user_id: 0,
@@ -28,134 +42,123 @@ function ManageBooking() {
       message: "",
     },
   ]);
-  const isValidDate = (dateString) => {
-    // Biểu thức chính quy để kiểm tra định dạng YYYY-MM-DD
-    const datePattern = /^\d{4}-\d{2}-\d{2}$/;
-    if (!datePattern.test(dateString)) {
-      return false;
+  const { currentBookingPage, totalBookingPages } = useSelector(
+    (state) => state.page
+  );
+  const validateFields = useCallback((reservation) => {
+    const errors = {};
+
+    // Validate for guest
+    if (reservation.user_id === 1) {
+      if (!isValidEmail(reservation.guest_gmail))
+        errors.guest_gmail = "Invalid email";
+      if (!isValidPhoneNumber(reservation.guest_phone))
+        errors.guest_phone = "Invalid phone number";
     }
-    // Kiểm tra xem ngày có hợp lệ không (ví dụ: 2024-02-30 là ngày không hợp lệ)
-    const date = new Date(dateString);
-    const [year, month, day] = dateString.split("-").map(Number);
-    return (
-      date.getFullYear() === year &&
-      date.getMonth() + 1 === month &&
-      date.getDate() === day
-    );
-  };
-  function validateTimeFormat(userInput) {
-    // Regular expression for matching the format "HH:MM:SS"
-    const timeFormatRegex = /^([0-1][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]$/;
-
-    // Check if the input matches the regular expression
-    const isValidFormat = timeFormatRegex.test(userInput);
-
-    return isValidFormat;
-  }
-  const isValidEmail = (email) => {
-    // Biểu thức chính quy để kiểm tra email
-    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailPattern.test(email);
-  };
-  function validatePhoneField(phoneNumberField) {
-    // Get the phone number value
-    const { value } = phoneNumberField.target;
-
-    // Create a regular expression to match 10-digit numbers
-    const phoneNumberRegex = /^\d{10}$/;
-
-    // Check if the phone number matches the regular expression
-    if (!phoneNumberRegex.test(value)) {
-      console.log("Invalid phone number:", value);
-      setValidPhone(false);
-    } else {
-      setValidPhone(true);
-      console.log("Valid phone number:", value);
+    // Validate for user
+    else {
+      if (!isValidEmail(reservation.user_gmail))
+        errors.user_gmail = "Invalid email";
+      if (!isValidPhoneNumber(reservation.user_phone))
+        errors.user_phone = "Invalid phone number";
     }
-  }
-  // Xử lý khi rời khỏi trường nhập email
-  const handleEmailBlur = (e) => {
-    const { value } = e.target;
-    if (isValidEmail(value)) {
-      setValidEmail(true);
-    } else {
-      setValidEmail(false);
-    }
-  };
-  const handleRemoveReservation = async (reservation_id) => {
-    try {
-      const res = await request.delete("/admin/reservation", {
-        data: { reservation_id },
-      });
-      if (res.data) {
-        setShowDeleteConfirm(false);
-        setShowRemove(true);
-        setTimeout(() => {
-          setShowRemove(false);
-        }, 3000);
-        window.location.reload();
-      }
-    } catch (error) {
-      console.error(error);
-    }
-    console.log("số: ", reservation_id);
-  };
-  const handleEditReservation = async (reservationId) => {
-    const MatchedReservation = reservations.find(
-      (reservation) => reservation.reservation_id === reservationId
-    );
 
-    // Improved isEmpty check function
-    const isAnyFieldEmptyExceptMessage = (obj) => {
-      return Object.entries(obj).some(([key, value]) => {
-        // Exclude message and consider null as empty
-        return (
-          (value === "" || value === 0 || value === null) && key !== "message"
-        );
-      });
+    // Validate for common fields
+    if (!isvalidTime(reservation.table_time))
+      errors.table_time = "Invalid time format";
+    if (!isValidDate(reservation.table_date))
+      errors.table_date = "Invalid date format";
+    if (!isAllFieldFilled(reservation))
+      errors.emptyField = "Please fill in all fields";
+
+    return errors;
+  }, []);
+
+  const showToastSuccess = (type, title, message) => {
+    const showToastState = {
+      [type]: true,
+      title: title || "",
+      body: message || "",
     };
-
-    // Check if any fields are empty (excluding message) and validate other fields
-    const isEmpty = isAnyFieldEmptyExceptMessage(MatchedReservation);
-    if (!isEmpty && validEmail && validePhone && validDate && validTime) {
-      try {
-        const res = await request.put("/admin/reservation", {
-          MatchedReservation,
-        });
-        setIsFieldCompleted(true);
-        setShow(true);
-        setTimeout(() => {
-          setShow(false);
-        }, 2000);
-      } catch (error) {
-        console.error(error);
-      }
-    } else {
-      setcurrReservationId(reservationId);
-
-      setIsFieldCompleted(!isEmpty);
-    }
-
-    console.log("matchedRes: ", MatchedReservation);
+    setModalState((prevState) => ({ ...prevState, ...showToastState }));
   };
 
-  const handleInputChange = (event, reservationId) => {
+  const fetchReservations = useCallback(async () => {
+    try {
+      const res = await request.get(
+        `/admin/reservation?page=${currentBookingPage}`
+      );
+      dispatch(setTotalBookingPage(res.data.pagination.totalPages));
+
+      setReservations(res.data.data);
+    } catch (error) {
+      console.error("Error fetching reservations:", error);
+    }
+  }, [currentBookingPage, dispatch]);
+
+  useEffect(() => {
+    fetchReservations();
+  }, [fetchReservations]);
+
+  const handleRemoveReservation = useCallback(
+    async (reservation_id) => {
+      try {
+        await request.delete("/admin/reservation", {
+          data: { reservation_id },
+        });
+        showToastSuccess(
+          "showDelete",
+          "Delete reservation?",
+          "Reservation has been deleted successfully"
+        );
+        fetchReservations();
+      } catch (error) {
+        console.error("Error removing reservation :", error);
+      }
+    },
+    [fetchReservations]
+  );
+  const handleEditReservation = useCallback(
+    async (reservationId) => {
+      const MatchedReservation = reservations.find(
+        (reservation) => reservation.reservation_id === reservationId
+      );
+      const errors = validateFields(MatchedReservation);
+
+      if (Object.keys(errors).length === 0) {
+        try {
+          await request.put("/admin/reservation", {
+            MatchedReservation,
+          });
+          showToastSuccess(
+            "showUpdate",
+            "Update reservation?",
+            "Reservation updated successfully"
+          );
+          fetchReservations();
+          setValidationErrors("");
+        } catch (error) {
+          console.error(error);
+          setValidationErrors(errors);
+        }
+      } else {
+        setcurrReservationId(reservationId);
+        setValidationErrors(errors);
+      }
+    },
+    [fetchReservations, reservations, validateFields]
+  );
+
+  const handleInputChange = useCallback((event, reservationId) => {
     const { name, value } = event.target;
     // Update a copy of the reservations array
-    const updatedReservations = reservations.map((reservation) => {
-      // Nếu index trùng với reservationId, cập nhật trường tương ứng
-      if (reservation.reservation_id === reservationId) {
-        return {
-          ...reservation,
-          [name]: value, // Cập nhật giá trị trường tương ứng với tên
-        };
-      }
-      return reservation; // Trả về phần tử không thay đổi cho các index khác
-    });
-
-    setReservations(updatedReservations);
-  };
-
+    setReservations((prev) =>
+      prev.map((res) =>
+        res.reservation_id === reservationId ? { ...res, [name]: value } : res
+      )
+    );
+  }, []);
+  console.log(validationErrors);
   const handleExistedAcc = () => {
     const updatedBooking = [
       ...reservations,
@@ -184,58 +187,37 @@ function ManageBooking() {
   const handleAddNewReservationToDBS = async (resID) => {
     const MatchedRes = reservations.find((res) => res.reservation_id === resID);
 
-    // Improved isEmpty check function
-    const isAnyFieldEmptyExceptMessage = (obj) => {
-      return Object.entries(obj).some(([key, value]) => {
-        // Exclude message and consider null as empty
-        console.log(key, value);
-        return (
-          (value === "" || value === 0 || value === null) && key !== "message"
-        );
-      });
-    };
+    const errors = validateFields(MatchedRes);
 
-    // Check if any fields are empty (excluding message) and validate other fields
-    const isEmpty = isAnyFieldEmptyExceptMessage(MatchedRes);
-    if (!isEmpty && validEmail && validePhone) {
+    if (Object.keys(errors).length === 0) {
       try {
         const res = await request.post("/admin/reservation", {
           newReservation,
         });
         if (res.data) {
-          setIsFieldCompleted(true);
-          setShowAdd(true);
-          setTimeout(() => {
-            setShowAdd(false);
-          }, 3000);
-          window.location.reload();
+          fetchReservations();
+          showToastSuccess(
+            "showAdd",
+            "Add reservation?",
+            "reservation has been added successfully"
+          );
         }
       } catch (error) {
         console.error(error);
+        setValidationErrors(errors);
       }
+      setcurrReservationId(resID);
     } else {
       setcurrReservationId(resID);
-      if (isEmpty) {
-        setIsFieldCompleted(false);
-      } else {
-        setIsFieldCompleted(true);
-        console.log(isEmpty);
-      }
+      setValidationErrors(errors);
     }
   };
 
-  useEffect(() => {
-    const fetchApi = async () => {
-      try {
-        const res = await request.get("/admin/reservation");
-        setReservations(res.data);
-        console.log(res.data);
-      } catch (error) {
-        console.error(error);
-      }
-    };
-    fetchApi();
-  }, []);
+  const handlePageChange = async (page) => {
+    console.log(page);
+    dispatch(setupdateBookingPage(page));
+  };
+
   return (
     <Container
       style={{
@@ -296,7 +278,7 @@ function ManageBooking() {
                     reservation.user_id === 1 ? "guest_phone" : "user_phone"
                   }
                   onChange={(event) => {
-                    validatePhoneField(event);
+                    isValidPhoneNumber(event.target.value);
                     handleInputChange(event, reservation.reservation_id);
                   }}
                   value={
@@ -304,9 +286,10 @@ function ManageBooking() {
                       ? reservation.guest_phone
                       : reservation.user_phone
                   }
-                  onBlur={validatePhoneField}
                 />
-                {!validePhone &&
+
+                {(validationErrors.guest_phone ||
+                  validationErrors.user_phone) &&
                   reservation.reservation_id === currentReservationId && (
                     <span style={{ color: "red" }}>invalid phone number</span>
                   )}
@@ -320,14 +303,10 @@ function ManageBooking() {
                   name="table_date"
                   onChange={(event) => {
                     handleInputChange(event, reservation.reservation_id);
-                    setIsValidDate(isValidDate(event.target.value));
-                  }}
-                  onBlur={(e) => {
-                    setIsValidDate(isValidDate(e.target.value));
                   }}
                   value={reservation.table_date}
                 />
-                {!validDate &&
+                {validationErrors.table_date &&
                   reservation.reservation_id === currentReservationId && (
                     <span style={{ color: "red" }}>Invalid date format</span>
                   )}
@@ -341,12 +320,10 @@ function ManageBooking() {
                   placeholder="02:30:00 (HH:MM:SS)"
                   onChange={(event) => {
                     handleInputChange(event, reservation.reservation_id);
-                    setIsValidTime(validateTimeFormat(event.target.value));
                   }}
                   value={reservation.table_time}
                 />
-                {console.log(validTime)}
-                {validTime === false &&
+                {validationErrors.table_time &&
                   reservation.reservation_id === currentReservationId && (
                     <span style={{ color: "red" }}>Invalid time format</span>
                   )}
@@ -362,7 +339,6 @@ function ManageBooking() {
                   placeholder="john@gmail.com"
                   onChange={(event) => {
                     handleInputChange(event, reservation.reservation_id);
-                    handleEmailBlur(event);
                   }}
                   value={
                     reservation.user_id === 1
@@ -370,7 +346,7 @@ function ManageBooking() {
                       : reservation.user_gmail
                   }
                 />
-                {!validEmail &&
+                {(validationErrors.user_gmail || validationErrors.user_gmail) &&
                   reservation.reservation_id === currentReservationId && (
                     <h5 style={{ color: "red" }}>Invalid email!</h5>
                   )}
@@ -403,37 +379,9 @@ function ManageBooking() {
                   value={reservation.message}
                 />
               </Form.Group>
-              <Modal
-                show={showDeleteConfirm}
-                onHide={() => setShowDeleteConfirm(false)}
-              >
-                <Modal.Header closeButton>
-                  <Modal.Title style={{ color: "green" }}>
-                    Deletion confirmation
-                  </Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
-                  Are you sure you want to delete this booking?
-                </Modal.Body>
-                <Modal.Footer>
-                  <Button
-                    variant="secondary"
-                    onClick={() =>
-                      handleRemoveReservation(currentReservationId)
-                    }
-                  >
-                    Yes, Delete this booking
-                  </Button>
-                  <Button
-                    variant="secondary"
-                    onClick={() => setShowDeleteConfirm(false)}
-                  >
-                    No, Cancel Deletion
-                  </Button>
-                </Modal.Footer>
-              </Modal>
+
               {reservation.reservation_id === currentReservationId &&
-                isFieldCompleted === false && (
+                validationErrors.emptyField && (
                   <div style={{ color: "red", fontSize: "18px" }}>
                     You need to complete all the field
                   </div>
@@ -460,7 +408,11 @@ function ManageBooking() {
                       border: "none",
                     }}
                     onClick={() => {
-                      setShowDeleteConfirm(true);
+                      showToastSuccess(
+                        "showconfirmDelete",
+                        "Delete gift card?",
+                        "Deleted successfully"
+                      );
                       setcurrReservationId(reservation.reservation_id);
                     }}
                   >
@@ -494,65 +446,12 @@ function ManageBooking() {
                     onClick={() => {
                       const updatedRes = reservations.slice(0, -1); // Tạo một bản sao mới của mảng mà không bao gồm phần tử cuối cùng
                       setReservations(updatedRes);
+                      setValidationErrors();
                     }}
                   >
                     Cancel
                   </Button>
                 )}
-                <Modal show={showAdd} onHide={() => setShowAdd(false)}>
-                  <Modal.Header closeButton>
-                    <Modal.Title style={{ color: "green" }}>
-                      Successfully Added!!
-                    </Modal.Title>
-                  </Modal.Header>
-                  <Modal.Body>
-                    You have successfully add new reservation
-                  </Modal.Body>
-                  <Modal.Footer>
-                    <Button
-                      variant="secondary"
-                      onClick={() => setShowAdd(false)}
-                    >
-                      Close
-                    </Button>
-                  </Modal.Footer>
-                </Modal>
-                <Modal show={show} onHide={() => setShow(false)}>
-                  <Modal.Header closeButton>
-                    <Modal.Title style={{ color: "green" }}>
-                      Successfully Updated!!
-                    </Modal.Title>
-                  </Modal.Header>
-                  <Modal.Body>
-                    You have successfully updated
-                    {reservation.reservation_id}
-                  </Modal.Body>
-                  <Modal.Footer>
-                    <Button variant="secondary" onClick={() => setShow(false)}>
-                      Close
-                    </Button>
-                  </Modal.Footer>
-                </Modal>
-                <Modal show={showRemove} onHide={() => setShowRemove(false)}>
-                  <Modal.Header>
-                    <Modal.Title style={{ color: "red" }}>
-                      Removed Successfully!!
-                    </Modal.Title>
-                  </Modal.Header>
-                  <Modal.Body>
-                    You have successfully Remove this booking{" "}
-                    {currentReservationId}. Please reload the page to see the
-                    change!!!
-                  </Modal.Body>
-                  <Modal.Footer>
-                    <Button
-                      variant="secondary"
-                      onClick={() => setShowRemove(false)}
-                    >
-                      Close
-                    </Button>
-                  </Modal.Footer>
-                </Modal>
               </div>
             </Col>
           ))}
@@ -569,6 +468,57 @@ function ManageBooking() {
       >
         + Add Reservation
       </Button>
+      {reservations.length === 0 && (
+        <Container
+          style={{
+            borderRadius: "10px",
+            color: "rgb(161, 158, 158)",
+            paddingLeft: "10px",
+            display: "flex",
+            flexDirection: "column",
+          }}
+        >
+          <h2>(No Reservations)</h2>
+        </Container>
+      )}
+      <Pagination
+        currentPage={currentBookingPage}
+        totalPages={totalBookingPages}
+        handlePageChange={handlePageChange}
+      />
+
+      <CustomeModal
+        show={modalState.showconfirmDelete}
+        onHide={() => setModalState({ showconfirmDelete: false })}
+        title={modalState.title}
+        body={modalState.body}
+        onConfirm={() => handleRemoveReservation(currentReservationId)}
+      />
+      <CustomeModal
+        show={modalState.showAdd}
+        onHide={() => setModalState({ showAdd: false })}
+        title={modalState.title}
+        body={modalState.body}
+      />
+      <CustomeModal
+        show={modalState.showUpdate}
+        onHide={() => setModalState({ showUpdate: false })}
+        title={modalState.title}
+        body={modalState.body}
+      />
+      <CustomeModal
+        show={modalState.showDelete}
+        onHide={() => setModalState({ showDelete: false })}
+        title={modalState.title}
+        body={modalState.body}
+      />
+      <CustomeModal
+        show={modalState.showAccStatus}
+        onHide={() => setModalState({ showAccStatus: false })}
+        title={modalState.title}
+        body={modalState.body}
+        onConfirm={() => handleExistedAcc()}
+      />
     </Container>
   );
 }
